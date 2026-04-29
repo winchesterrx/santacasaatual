@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS transparencia_documentos (
     nome VARCHAR(255) NOT NULL,
     categoria VARCHAR(100) NOT NULL,
     data_publicacao DATE NOT NULL,
-    arquivo_url TEXT NULL
+    arquivo_url LONGTEXT NULL
 );
 
 -- Criação da tabela de Notícias
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS noticias (
     id INT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
     corpo TEXT NOT NULL,
-    imagem_url TEXT NULL,
+    imagem_url LONGTEXT NULL,
     data_publicacao DATE NOT NULL,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS depoimentos (
 CREATE TABLE IF NOT EXISTS doacoes_transparencia (
     id INT AUTO_INCREMENT PRIMARY KEY,
     descricao TEXT NOT NULL,
-    imagem_url TEXT NOT NULL,
+    imagem_url LONGTEXT NOT NULL,
     curtidas INT DEFAULT 0,
     data_publicacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
