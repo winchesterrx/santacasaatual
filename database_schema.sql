@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS noticias (
     id INT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
     corpo TEXT NOT NULL,
+    categoria VARCHAR(100) NULL,
     imagem_url LONGTEXT NULL,
     data_publicacao DATE NOT NULL,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP

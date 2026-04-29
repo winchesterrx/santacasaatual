@@ -126,10 +126,10 @@ app.get('/api/noticias', async (req, res) => {
 
 app.post('/api/noticias', async (req, res) => {
   try {
-    const { titulo, corpo, imagem_url, data_publicacao } = req.body;
+    const { titulo, corpo, categoria, imagem_url, data_publicacao } = req.body;
     const [result] = await db.query(
-      'INSERT INTO noticias (titulo, corpo, imagem_url, data_publicacao) VALUES (?, ?, ?, ?)',
-      [titulo, corpo, imagem_url || null, data_publicacao]
+      'INSERT INTO noticias (titulo, corpo, categoria, imagem_url, data_publicacao) VALUES (?, ?, ?, ?, ?)',
+      [titulo, corpo, categoria || null, imagem_url || null, data_publicacao]
     );
     res.json({ id: result.insertId });
   } catch (error) {
@@ -140,10 +140,10 @@ app.post('/api/noticias', async (req, res) => {
 app.put('/api/noticias/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { titulo, corpo, imagem_url, data_publicacao } = req.body;
+    const { titulo, corpo, categoria, imagem_url, data_publicacao } = req.body;
     await db.query(
-      'UPDATE noticias SET titulo = ?, corpo = ?, imagem_url = ?, data_publicacao = ? WHERE id = ?',
-      [titulo, corpo, imagem_url || null, data_publicacao, id]
+      'UPDATE noticias SET titulo = ?, corpo = ?, categoria = ?, imagem_url = ?, data_publicacao = ? WHERE id = ?',
+      [titulo, corpo, categoria || null, imagem_url || null, data_publicacao, id]
     );
     res.json({ success: true });
   } catch (error) {

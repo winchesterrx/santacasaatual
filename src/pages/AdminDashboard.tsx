@@ -301,7 +301,7 @@ const NoticiasPanel = () => {
   const [items, setItems] = useState<Noticia[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Noticia | null>(null);
-  const [form, setForm] = useState({ titulo: "", corpo: "", imagem: "", data: "" });
+  const [form, setForm] = useState({ titulo: "", corpo: "", categoria: "", imagem: "", data: "" });
 
   const load = async () => setItems(await listarNoticias());
   useEffect(() => { load(); }, []);
@@ -327,13 +327,13 @@ const NoticiasPanel = () => {
     }
     setShowForm(false);
     setEditingItem(null);
-    setForm({ titulo: "", corpo: "", imagem: "", data: "" });
+    setForm({ titulo: "", corpo: "", categoria: "", imagem: "", data: "" });
     load();
   };
 
   const handleEdit = (n: Noticia) => {
     setEditingItem(n);
-    setForm({ titulo: n.titulo, corpo: n.corpo, imagem: n.imagem, data: n.data });
+    setForm({ titulo: n.titulo, corpo: n.corpo, categoria: n.categoria || "", imagem: n.imagem, data: n.data });
     setShowForm(true);
   };
 
@@ -346,7 +346,7 @@ const NoticiasPanel = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-navy">Notícias e Eventos</h2>
-        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ titulo: "", corpo: "", imagem: "", data: "" }); }}>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ titulo: "", corpo: "", categoria: "", imagem: "", data: "" }); }}>
           {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
           <span>{showForm ? "Cancelar" : "Nova Notícia"}</span>
         </Button>
@@ -359,6 +359,10 @@ const NoticiasPanel = () => {
             <div>
               <label className="text-sm font-semibold text-navy block mb-1">Título</label>
               <Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Categoria</label>
+              <Input placeholder="Ex: Comunidade, Infraestrutura" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} />
             </div>
             <div>
               <label className="text-sm font-semibold text-navy block mb-1">Data</label>
@@ -393,6 +397,7 @@ const NoticiasPanel = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Título</TableHead>
+              <TableHead>Categoria</TableHead>
               <TableHead>Data</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -401,6 +406,7 @@ const NoticiasPanel = () => {
             {items.map((n) => (
               <TableRow key={n.id}>
                 <TableCell className="font-medium text-navy">{n.titulo}</TableCell>
+                <TableCell>{n.categoria}</TableCell>
                 <TableCell className="text-xs">{n.data}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex gap-2 justify-end">

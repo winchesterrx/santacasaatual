@@ -25,6 +25,7 @@ export interface Noticia {
   id: string;
   titulo: string;
   corpo: string;
+  categoria?: string;
   imagem: string;
   data: string;
 }
@@ -158,6 +159,7 @@ export async function listarNoticias(): Promise<Noticia[]> {
     id: d.id.toString(),
     titulo: d.titulo,
     corpo: d.corpo,
+    categoria: d.categoria || "Geral",
     imagem: d.imagem_url || "",
     data: new Date(d.data_publicacao).toISOString().split('T')[0]
   }));
@@ -169,6 +171,7 @@ export async function criarNoticia(data: any): Promise<any> {
     body: JSON.stringify({
       titulo: data.titulo,
       corpo: data.corpo,
+      categoria: data.categoria,
       imagem_url: data.imagem,
       data_publicacao: data.data
     }),
@@ -181,6 +184,7 @@ export async function editarNoticia(id: string, data: any): Promise<any> {
     body: JSON.stringify({
       titulo: data.titulo,
       corpo: data.corpo,
+      categoria: data.categoria,
       imagem_url: data.imagem,
       data_publicacao: data.data
     }),

@@ -1,42 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
-import news1 from "@/assets/news-1.jpg";
-import news2 from "@/assets/news-2.jpg";
-import news3 from "@/assets/news-3.jpg";
-
-const newsItems = [
-  {
-    image: news1,
-    title: "Mutirão de Saúde atende mais de 500 moradores no Centro",
-    date: "28 Mar 2026",
-    category: "Comunidade",
-    excerpt: "Ação social ofereceu consultas, exames laboratoriais e vacinação gratuita para a população de Paulo de Faria.",
-  },
-  {
-    image: news2,
-    title: "Nova ala cirúrgica amplia capacidade em 40%",
-    date: "15 Mar 2026",
-    category: "Infraestrutura",
-    excerpt: "Investimento de R$ 1,5 milhão moderniza o centro cirúrgico com duas salas totalmente equipadas.",
-  },
-  {
-    image: news3,
-    title: "Campanha de doação arrecada R$ 200 mil para pediatria",
-    date: "02 Mar 2026",
-    category: "Filantropia",
-    excerpt: "Comunidade se mobiliza e recursos serão aplicados na melhoria do atendimento infantil.",
-  },
-  {
-    image: news1,
-    title: "Santa Casa recebe certificação de excelência em gestão",
-    date: "20 Fev 2026",
-    category: "Institucional",
-    excerpt: "Reconhecimento do Ministério da Saúde pela qualidade dos serviços prestados à população.",
-  },
-];
+import { listarNoticias, type Noticia } from "@/services/mockApi";
 
 const NewsSection = () => {
+  const [newsItems, setNewsItems] = useState<Noticia[]>([]);
   const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    listarNoticias().then((data) => setNewsItems(data));
+  }, []);
+
   const maxOffset = Math.max(0, newsItems.length - 3);
 
   const next = () => setOffset((p) => Math.min(p + 1, maxOffset));
@@ -69,22 +42,24 @@ const NewsSection = () => {
               >
                 <div className="overflow-hidden rounded-2xl mb-4 relative">
                   <img
-                    src={item.image}
-                    alt={item.title}
+                    src={item.imagem}
+                    alt={item.titulo}
                     className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-3 left-3 text-xs font-bold uppercase tracking-wider bg-secondary text-primary-foreground px-3 py-1 rounded-full">
-                    {item.category}
-                  </span>
+                  {item.categoria && (
+                    <span className="absolute top-3 left-3 text-xs font-bold uppercase tracking-wider bg-secondary text-primary-foreground px-3 py-1 rounded-full">
+                      {item.categoria}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mb-1.5">
                   <Calendar className="w-3 h-3" />
-                  {item.date}
+                  {item.data}
                 </div>
                 <h3 className="text-base font-bold text-navy group-hover:text-emerald transition-colors leading-snug mb-1.5">
-                  {item.title}
+                  {item.titulo}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{item.excerpt}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{item.corpo}</p>
               </article>
             ))}
           </div>
