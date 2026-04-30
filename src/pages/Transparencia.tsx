@@ -62,7 +62,7 @@ const Transparencia = () => {
 
         {/* Content Section */}
         <section className="py-8 md:py-16 bg-[#F8FAFC]">
-          <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
+          <div className="container mx-auto px-4 md:px-8 max-w-6xl">
             {loading ? (
               <div className="text-center text-muted-foreground py-20 flex flex-col items-center justify-center">
                 <div className="w-8 h-8 border-4 border-emerald border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -75,109 +75,115 @@ const Transparencia = () => {
                 <p>Ainda não há arquivos de transparência publicados.</p>
               </div>
             ) : (
-              <Tabs defaultValue={categoriasKeys[0]} orientation="vertical" className="flex flex-col lg:flex-row gap-6 lg:gap-10 w-full">
+              <Tabs defaultValue={categoriasKeys[0]} className="w-full">
                 
-                {/* Sidebar (Categories) */}
-                <div className="w-full lg:w-[280px] shrink-0">
-                  <div className="bg-white rounded-2xl shadow-sm border border-border/60 p-4 lg:sticky lg:top-28">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4 px-2">Categorias</h3>
-                    <TabsList className="flex lg:flex-col justify-start items-stretch h-auto w-full bg-transparent p-0 gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 scrollbar-hide">
-                      {categoriasKeys.map((cat) => (
-                        <TabsTrigger 
-                          key={cat} 
-                          value={cat}
-                          className="justify-between rounded-xl px-4 py-3 text-sm data-[state=active]:bg-emerald data-[state=active]:text-white data-[state=active]:shadow-md text-navy font-semibold hover:bg-emerald/5 transition-all whitespace-nowrap text-left"
-                        >
-                          <span className="truncate pr-4">{cat}</span>
-                          <span className="shrink-0 inline-flex items-center justify-center bg-black/10 data-[state=active]:bg-white/20 text-current text-[10px] w-5 h-5 rounded-full font-bold">
-                            {categorias[cat].length}
-                          </span>
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
-                  </div>
+                {/* Top Tabs Bar */}
+                <div className="bg-white rounded-xl shadow-sm border border-border/60 p-2 mb-8 overflow-x-auto scrollbar-hide">
+                  <TabsList className="flex items-center justify-start h-auto bg-transparent p-0 gap-1 w-max min-w-full">
+                    {categoriasKeys.map((cat) => (
+                      <TabsTrigger 
+                        key={cat} 
+                        value={cat}
+                        className="rounded-lg px-6 py-3 text-sm data-[state=active]:bg-emerald data-[state=active]:text-white data-[state=active]:shadow text-navy font-bold hover:bg-slate-100 data-[state=active]:hover:bg-emerald transition-all whitespace-nowrap flex items-center gap-2"
+                      >
+                        {cat}
+                        <span className="inline-flex items-center justify-center bg-black/10 data-[state=active]:bg-white/20 text-current text-[10px] w-5 h-5 rounded-full font-bold">
+                          {categorias[cat].length}
+                        </span>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
                 </div>
 
-                {/* Main Content (Grid) */}
-                <div className="flex-1 w-full min-w-0">
+                {/* Main Content (List) */}
+                <div className="w-full">
                   {categoriasKeys.map((cat) => (
                     <TabsContent key={cat} value={cat} className="mt-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="mb-6">
-                        <h2 className="text-xl font-extrabold text-navy mb-1">{cat}</h2>
-                        <p className="text-sm text-muted-foreground">Visualize ou faça o download dos arquivos desta categoria.</p>
-                      </div>
+                      
+                      {/* Professional Container Box */}
+                      <div className="bg-white border border-border/60 rounded-2xl shadow-sm overflow-hidden">
+                        
+                        {/* Header of the table/list */}
+                        <div className="bg-slate-50 border-b border-border/60 px-6 py-4">
+                          <h2 className="text-lg font-extrabold text-navy">{cat}</h2>
+                          <p className="text-sm text-muted-foreground mt-1">Visualize ou faça o download dos arquivos desta categoria.</p>
+                        </div>
 
-                      <div className="flex flex-col gap-3">
-                        {categorias[cat].map((doc) => {
-                          const isImage = doc.arquivo?.startsWith('data:image');
-                          const isPdf = doc.arquivo?.startsWith('data:application/pdf');
+                        <div className="flex flex-col divide-y divide-border/40">
+                          {categorias[cat].map((doc) => {
+                            const isImage = doc.arquivo?.startsWith('data:image');
+                            const isPdf = doc.arquivo?.startsWith('data:application/pdf');
 
-                          return (
-                            <div key={doc.id} className="bg-white border border-border/80 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-sm transition-all group">
-                              
-                              <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-full bg-emerald/10 flex items-center justify-center shrink-0">
-                                  <FileText className="w-5 h-5 text-emerald" />
+                            return (
+                              <div key={doc.id} className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors group">
+                                
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 rounded-xl bg-emerald/10 flex items-center justify-center shrink-0 border border-emerald/20 group-hover:bg-emerald group-hover:border-emerald transition-colors">
+                                    <FileText className="w-6 h-6 text-emerald group-hover:text-white transition-colors" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-bold text-navy text-sm md:text-base mb-1">
+                                      {doc.nome}
+                                    </h4>
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-xs text-muted-foreground font-medium">
+                                        Publicado em {doc.dataPublicacao}
+                                      </span>
+                                      <span className={`text-[10px] font-black tracking-wider uppercase px-2 py-0.5 rounded shadow-sm ${isPdf ? 'bg-red-50 text-red-600 border border-red-100' : isImage ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
+                                        {isPdf ? 'PDF' : isImage ? 'Imagem' : 'Documento'}
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div>
-                                  <h4 className="font-semibold text-navy text-sm md:text-base mb-0.5">
-                                    {doc.nome}
-                                  </h4>
-                                  <p className="text-xs text-muted-foreground flex items-center gap-2">
-                                    <span>Publicado em {doc.dataPublicacao}</span>
-                                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                                      {isPdf ? 'PDF' : isImage ? 'Imagem' : 'Documento'}
+                                
+                                <div className="flex items-center gap-3 sm:shrink-0">
+                                  {doc.arquivo ? (
+                                    <>
+                                      <Dialog>
+                                        <DialogTrigger asChild>
+                                          <button className="flex items-center gap-2 bg-white border border-border text-navy hover:border-navy hover:text-navy font-bold py-2 px-4 rounded-lg transition-all text-xs shadow-sm hover:shadow">
+                                            <Eye className="w-4 h-4" />
+                                            Visualizar
+                                          </button>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-5xl w-[95vw] h-[95vh] flex flex-col p-0 overflow-hidden bg-muted">
+                                          <DialogHeader className="p-4 bg-white border-b border-border shadow-sm z-10 shrink-0">
+                                            <DialogTitle className="text-navy text-lg">{doc.nome}</DialogTitle>
+                                          </DialogHeader>
+                                          <div className="flex-1 w-full h-full relative overflow-auto">
+                                            {isImage ? (
+                                              <img src={doc.arquivo} alt={doc.nome} className="w-full h-full object-contain p-4" />
+                                            ) : isPdf ? (
+                                              <iframe src={`${doc.arquivo}#toolbar=0&navpanes=0`} className="w-full h-full border-none" title={doc.nome} />
+                                            ) : (
+                                              <div className="flex items-center justify-center w-full h-full text-muted-foreground">
+                                                Visualização direta não disponível para este formato.
+                                              </div>
+                                            )}
+                                          </div>
+                                        </DialogContent>
+                                      </Dialog>
+                                      <a 
+                                        href={doc.arquivo} 
+                                        download={doc.nome}
+                                        className="flex items-center gap-2 bg-emerald text-white hover:bg-emerald-dark font-bold py-2 px-4 rounded-lg transition-all text-xs shadow-sm hover:shadow"
+                                      >
+                                        <Download className="w-4 h-4" />
+                                        Baixar
+                                      </a>
+                                    </>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground/60 font-bold py-2 px-4 bg-slate-50 rounded-lg border border-border/40">
+                                      Indisponível
                                     </span>
-                                  </p>
+                                  )}
                                 </div>
                               </div>
-                              
-                              <div className="flex items-center gap-2 sm:shrink-0">
-                                {doc.arquivo ? (
-                                  <>
-                                    <Dialog>
-                                      <DialogTrigger asChild>
-                                        <button className="flex items-center gap-2 bg-transparent border border-border text-navy hover:bg-slate-100 font-medium py-1.5 px-3 rounded-md transition-colors text-xs">
-                                          <Eye className="w-3.5 h-3.5" />
-                                          Visualizar
-                                        </button>
-                                      </DialogTrigger>
-                                      <DialogContent className="max-w-4xl w-[90vw] h-[90vh] flex flex-col">
-                                        <DialogHeader>
-                                          <DialogTitle className="text-navy">{doc.nome}</DialogTitle>
-                                        </DialogHeader>
-                                        <div className="flex-1 bg-muted rounded-md overflow-hidden relative">
-                                          {isImage ? (
-                                            <img src={doc.arquivo} alt={doc.nome} className="w-full h-full object-contain" />
-                                          ) : isPdf ? (
-                                            <iframe src={`${doc.arquivo}#toolbar=0&navpanes=0&scrollbar=0`} className="w-full h-full border-none" title={doc.nome} />
-                                          ) : (
-                                            <div className="flex items-center justify-center w-full h-full text-muted-foreground">
-                                              Preview não disponível
-                                            </div>
-                                          )}
-                                        </div>
-                                      </DialogContent>
-                                    </Dialog>
-                                    <a 
-                                      href={doc.arquivo} 
-                                      download={doc.nome}
-                                      className="flex items-center gap-2 bg-emerald text-white hover:bg-emerald-dark font-medium py-1.5 px-3 rounded-md transition-colors text-xs"
-                                    >
-                                      <Download className="w-3.5 h-3.5" />
-                                      Baixar
-                                    </a>
-                                  </>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground py-1.5 px-3 bg-muted rounded-md border border-transparent">
-                                    Indisponível
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
+
                     </TabsContent>
                   ))}
                 </div>
