@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Heart, LogOut, MessageCircle, FileText, Newspaper,
   Send, Trash2, Edit, Plus, X, Filter, Star, CheckCircle, XCircle, UploadCloud
@@ -362,7 +363,19 @@ const NoticiasPanel = () => {
             </div>
             <div>
               <label className="text-sm font-semibold text-navy block mb-1">Categoria</label>
-              <Input placeholder="Ex: Comunidade, Infraestrutura" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} />
+              <Select value={form.categoria} onValueChange={(val) => setForm({ ...form, categoria: val })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Comunidade">Comunidade</SelectItem>
+                  <SelectItem value="Infraestrutura">Infraestrutura</SelectItem>
+                  <SelectItem value="Filantropia">Filantropia</SelectItem>
+                  <SelectItem value="Institucional">Institucional</SelectItem>
+                  <SelectItem value="Saúde">Saúde</SelectItem>
+                  <SelectItem value="Aviso">Aviso</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="text-sm font-semibold text-navy block mb-1">Data</label>
