@@ -86,41 +86,58 @@ const Transparencia = () => {
                     
                     <AccordionContent className="pt-2 pb-8 border-t border-border/50">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
-                        {categorias[cat].map((doc) => (
-                          <div key={doc.id} className="bg-slate-50 border border-border rounded-xl p-5 hover:bg-slate-100 hover:border-emerald/30 transition-colors flex flex-col group">
-                            <div className="flex items-start justify-between mb-4">
-                              <div className="w-10 h-10 rounded-lg bg-white border border-border flex items-center justify-center shadow-sm">
-                                <FileText className="w-5 h-5 text-navy/70" />
-                              </div>
-                              <span className="text-xs font-semibold bg-emerald/10 text-emerald px-2 py-1 rounded-md">
-                                PDF
-                              </span>
-                            </div>
-                            <h4 className="font-bold text-navy mb-2 line-clamp-2 leading-snug" title={doc.nome}>
-                              {doc.nome}
-                            </h4>
-                            <p className="text-xs text-muted-foreground mb-6">
-                              Publicado em {doc.dataPublicacao}
-                            </p>
-                            
-                            <div className="mt-auto">
-                              {doc.arquivo ? (
-                                <a 
-                                  href={doc.arquivo} 
-                                  download={doc.nome}
-                                  className="w-full inline-flex items-center justify-center gap-2 bg-white border border-border text-navy hover:bg-emerald hover:text-white hover:border-emerald font-semibold py-2 px-4 rounded-lg transition-colors text-sm group-hover:shadow-sm"
-                                >
-                                  <Download className="w-4 h-4" />
-                                  Fazer Download
-                                </a>
-                              ) : (
-                                <span className="w-full inline-flex items-center justify-center gap-2 bg-muted text-muted-foreground font-semibold py-2 px-4 rounded-lg text-sm cursor-not-allowed">
-                                  Arquivo Indisponível
+                        {categorias[cat].map((doc) => {
+                          const isImage = doc.arquivo?.startsWith('data:image');
+                          const isPdf = doc.arquivo?.startsWith('data:application/pdf');
+
+                          return (
+                            <div key={doc.id} className="bg-slate-50 border border-border rounded-xl p-5 hover:bg-slate-100 hover:border-emerald/30 transition-colors flex flex-col group">
+                              
+                              {/* Preview Area */}
+                              <div className="w-full h-40 bg-white border border-border/80 rounded-lg mb-4 overflow-hidden relative flex items-center justify-center shadow-sm">
+                                {isImage ? (
+                                  <img src={doc.arquivo} alt={doc.nome} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                ) : isPdf ? (
+                                  <div className="w-full h-full relative group-hover:scale-105 transition-transform duration-500">
+                                    <iframe src={`${doc.arquivo}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} className="w-full h-[150%] pointer-events-none border-none overflow-hidden" title={doc.nome} />
+                                    {/* Overlay to prevent interactions with the iframe */}
+                                    <div className="absolute inset-0 bg-transparent z-10" />
+                                  </div>
+                                ) : (
+                                  <FileText className="w-12 h-12 text-navy/30" />
+                                )}
+                                
+                                <span className={`absolute top-2 right-2 text-[10px] font-bold px-2 py-1 rounded-md z-20 ${isPdf ? 'bg-red-100 text-red-600' : isImage ? 'bg-blue-100 text-blue-600' : 'bg-emerald/10 text-emerald'}`}>
+                                  {isPdf ? 'PDF' : isImage ? 'IMG' : 'DOC'}
                                 </span>
-                              )}
+                              </div>
+
+                              <h4 className="font-bold text-navy mb-1.5 line-clamp-2 leading-snug" title={doc.nome}>
+                                {doc.nome}
+                              </h4>
+                              <p className="text-xs text-muted-foreground mb-5">
+                                Publicado em {doc.dataPublicacao}
+                              </p>
+                              
+                              <div className="mt-auto">
+                                {doc.arquivo ? (
+                                  <a 
+                                    href={doc.arquivo} 
+                                    download={doc.nome}
+                                    className="w-full inline-flex items-center justify-center gap-2 bg-white border border-border text-navy hover:bg-emerald hover:text-white hover:border-emerald font-semibold py-2 px-4 rounded-lg transition-colors text-sm group-hover:shadow-sm"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                    Fazer Download
+                                  </a>
+                                ) : (
+                                  <span className="w-full inline-flex items-center justify-center gap-2 bg-muted text-muted-foreground font-semibold py-2 px-4 rounded-lg text-sm cursor-not-allowed">
+                                    Arquivo Indisponível
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
