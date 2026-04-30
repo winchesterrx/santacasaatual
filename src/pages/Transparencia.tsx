@@ -49,9 +49,9 @@ const Transparencia = () => {
         <section className="relative py-16 md:py-24 text-center overflow-hidden">
           {/* Background with overlay */}
           <div className="absolute inset-0 z-0">
-            <img src="/hospital.jpg" alt="Santa Casa" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-navy/90 mix-blend-multiply" />
-            <div className="absolute inset-0 bg-navy/80" />
+            <img src="/fundo.png" alt="Santa Casa" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-navy/80 mix-blend-multiply" />
+            <div className="absolute inset-0 bg-navy/60" />
           </div>
 
           <div className="container relative z-10 mx-auto px-6">
