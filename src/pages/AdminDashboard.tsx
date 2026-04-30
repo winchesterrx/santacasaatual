@@ -9,8 +9,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Heart, LogOut, MessageCircle, FileText, Newspaper,
-  Send, Trash2, Edit, Plus, X, Filter, Star, CheckCircle, XCircle, UploadCloud
+  Send, Trash2, Edit, Plus, X, Filter, Star, CheckCircle, XCircle, UploadCloud, Settings
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 // Helper para converter File para Base64
 const fileToBase64 = (file: File): Promise<string> => {
@@ -183,7 +190,13 @@ const TransparenciaPanel = () => {
   const [docs, setDocs] = useState<DocumentoTransparencia[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingDoc, setEditingDoc] = useState<DocumentoTransparencia | null>(null);
-  const [form, setForm] = useState({ nome: "", categoria: "", dataPublicacao: "", arquivo: "" });
+  const [form, setForm] = useState({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "" });
+  
+  const [categoriasLista, setCategoriasLista] = useState<string[]>(() => {
+    const saved = localStorage.getItem("sc_transparencia_categorias");
+    return saved ? JSON.parse(saved) : ["Estrutura Organizacional", "Financeiro", "Contrato de Gestão", "Convênios", "Documentos Institucionais", "Editais"];
+  });
+  const [novaCat, setNovaCat] = useState("");
 
   const load = async () => setDocs(await listarDocumentos());
   useEffect(() => { load(); }, []);
@@ -209,13 +222,13 @@ const TransparenciaPanel = () => {
     }
     setShowForm(false);
     setEditingDoc(null);
-    setForm({ nome: "", categoria: "", dataPublicacao: "" });
+    setForm({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "" });
     load();
   };
 
   const handleEdit = (doc: DocumentoTransparencia) => {
     setEditingDoc(doc);
-    setForm({ nome: doc.nome, categoria: doc.categoria, dataPublicacao: doc.dataPublicacao, arquivo: doc.arquivo || "" });
+    setForm({ nome: doc.nome, descricao: doc.descricao || "", categoria: doc.categoria, dataPublicacao: doc.dataPublicacao, arquivo: doc.arquivo || "" });
     setShowForm(true);
   };
 
@@ -228,7 +241,7 @@ const TransparenciaPanel = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-navy">Documentos de Transparência</h2>
-        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingDoc(null); setForm({ nome: "", categoria: "", dataPublicacao: "", arquivo: "" }); }}>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingDoc(null); setForm({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "" }); }}>
           {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
           <span>{showForm ? "Cancelar" : "Novo Documento"}</span>
         </Button>
@@ -244,20 +257,73 @@ const TransparenciaPanel = () => {
             </div>
             <div>
               <label className="text-sm font-semibold text-navy block mb-1">Categoria (Aba)</label>
-              <Input placeholder="Selecione ou digite uma aba..." list="categorias-list" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} />
-              <datalist id="categorias-list">
-                <option value="Estrutura Organizacional" />
-                <option value="Financeiro" />
-                <option value="Contrato de Gestão" />
-                <option value="Convênios" />
-                <option value="Documentos Institucionais" />
-                <option value="Editais" />
-              </datalist>
+              <div className="flex gap-2">
+                <Select value={form.categoria} onValueChange={(val) => setForm({ ...form, categoria: val })}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Selecione a categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categoriasLista.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="icon" title="Gerenciar Categorias">
+                      <Settings className="w-4 h-4 text-navy" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Gerenciar Categorias</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="flex gap-2">
+                        <Input placeholder="Nova categoria..." value={novaCat} onChange={e => setNovaCat(e.target.value)} />
+                        <Button onClick={() => {
+                          if (novaCat && !categoriasLista.includes(novaCat)) {
+                            const novaLista = [...categoriasLista, novaCat];
+                            setCategoriasLista(novaLista);
+                            localStorage.setItem("sc_transparencia_categorias", JSON.stringify(novaLista));
+                            setNovaCat("");
+                          }
+                        }}>Adicionar</Button>
+                      </div>
+                      <div className="max-h-60 overflow-y-auto space-y-2">
+                        {categoriasLista.map(cat => (
+                          <div key={cat} className="flex items-center justify-between bg-muted p-2 rounded-md">
+                            <span className="text-sm font-medium">{cat}</span>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => {
+                              const novaLista = categoriasLista.filter(c => c !== cat);
+                              setCategoriasLista(novaLista);
+                              localStorage.setItem("sc_transparencia_categorias", JSON.stringify(novaLista));
+                              if (form.categoria === cat) setForm({ ...form, categoria: "" });
+                            }}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
             <div>
               <label className="text-sm font-semibold text-navy block mb-1">Data de Publicação</label>
               <Input type="date" value={form.dataPublicacao} onChange={(e) => setForm({ ...form, dataPublicacao: e.target.value })} />
             </div>
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-navy block mb-1">Breve Descrição (Opcional)</label>
+            <Textarea 
+              placeholder="Ex: Documento referente ao 3º trimestre..." 
+              value={form.descricao} 
+              onChange={(e) => setForm({ ...form, descricao: e.target.value })} 
+              className="resize-none"
+              rows={2}
+            />
           </div>
           <div>
             <label className="text-sm font-semibold text-navy block mb-1">Arquivo Anexo (PDF/Imagem - Max 2.5MB)</label>

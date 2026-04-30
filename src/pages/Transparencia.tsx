@@ -132,6 +132,11 @@ const Transparencia = () => {
                                     <h4 className="font-bold text-navy text-sm md:text-base mb-1">
                                       {doc.nome}
                                     </h4>
+                                    {doc.descricao && (
+                                      <p className="text-xs text-muted-foreground/80 mb-2 max-w-2xl line-clamp-2">
+                                        {doc.descricao}
+                                      </p>
+                                    )}
                                     <div className="flex items-center gap-3">
                                       <span className="text-xs text-muted-foreground font-medium">
                                         Publicado em {doc.dataPublicacao}

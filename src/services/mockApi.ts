@@ -19,6 +19,7 @@ export interface DocumentoTransparencia {
   categoria: string;
   dataPublicacao: string;
   arquivo?: string;
+  descricao?: string;
 }
 
 export interface Noticia {
