@@ -243,8 +243,16 @@ const TransparenciaPanel = () => {
               <Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
             </div>
             <div>
-              <label className="text-sm font-semibold text-navy block mb-1">Categoria</label>
-              <Input placeholder="Ex: Financeiro, Institucional" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} />
+              <label className="text-sm font-semibold text-navy block mb-1">Categoria (Aba)</label>
+              <Input placeholder="Selecione ou digite uma aba..." list="categorias-list" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} />
+              <datalist id="categorias-list">
+                <option value="Estrutura Organizacional" />
+                <option value="Financeiro" />
+                <option value="Contrato de Gestão" />
+                <option value="Convênios" />
+                <option value="Documentos Institucionais" />
+                <option value="Editais" />
+              </datalist>
             </div>
             <div>
               <label className="text-sm font-semibold text-navy block mb-1">Data de Publicação</label>

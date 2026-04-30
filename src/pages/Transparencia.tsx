@@ -3,11 +3,11 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { listarDocumentos, type DocumentoTransparencia } from "@/services/mockApi";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { FileText, Download } from "lucide-react";
 
 const Transparencia = () => {
@@ -63,86 +63,82 @@ const Transparencia = () => {
                 Nenhum documento disponível no momento.
               </div>
             ) : (
-              <Accordion type="single" collapsible className="space-y-4">
-                {categoriasKeys.map((cat, index) => (
-                  <AccordionItem 
-                    key={cat} 
-                    value={`item-${index}`}
-                    className="bg-white border border-border/60 rounded-xl px-6 shadow-sm data-[state=open]:border-emerald/50 data-[state=open]:shadow-md transition-all"
-                  >
-                    <AccordionTrigger className="hover:no-underline py-6">
-                      <div className="flex items-center gap-4 text-left">
-                        <div className="w-12 h-12 rounded-full bg-emerald/10 flex items-center justify-center shrink-0">
-                          <FileText className="w-6 h-6 text-emerald" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-navy">{cat}</h3>
-                          <p className="text-sm text-muted-foreground font-normal mt-1">
-                            {categorias[cat].length} arquivo{categorias[cat].length !== 1 ? 's' : ''} disponível
-                          </p>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    
-                    <AccordionContent className="pt-2 pb-8 border-t border-border/50">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
-                        {categorias[cat].map((doc) => {
-                          const isImage = doc.arquivo?.startsWith('data:image');
-                          const isPdf = doc.arquivo?.startsWith('data:application/pdf');
+              <Tabs defaultValue={categoriasKeys[0]} className="w-full">
+                <div className="overflow-x-auto pb-4 mb-6 scrollbar-hide">
+                  <TabsList className="flex w-max bg-transparent h-auto p-0 gap-2 border-b border-border/40 pb-2">
+                    {categoriasKeys.map((cat) => (
+                      <TabsTrigger 
+                        key={cat} 
+                        value={cat}
+                        className="rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald data-[state=active]:bg-emerald/5 data-[state=active]:text-emerald data-[state=active]:shadow-none px-6 py-3 font-semibold text-navy hover:bg-slate-50 transition-colors whitespace-nowrap"
+                      >
+                        {cat}
+                        <span className="ml-2 inline-flex items-center justify-center bg-muted text-muted-foreground text-[10px] w-5 h-5 rounded-full font-bold">
+                          {categorias[cat].length}
+                        </span>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
 
-                          return (
-                            <div key={doc.id} className="bg-slate-50 border border-border rounded-xl p-5 hover:bg-slate-100 hover:border-emerald/30 transition-colors flex flex-col group">
-                              
-                              {/* Preview Area */}
-                              <div className="w-full h-40 bg-white border border-border/80 rounded-lg mb-4 overflow-hidden relative flex items-center justify-center shadow-sm">
-                                {isImage ? (
-                                  <img src={doc.arquivo} alt={doc.nome} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                ) : isPdf ? (
-                                  <div className="w-full h-full relative group-hover:scale-105 transition-transform duration-500">
-                                    <iframe src={`${doc.arquivo}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} className="w-full h-[150%] pointer-events-none border-none overflow-hidden" title={doc.nome} />
-                                    {/* Overlay to prevent interactions with the iframe */}
-                                    <div className="absolute inset-0 bg-transparent z-10" />
-                                  </div>
-                                ) : (
-                                  <FileText className="w-12 h-12 text-navy/30" />
-                                )}
-                                
-                                <span className={`absolute top-2 right-2 text-[10px] font-bold px-2 py-1 rounded-md z-20 ${isPdf ? 'bg-red-100 text-red-600' : isImage ? 'bg-blue-100 text-blue-600' : 'bg-emerald/10 text-emerald'}`}>
-                                  {isPdf ? 'PDF' : isImage ? 'IMG' : 'DOC'}
-                                </span>
-                              </div>
+                {categoriasKeys.map((cat) => (
+                  <TabsContent key={cat} value={cat} className="mt-0 animate-in fade-in duration-300">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {categorias[cat].map((doc) => {
+                        const isImage = doc.arquivo?.startsWith('data:image');
+                        const isPdf = doc.arquivo?.startsWith('data:application/pdf');
 
-                              <h4 className="font-bold text-navy mb-1.5 line-clamp-2 leading-snug" title={doc.nome}>
-                                {doc.nome}
-                              </h4>
-                              <p className="text-xs text-muted-foreground mb-5">
-                                Publicado em {doc.dataPublicacao}
-                              </p>
+                        return (
+                          <div key={doc.id} className="bg-white border border-border/80 rounded-xl p-5 hover:bg-slate-50 hover:border-emerald/40 hover:shadow-md transition-all flex flex-col group">
+                            
+                            {/* Preview Area */}
+                            <div className="w-full h-40 bg-slate-50 border border-border/80 rounded-lg mb-4 overflow-hidden relative flex items-center justify-center shadow-sm">
+                              {isImage ? (
+                                <img src={doc.arquivo} alt={doc.nome} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                              ) : isPdf ? (
+                                <div className="w-full h-full relative group-hover:scale-105 transition-transform duration-500">
+                                  <iframe src={`${doc.arquivo}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} className="w-full h-[150%] pointer-events-none border-none overflow-hidden" title={doc.nome} />
+                                  <div className="absolute inset-0 bg-transparent z-10" />
+                                </div>
+                              ) : (
+                                <FileText className="w-12 h-12 text-navy/20" />
+                              )}
                               
-                              <div className="mt-auto">
-                                {doc.arquivo ? (
-                                  <a 
-                                    href={doc.arquivo} 
-                                    download={doc.nome}
-                                    className="w-full inline-flex items-center justify-center gap-2 bg-white border border-border text-navy hover:bg-emerald hover:text-white hover:border-emerald font-semibold py-2 px-4 rounded-lg transition-colors text-sm group-hover:shadow-sm"
-                                  >
-                                    <Download className="w-4 h-4" />
-                                    Fazer Download
-                                  </a>
-                                ) : (
-                                  <span className="w-full inline-flex items-center justify-center gap-2 bg-muted text-muted-foreground font-semibold py-2 px-4 rounded-lg text-sm cursor-not-allowed">
-                                    Arquivo Indisponível
-                                  </span>
-                                )}
-                              </div>
+                              <span className={`absolute top-2 right-2 text-[10px] font-bold px-2 py-1 rounded-md z-20 ${isPdf ? 'bg-red-100 text-red-600' : isImage ? 'bg-blue-100 text-blue-600' : 'bg-emerald/10 text-emerald'}`}>
+                                {isPdf ? 'PDF' : isImage ? 'IMG' : 'DOC'}
+                              </span>
                             </div>
-                          );
-                        })}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+
+                            <h4 className="font-bold text-navy mb-1.5 line-clamp-2 leading-snug" title={doc.nome}>
+                              {doc.nome}
+                            </h4>
+                            <p className="text-xs text-muted-foreground mb-5">
+                              Publicado em {doc.dataPublicacao}
+                            </p>
+                            
+                            <div className="mt-auto">
+                              {doc.arquivo ? (
+                                <a 
+                                  href={doc.arquivo} 
+                                  download={doc.nome}
+                                  className="w-full inline-flex items-center justify-center gap-2 bg-transparent border border-border text-navy hover:bg-emerald hover:text-white hover:border-emerald font-semibold py-2 px-4 rounded-lg transition-colors text-sm group-hover:shadow-sm"
+                                >
+                                  <Download className="w-4 h-4" />
+                                  Baixar
+                                </a>
+                              ) : (
+                                <span className="w-full inline-flex items-center justify-center gap-2 bg-muted text-muted-foreground font-semibold py-2 px-4 rounded-lg text-sm cursor-not-allowed">
+                                  Indisponível
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </TabsContent>
                 ))}
-              </Accordion>
+              </Tabs>
             )}
           </div>
         </section>
