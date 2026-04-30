@@ -46,8 +46,15 @@ const Transparencia = () => {
 
       <main className="flex-1">
         {/* Page Header */}
-        <section className="bg-navy py-16 md:py-24 text-center">
-          <div className="container mx-auto px-6">
+        <section className="relative py-16 md:py-24 text-center overflow-hidden">
+          {/* Background with overlay */}
+          <div className="absolute inset-0 z-0">
+            <img src="/hospital.jpg" alt="Santa Casa" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-navy/90 mix-blend-multiply" />
+            <div className="absolute inset-0 bg-navy/80" />
+          </div>
+
+          <div className="container relative z-10 mx-auto px-6">
             <span className="inline-block text-sm font-bold uppercase tracking-widest text-emerald mb-4">
               Prestação de Contas
             </span>
