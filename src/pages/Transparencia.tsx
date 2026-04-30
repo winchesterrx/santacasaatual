@@ -147,7 +147,7 @@ const Transparencia = () => {
                                           </button>
                                         </DialogTrigger>
                                         <DialogContent className="max-w-5xl w-[95vw] h-[95vh] flex flex-col p-0 overflow-hidden bg-muted">
-                                          <DialogHeader className="p-4 bg-white border-b border-border shadow-sm z-10 shrink-0">
+                                          <DialogHeader className="p-4 pr-12 bg-white border-b border-border shadow-sm shrink-0 relative z-0">
                                             <DialogTitle className="text-navy text-lg">{doc.nome}</DialogTitle>
                                           </DialogHeader>
                                           <div className="flex-1 w-full h-full relative overflow-auto">
