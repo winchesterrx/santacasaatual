@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Heart, Menu, X, Phone, Clock } from "lucide-react";
 
 const navItems = [
-  { label: "Quem Somos", href: "#quem-somos" },
-  { label: "Serviços", href: "#servicos" },
-  { label: "Transparência", href: "#transparencia" },
-  { label: "Ouvidoria e Contato", href: "#ouvidoria" },
-  { label: "Notícias", href: "#noticias" },
+  { label: "Quem Somos", href: "/#quem-somos" },
+  { label: "Serviços", href: "/#servicos" },
+  { label: "Transparência", href: "/transparencia" },
+  { label: "Ouvidoria e Contato", href: "/#ouvidoria" },
+  { label: "Notícias", href: "/#noticias" },
 ];
 
 const SiteHeader = () => {
