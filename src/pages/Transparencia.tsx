@@ -107,46 +107,37 @@ const Transparencia = () => {
                         <p className="text-sm text-muted-foreground">Visualize ou faça o download dos arquivos desta categoria.</p>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                      <div className="flex flex-col gap-3">
                         {categorias[cat].map((doc) => {
                           const isImage = doc.arquivo?.startsWith('data:image');
                           const isPdf = doc.arquivo?.startsWith('data:application/pdf');
 
                           return (
-                            <div key={doc.id} className="bg-white border border-border/60 rounded-xl p-3.5 hover:border-emerald/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col group">
+                            <div key={doc.id} className="bg-white border border-border/80 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-sm transition-all group">
                               
-                              {/* Preview Area */}
-                              <div className="w-full h-32 bg-slate-100/50 border border-border/40 rounded-lg mb-3 overflow-hidden relative flex items-center justify-center shadow-inner">
-                                {isImage ? (
-                                  <img src={doc.arquivo} alt={doc.nome} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                ) : isPdf ? (
-                                  <div className="w-full h-full relative group-hover:scale-105 transition-transform duration-700">
-                                    <iframe src={`${doc.arquivo}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} className="w-full h-[150%] pointer-events-none border-none overflow-hidden" title={doc.nome} />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-100/20 to-transparent z-10" />
-                                  </div>
-                                ) : (
-                                  <FileText className="w-10 h-10 text-navy/10 group-hover:text-emerald/30 transition-colors duration-300" />
-                                )}
-                                
-                                <span className={`absolute top-2 right-2 text-[8px] font-black tracking-wider uppercase px-2 py-0.5 rounded z-20 shadow-sm backdrop-blur-md ${isPdf ? 'bg-red-500/10 text-red-600 border border-red-500/20' : isImage ? 'bg-blue-500/10 text-blue-600 border border-blue-500/20' : 'bg-emerald/10 text-emerald border border-emerald/20'}`}>
-                                  {isPdf ? 'PDF' : isImage ? 'Imagem' : 'Doc'}
-                                </span>
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-full bg-emerald/10 flex items-center justify-center shrink-0">
+                                  <FileText className="w-5 h-5 text-emerald" />
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold text-navy text-sm md:text-base mb-0.5">
+                                    {doc.nome}
+                                  </h4>
+                                  <p className="text-xs text-muted-foreground flex items-center gap-2">
+                                    <span>Publicado em {doc.dataPublicacao}</span>
+                                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                      {isPdf ? 'PDF' : isImage ? 'Imagem' : 'Documento'}
+                                    </span>
+                                  </p>
+                                </div>
                               </div>
-
-                              <h4 className="font-bold text-sm text-navy mb-1.5 line-clamp-2 leading-snug group-hover:text-emerald transition-colors" title={doc.nome}>
-                                {doc.nome}
-                              </h4>
-                              <p className="text-[10px] text-muted-foreground font-medium mb-4 flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald/50"></span>
-                                {doc.dataPublicacao}
-                              </p>
                               
-                              <div className="mt-auto flex items-center gap-2">
+                              <div className="flex items-center gap-2 sm:shrink-0">
                                 {doc.arquivo ? (
                                   <>
                                     <Dialog>
                                       <DialogTrigger asChild>
-                                        <button className="flex-1 flex items-center justify-center gap-1.5 bg-slate-50 border border-border/60 text-navy hover:bg-navy hover:text-white font-bold py-2 px-2 rounded-lg transition-all text-xs group-hover:shadow-sm">
+                                        <button className="flex items-center gap-2 bg-transparent border border-border text-navy hover:bg-slate-100 font-medium py-1.5 px-3 rounded-md transition-colors text-xs">
                                           <Eye className="w-3.5 h-3.5" />
                                           Visualizar
                                         </button>
@@ -171,14 +162,14 @@ const Transparencia = () => {
                                     <a 
                                       href={doc.arquivo} 
                                       download={doc.nome}
-                                      className="flex items-center justify-center bg-emerald/10 text-emerald hover:bg-emerald hover:text-white font-bold p-2 rounded-lg transition-all"
-                                      title="Baixar"
+                                      className="flex items-center gap-2 bg-emerald text-white hover:bg-emerald-dark font-medium py-1.5 px-3 rounded-md transition-colors text-xs"
                                     >
-                                      <Download className="w-4 h-4" />
+                                      <Download className="w-3.5 h-3.5" />
+                                      Baixar
                                     </a>
                                   </>
                                 ) : (
-                                  <span className="w-full inline-flex items-center justify-center gap-2 bg-slate-50 text-muted-foreground/50 font-bold py-2 px-2 rounded-lg text-xs cursor-not-allowed border border-border/40">
+                                  <span className="text-xs text-muted-foreground py-1.5 px-3 bg-muted rounded-md border border-transparent">
                                     Indisponível
                                   </span>
                                 )}
