@@ -51,12 +51,19 @@ const SiteFooter = () => {
                 { label: "Transparência", href: "#transparencia" },
                 { label: "Ouvidoria", href: "#ouvidoria" },
                 { label: "Notícias e Eventos", href: "#noticias" },
-                { label: "Trabalhe Conosco", href: "#" },
+                { label: "Política de Privacidade", href: "/politica-de-privacidade", isInternal: true },
+                { label: "Termos de Uso", href: "/termos-de-uso", isInternal: true },
               ].map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-muted-foreground hover:text-navy transition-colors">
-                    {link.label}
-                  </a>
+                  {link.isInternal ? (
+                    <Link to={link.href} className="text-sm text-muted-foreground hover:text-navy transition-colors">
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a href={link.href} className="text-sm text-muted-foreground hover:text-navy transition-colors">
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

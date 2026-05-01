@@ -11,6 +11,8 @@ import Transparencia from "./pages/Transparencia.tsx";
 import NewsDetail from "./pages/NewsDetail.tsx";
 import AllNews from "./pages/AllNews.tsx";
 import AllDonations from "./pages/AllDonations.tsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
+import TermsOfUse from "./pages/TermsOfUse.tsx";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,8 @@ const App = () => (
           <Route path="/noticia/:id" element={<NewsDetail />} />
           <Route path="/todas-noticias" element={<AllNews />} />
           <Route path="/todas-doacoes" element={<AllDonations />} />
+          <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
+          <Route path="/termos-de-uso" element={<TermsOfUse />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
