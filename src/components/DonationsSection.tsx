@@ -19,12 +19,19 @@ const ImageCarousel = ({ images }: { images: string[] }) => {
   
   if (images.length === 1) {
     return (
-      <img 
-        src={images[0]} 
-        alt="Doação recebida" 
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-        loading="lazy"
-      />
+      <div className="w-full h-full relative bg-slate-900/5 overflow-hidden">
+        <img 
+          src={images[0]} 
+          alt="" 
+          className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-40 select-none" 
+        />
+        <img 
+          src={images[0]} 
+          alt="Doação recebida" 
+          className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+          loading="lazy"
+        />
+      </div>
     );
   }
 
@@ -35,13 +42,19 @@ const ImageCarousel = ({ images }: { images: string[] }) => {
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {images.map((img, idx) => (
-          <img 
-            key={idx}
-            src={img} 
-            alt={`Foto ${idx + 1}`} 
-            className="w-full h-full object-cover flex-shrink-0"
-            loading="lazy"
-          />
+          <div key={idx} className="w-full h-full flex-shrink-0 relative bg-slate-900/5">
+            <img 
+              src={img} 
+              alt="" 
+              className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-40 select-none" 
+            />
+            <img 
+              src={img} 
+              alt={`Foto ${idx + 1}`} 
+              className="relative z-10 w-full h-full object-contain"
+              loading="lazy"
+            />
+          </div>
         ))}
       </div>
       

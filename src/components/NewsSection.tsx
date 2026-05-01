@@ -37,13 +37,21 @@ const ImageCarousel = ({ images }: { images: string[] }) => {
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {images.map((img, idx) => (
-          <img 
-            key={idx}
-            src={img} 
-            alt={`Foto ${idx + 1}`} 
-            className="w-full h-full object-cover flex-shrink-0"
-            loading="lazy"
-          />
+          <div key={idx} className="w-full h-full flex-shrink-0 relative bg-slate-900/5">
+            {/* Fundo desfocado para preencher espaços vazios */}
+            <img 
+              src={img} 
+              alt="" 
+              className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-40 select-none" 
+            />
+            {/* Imagem real com object-contain para não cortar nada */}
+            <img 
+              src={img} 
+              alt={`Foto ${idx + 1}`} 
+              className="relative z-10 w-full h-full object-contain drop-shadow-2xl"
+              loading="lazy"
+            />
+          </div>
         ))}
       </div>
       
