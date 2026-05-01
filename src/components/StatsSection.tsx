@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, FileText, Users, HeartPulse, Stethoscope, BedDouble, Award, TrendingUp, Activity, Building, Ambulance, ClipboardList } from "lucide-react";
+import { Download, Eye, FileText, Users, HeartPulse, Stethoscope, BedDouble, Award, TrendingUp, Activity, Building, Ambulance, ClipboardList } from "lucide-react";
 import { listarNumeros, listarDocumentos, type NumeroEstatistico, type DocumentoTransparencia } from "@/services/mockApi";
 
 const iconMap: Record<string, any> = {
@@ -25,6 +25,30 @@ const StatsSection = () => {
     };
     loadData();
   }, []);
+
+  const openDocument = (base64: string | undefined) => {
+    if (!base64) return;
+    try {
+      if (base64.startsWith('data:')) {
+        const arr = base64.split(',');
+        const mime = arr[0].match(/:(.*?);/)?.[1] || 'application/pdf';
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], {type: mime});
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      } else {
+        window.open(base64, '_blank');
+      }
+    } catch (e) {
+      console.error("Erro ao abrir documento", e);
+    }
+  };
+
   return (
     <section id="transparencia" className="relative py-20 md:py-28 overflow-hidden">
       {/* Background Image Medical */}
@@ -75,32 +99,48 @@ const StatsSection = () => {
         {/* Documents Section Splitter */}
         <div className="mt-20 mb-10 text-center border-t border-white/10 pt-16">
           <span className="inline-block text-xs font-bold uppercase tracking-widest text-emerald-300 mb-3 bg-white/10 px-4 py-1.5 rounded-full shadow-sm backdrop-blur-sm">
-            Acesso Rápido
+            Transparência
           </span>
           <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-            Documentos em Destaque
+            Arquivos Oficiais
           </h3>
           <p className="text-primary-foreground/70 max-w-xl mx-auto text-sm">
-            Acesse rapidamente os principais arquivos e demonstrações de transparência da nossa instituição.
+            Acesse rapidamente as principais demonstrações de transparência da nossa instituição.
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {documents.map((doc) => (
-            <a
+            <div
               key={doc.id}
-              href={doc.arquivo || "#"}
-              download={doc.nome}
-              className="flex items-center gap-4 bg-white/10 hover:bg-white/20 rounded-xl p-5 text-left transition-colors border border-white/10 group"
+              className="flex items-center justify-between gap-4 bg-white/10 rounded-xl p-4 border border-white/10 group hover:bg-white/15 transition-colors"
             >
-              <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center shrink-0 group-hover:bg-white/25 transition-colors">
-                <FileText className="w-6 h-6 text-primary-foreground" />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <div className="flex-1 min-w-0 pr-2">
+                  <div className="text-sm font-semibold text-primary-foreground truncate" title={doc.nome}>{doc.nome}</div>
+                  <div className="text-xs text-primary-foreground/60">{doc.categoria}</div>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-primary-foreground truncate">{doc.nome}</div>
-                <div className="text-xs text-primary-foreground/60">{doc.categoria}</div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  onClick={() => openDocument(doc.arquivo)}
+                  className="w-8 h-8 flex items-center justify-center rounded-md bg-white/10 text-white hover:bg-white/25 transition-colors"
+                  title="Visualizar documento"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+                <a
+                  href={doc.arquivo || "#"}
+                  download={doc.nome}
+                  className="w-8 h-8 flex items-center justify-center rounded-md bg-white/10 text-white hover:bg-white/25 transition-colors"
+                  title="Baixar arquivo"
+                >
+                  <Download className="w-4 h-4" />
+                </a>
               </div>
-              <Download className="w-5 h-5 text-primary-foreground/60 shrink-0 group-hover:text-primary-foreground transition-colors" />
-            </a>
+            </div>
           ))}
           {documents.length === 0 && (
             <div className="col-span-full text-center py-4 text-primary-foreground/70">
