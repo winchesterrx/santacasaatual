@@ -8,6 +8,66 @@ const iconMap: Record<string, any> = {
   Users, HeartPulse, Stethoscope, BedDouble, Award, TrendingUp, Activity, Building, Ambulance, ClipboardList
 };
 
+const AnimatedNumber = ({ value }: { value: string }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  // Extrair o número e o sufixo (ex: "1.000+" -> { num: 1000, suffix: "+" })
+  const match = value.replace(/\./g, '').match(/(\d+)(.*)/);
+  const targetNumber = match ? parseInt(match[1], 10) : 0;
+  const suffix = match ? match[2] : "";
+  const isPercentage = value.includes('%');
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const element = document.getElementById(`stat-${value}`);
+    if (element) observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [value, hasAnimated]);
+
+  useEffect(() => {
+    if (!hasAnimated) return;
+
+    let start = 0;
+    const duration = 2000; // 2 segundos
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function (easeOutQuad)
+      const easedProgress = progress * (2 - progress);
+      
+      const currentCount = Math.floor(easedProgress * targetNumber);
+      setDisplayValue(currentCount);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [hasAnimated, targetNumber]);
+
+  const formattedNumber = displayValue.toLocaleString('pt-BR');
+
+  return (
+    <span id={`stat-${value}`}>
+      {isPercentage ? `${displayValue}${suffix}` : `${formattedNumber}${suffix}`}
+    </span>
+  );
+};
+
 const StatsSection = () => {
   const [stats, setStats] = useState<NumeroEstatistico[]>([]);
   const [documents, setDocuments] = useState<DocumentoTransparencia[]>([]);
@@ -88,7 +148,7 @@ const StatsSection = () => {
               >
                 <IconComponent className="w-8 h-8 text-primary-foreground/70 mx-auto mb-3" />
                 <div className="text-3xl md:text-4xl font-extrabold text-primary-foreground mb-1">
-                  {stat.valor}
+                  <AnimatedNumber value={stat.valor} />
                 </div>
                 <div className="text-sm text-primary-foreground font-semibold mb-0.5">{stat.titulo}</div>
                 <div className="text-xs text-primary-foreground/60">{stat.descricao}</div>
