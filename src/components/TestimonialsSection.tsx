@@ -87,7 +87,7 @@ const TestimonialsSection = () => {
               >
                 <div className="flex justify-center gap-1 mb-5">
                   {Array.from({ length: t.estrelas }).map((_, s) => (
-                    <Star key={s} className="w-4 h-4 text-emerald-400 fill-emerald-400" />
+                    <Star key={s} className="w-5 h-5 text-amber-400 fill-amber-400" />
                   ))}
                 </div>
                 <blockquote className="text-lg md:text-2xl text-primary-foreground font-medium leading-relaxed italic mb-6">
@@ -126,8 +126,8 @@ const TestimonialsSection = () => {
               </DialogHeader>
               {success ? (
                 <div className="py-8 text-center space-y-3">
-                  <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                    <Star className="w-6 h-6 fill-emerald-600" />
+                  <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto">
+                    <Star className="w-6 h-6 fill-amber-600" />
                   </div>
                   <h3 className="font-bold text-lg text-emerald-800">Muito obrigado!</h3>
                   <p className="text-sm text-foreground/80">
