@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import Transparencia from "./pages/Transparencia.tsx";
+import NewsDetail from "./pages/NewsDetail.tsx";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/transparencia" element={<Transparencia />} />
+          <Route path="/noticia/:id" element={<NewsDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

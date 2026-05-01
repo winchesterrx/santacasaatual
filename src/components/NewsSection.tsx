@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Calendar, ArrowRight } from "lucide-react";
 import { listarNoticias, type Noticia } from "@/services/mockApi";
 
@@ -86,6 +87,7 @@ const ImageCarousel = ({ images }: { images: string[] }) => {
 
 const NewsSection = () => {
   const [newsItems, setNewsItems] = useState<Noticia[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     listarNoticias().then((data) => setNewsItems(data));
@@ -127,7 +129,8 @@ const NewsSection = () => {
             return (
               <article
                 key={item.id || i}
-                className="group flex flex-col bg-white rounded-[32px] overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+                onClick={() => navigate(`/noticia/${item.id}`)}
+                className="group flex flex-col bg-white rounded-[32px] overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 cursor-pointer"
               >
                 <div className="aspect-[16/10] overflow-hidden relative">
                   <ImageCarousel images={images} />
@@ -151,14 +154,14 @@ const NewsSection = () => {
                     {item.titulo}
                   </h3>
                   
-                  <p className="text-slate-500 text-sm leading-relaxed line-clamp-3 mb-6 font-medium">
+                  <p className="text-slate-500 text-sm leading-relaxed line-clamp-3 mb-6 font-medium h-[4.5rem]">
                     {item.corpo}
                   </p>
 
                   <div className="mt-auto pt-6 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-xs font-black text-navy uppercase tracking-widest group-hover:text-emerald transition-colors flex items-center gap-2">
+                    <Link to={`/noticia/${item.id}`} className="text-xs font-black text-navy uppercase tracking-widest group-hover:text-emerald transition-colors flex items-center gap-2">
                       Ler notícia completa <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                    </span>
+                    </Link>
                   </div>
                 </div>
               </article>

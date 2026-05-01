@@ -215,6 +215,11 @@ export async function excluirNumero(id: string): Promise<any> {
   });
 }
 
+export async function buscarNoticiaPorId(id: string): Promise<Noticia | null> {
+  const todas = await listarNoticias();
+  return todas.find(n => n.id === id) || null;
+}
+
 export async function listarNoticias(): Promise<Noticia[]> {
   const data = await fetchApi('/api/noticias');
   return data.map((d: any) => ({
