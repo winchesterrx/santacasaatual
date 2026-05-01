@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   Heart, LogOut, MessageCircle, FileText, Newspaper,
-  Send, Trash2, Edit, Plus, X, Filter, Star, CheckCircle, XCircle, UploadCloud, Settings
+  Send, Trash2, Edit, Plus, X, Filter, Star, CheckCircle, XCircle, UploadCloud, Settings, TrendingUp
 } from "lucide-react";
 import {
   Dialog,
@@ -34,7 +35,8 @@ import {
   listarNoticias, criarNoticia, editarNoticia, excluirNoticia,
   listarDepoimentosAdmin, alterarStatusDepoimento, editarDepoimento, excluirDepoimento,
   listarDoacoes, criarDoacao, editarDoacao, excluirDoacao,
-  type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia
+  listarNumeros, criarNumero, editarNumero, excluirNumero,
+  type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia, type NumeroEstatistico
 } from "@/services/mockApi";
 
 const AdminDashboard = () => {
@@ -74,6 +76,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="noticias" className="gap-2"><Newspaper className="w-4 h-4" /> Notícias</TabsTrigger>
             <TabsTrigger value="depoimentos" className="gap-2"><Star className="w-4 h-4" /> Depoimentos</TabsTrigger>
             <TabsTrigger value="doacoes" className="gap-2"><Heart className="w-4 h-4" /> Doações</TabsTrigger>
+            <TabsTrigger value="numeros" className="gap-2"><TrendingUp className="w-4 h-4" /> Números</TabsTrigger>
           </TabsList>
 
           <TabsContent value="ouvidoria"><OuvidoriaPanel /></TabsContent>
@@ -81,6 +84,7 @@ const AdminDashboard = () => {
           <TabsContent value="noticias"><NoticiasPanel /></TabsContent>
           <TabsContent value="depoimentos"><DepoimentosPanel /></TabsContent>
           <TabsContent value="doacoes"><DoacoesPanel /></TabsContent>
+          <TabsContent value="numeros"><NumerosPanel /></TabsContent>
         </Tabs>
       </div>
     </div>
@@ -190,7 +194,7 @@ const TransparenciaPanel = () => {
   const [docs, setDocs] = useState<DocumentoTransparencia[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingDoc, setEditingDoc] = useState<DocumentoTransparencia | null>(null);
-  const [form, setForm] = useState({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "" });
+  const [form, setForm] = useState({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "", is_favorite: false });
   
   const [categoriasLista, setCategoriasLista] = useState<string[]>(() => {
     const saved = localStorage.getItem("sc_transparencia_categorias");
@@ -222,13 +226,13 @@ const TransparenciaPanel = () => {
     }
     setShowForm(false);
     setEditingDoc(null);
-    setForm({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "" });
+    setForm({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "", is_favorite: false });
     load();
   };
 
   const handleEdit = (doc: DocumentoTransparencia) => {
     setEditingDoc(doc);
-    setForm({ nome: doc.nome, descricao: doc.descricao || "", categoria: doc.categoria, dataPublicacao: doc.dataPublicacao, arquivo: doc.arquivo || "" });
+    setForm({ nome: doc.nome, descricao: doc.descricao || "", categoria: doc.categoria, dataPublicacao: doc.dataPublicacao, arquivo: doc.arquivo || "", is_favorite: doc.is_favorite || false });
     setShowForm(true);
   };
 
@@ -241,7 +245,7 @@ const TransparenciaPanel = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-navy">Documentos de Transparência</h2>
-        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingDoc(null); setForm({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "" }); }}>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingDoc(null); setForm({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "", is_favorite: false }); }}>
           {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
           <span>{showForm ? "Cancelar" : "Novo Documento"}</span>
         </Button>
@@ -325,6 +329,16 @@ const TransparenciaPanel = () => {
               rows={2}
             />
           </div>
+          <div className="flex items-center gap-2 mt-4">
+            <Switch 
+              id="is_favorite" 
+              checked={form.is_favorite} 
+              onCheckedChange={(checked) => setForm({ ...form, is_favorite: checked })} 
+            />
+            <label htmlFor="is_favorite" className="text-sm font-semibold text-navy cursor-pointer">
+              Destacar na Home (Seção Nossos Números)
+            </label>
+          </div>
           <div>
             <label className="text-sm font-semibold text-navy block mb-1">Arquivo Anexo (PDF/Imagem - Max 2.5MB)</label>
             <div className="flex items-center gap-4">
@@ -345,6 +359,7 @@ const TransparenciaPanel = () => {
               <TableHead>Nome</TableHead>
               <TableHead>Categoria</TableHead>
               <TableHead>Data</TableHead>
+              <TableHead>Destaque</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -354,6 +369,9 @@ const TransparenciaPanel = () => {
                 <TableCell className="font-medium text-navy">{doc.nome}</TableCell>
                 <TableCell>{doc.categoria}</TableCell>
                 <TableCell className="text-xs">{doc.dataPublicacao}</TableCell>
+                <TableCell>
+                  {doc.is_favorite ? <Star className="w-4 h-4 text-amber-500 fill-amber-500" /> : null}
+                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex gap-2 justify-end">
                     <Button variant="ghost" size="sm" onClick={() => handleEdit(doc)}><Edit className="w-4 h-4" /></Button>
@@ -756,6 +774,129 @@ const DoacoesPanel = () => {
                   <div className="flex gap-2 justify-end">
                     <Button variant="ghost" size="sm" onClick={() => handleEdit(d)}><Edit className="w-4 h-4" /></Button>
                     <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(d.id)}><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+// ========================
+// Numeros Panel
+// ========================
+const NumerosPanel = () => {
+  const [items, setItems] = useState<NumeroEstatistico[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingItem, setEditingItem] = useState<NumeroEstatistico | null>(null);
+  const [form, setForm] = useState({ icone: "Users", valor: "", titulo: "", descricao: "", ordem: 0 });
+
+  const load = async () => setItems(await listarNumeros());
+  useEffect(() => { load(); }, []);
+
+  const handleSave = async () => {
+    if (!form.icone || !form.valor || !form.titulo) return;
+    if (editingItem) {
+      await editarNumero(editingItem.id, form);
+    } else {
+      await criarNumero(form as Omit<NumeroEstatistico, "id">);
+    }
+    setShowForm(false);
+    setEditingItem(null);
+    setForm({ icone: "Users", valor: "", titulo: "", descricao: "", ordem: 0 });
+    load();
+  };
+
+  const handleEdit = (n: NumeroEstatistico) => {
+    setEditingItem(n);
+    setForm({ icone: n.icone, valor: n.valor, titulo: n.titulo, descricao: n.descricao, ordem: n.ordem });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    await excluirNumero(id);
+    load();
+  };
+
+  const iconesDisponiveis = ["Users", "HeartPulse", "Stethoscope", "BedDouble", "Award", "TrendingUp", "Activity", "Building", "Ambulance", "ClipboardList"];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-navy">Estatísticas - Nossos Números</h2>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ icone: "Users", valor: "", titulo: "", descricao: "", ordem: 0 }); }}>
+          {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
+          <span>{showForm ? "Cancelar" : "Novo Número"}</span>
+        </Button>
+      </div>
+
+      {showForm && (
+        <div className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
+          <h3 className="font-bold text-navy">{editingItem ? "Editar Número" : "Novo Número Estatístico"}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Ícone</label>
+              <Select value={form.icone} onValueChange={(val) => setForm({ ...form, icone: val })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um ícone" />
+                </SelectTrigger>
+                <SelectContent>
+                  {iconesDisponiveis.map(icon => (
+                    <SelectItem key={icon} value={icon}>{icon}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Valor (Ex: 3.000+)</label>
+              <Input value={form.valor} onChange={(e) => setForm({ ...form, valor: e.target.value })} />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Título (Ex: Atendimentos)</label>
+              <Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Ordem (Ex: 1, 2, 3)</label>
+              <Input type="number" value={form.ordem} onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })} />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-navy block mb-1">Descrição</label>
+            <Input value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} />
+          </div>
+          <Button variant="navy-solid" onClick={handleSave}>
+            {editingItem ? "Salvar Alterações" : "Adicionar Número"}
+          </Button>
+        </div>
+      )}
+
+      <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Ordem</TableHead>
+              <TableHead>Ícone</TableHead>
+              <TableHead>Valor</TableHead>
+              <TableHead>Título</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.sort((a,b) => a.ordem - b.ordem).map((n) => (
+              <TableRow key={n.id}>
+                <TableCell>{n.ordem}</TableCell>
+                <TableCell className="font-mono text-xs">{n.icone}</TableCell>
+                <TableCell className="font-bold text-navy">{n.valor}</TableCell>
+                <TableCell>{n.titulo}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{n.descricao}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="ghost" size="sm" onClick={() => handleEdit(n)}><Edit className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(n.id)}><Trash2 className="w-4 h-4" /></Button>
                   </div>
                 </TableCell>
               </TableRow>

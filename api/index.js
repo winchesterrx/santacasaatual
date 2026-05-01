@@ -78,10 +78,10 @@ app.get('/api/documentos', async (req, res) => {
 
 app.post('/api/documentos', async (req, res) => {
   try {
-    const { nome, categoria, data_publicacao, arquivo_url } = req.body;
+    const { nome, categoria, data_publicacao, arquivo_url, is_favorite } = req.body;
     const [result] = await db.query(
-      'INSERT INTO transparencia_documentos (nome, categoria, data_publicacao, arquivo_url) VALUES (?, ?, ?, ?)',
-      [nome, categoria, data_publicacao, arquivo_url || null]
+      'INSERT INTO transparencia_documentos (nome, categoria, data_publicacao, arquivo_url, is_favorite) VALUES (?, ?, ?, ?, ?)',
+      [nome, categoria, data_publicacao, arquivo_url || null, is_favorite ? 1 : 0]
     );
     res.json({ id: result.insertId });
   } catch (error) {
@@ -92,10 +92,10 @@ app.post('/api/documentos', async (req, res) => {
 app.put('/api/documentos/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, categoria, data_publicacao, arquivo_url } = req.body;
+    const { nome, categoria, data_publicacao, arquivo_url, is_favorite } = req.body;
     await db.query(
-      'UPDATE transparencia_documentos SET nome = ?, categoria = ?, data_publicacao = ?, arquivo_url = ? WHERE id = ?',
-      [nome, categoria, data_publicacao, arquivo_url || null, id]
+      'UPDATE transparencia_documentos SET nome = ?, categoria = ?, data_publicacao = ?, arquivo_url = ?, is_favorite = ? WHERE id = ?',
+      [nome, categoria, data_publicacao, arquivo_url || null, is_favorite ? 1 : 0, id]
     );
     res.json({ success: true });
   } catch (error) {
@@ -106,6 +106,54 @@ app.put('/api/documentos/:id', async (req, res) => {
 app.delete('/api/documentos/:id', async (req, res) => {
   try {
     await db.query('DELETE FROM transparencia_documentos WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ==========================================
+// NOSSOS NÚMEROS
+// ==========================================
+app.get('/api/numeros', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM nossos_numeros ORDER BY ordem ASC');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/numeros', async (req, res) => {
+  try {
+    const { icone, valor, titulo, descricao, ordem } = req.body;
+    const [result] = await db.query(
+      'INSERT INTO nossos_numeros (icone, valor, titulo, descricao, ordem) VALUES (?, ?, ?, ?, ?)',
+      [icone, valor, titulo, descricao, ordem || 0]
+    );
+    res.json({ id: result.insertId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/numeros/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { icone, valor, titulo, descricao, ordem } = req.body;
+    await db.query(
+      'UPDATE nossos_numeros SET icone = ?, valor = ?, titulo = ?, descricao = ?, ordem = ? WHERE id = ?',
+      [icone, valor, titulo, descricao, ordem || 0, id]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/numeros/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM nossos_numeros WHERE id = ?', [req.params.id]);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });

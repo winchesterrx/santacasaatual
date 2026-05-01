@@ -20,6 +20,16 @@ export interface DocumentoTransparencia {
   dataPublicacao: string;
   arquivo?: string;
   descricao?: string;
+  is_favorite?: boolean;
+}
+
+export interface NumeroEstatistico {
+  id: string;
+  icone: string;
+  valor: string;
+  titulo: string;
+  descricao: string;
+  ordem: number;
 }
 
 export interface Noticia {
@@ -116,7 +126,8 @@ export async function listarDocumentos(): Promise<DocumentoTransparencia[]> {
     nome: d.nome,
     categoria: d.categoria,
     dataPublicacao: new Date(d.data_publicacao).toISOString().split('T')[0],
-    arquivo: d.arquivo_url
+    arquivo: d.arquivo_url,
+    is_favorite: d.is_favorite === 1 || d.is_favorite === true
   }));
 }
 
@@ -127,7 +138,8 @@ export async function criarDocumento(data: Omit<DocumentoTransparencia, "id">): 
       nome: data.nome,
       categoria: data.categoria,
       data_publicacao: data.dataPublicacao,
-      arquivo_url: data.arquivo || null
+      arquivo_url: data.arquivo || null,
+      is_favorite: data.is_favorite
     }),
   });
 }
@@ -139,7 +151,8 @@ export async function editarDocumento(id: string, data: Partial<DocumentoTranspa
       nome: data.nome,
       categoria: data.categoria,
       data_publicacao: data.dataPublicacao,
-      arquivo_url: data.arquivo
+      arquivo_url: data.arquivo,
+      is_favorite: data.is_favorite
     }),
   });
 }
@@ -153,6 +166,42 @@ export async function excluirDocumento(id: string): Promise<any> {
 // ========================
 // Notícias API
 // ========================
+
+// ========================
+// Números API
+// ========================
+
+export async function listarNumeros(): Promise<NumeroEstatistico[]> {
+  const data = await fetchApi('/api/numeros');
+  return data.map((d: any) => ({
+    id: d.id.toString(),
+    icone: d.icone,
+    valor: d.valor,
+    titulo: d.titulo,
+    descricao: d.descricao,
+    ordem: d.ordem
+  }));
+}
+
+export async function criarNumero(data: Omit<NumeroEstatistico, "id">): Promise<any> {
+  return fetchApi('/api/numeros', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function editarNumero(id: string, data: Partial<NumeroEstatistico>): Promise<any> {
+  return fetchApi(`/api/numeros/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function excluirNumero(id: string): Promise<any> {
+  return fetchApi(`/api/numeros/${id}`, {
+    method: 'DELETE',
+  });
+}
 
 export async function listarNoticias(): Promise<Noticia[]> {
   const data = await fetchApi('/api/noticias');
