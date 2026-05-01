@@ -2,6 +2,60 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { listarNoticias, type Noticia } from "@/services/mockApi";
 
+const ImageCarousel = ({ images }: { images: string[] }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 4000); // 4 seconds
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  if (!images || images.length === 0) return null;
+  
+  if (images.length === 1) {
+    return (
+      <img 
+        src={images[0]} 
+        alt="Notícia" 
+        className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
+        loading="lazy"
+      />
+    );
+  }
+
+  return (
+    <div className="relative w-full h-52 overflow-hidden">
+      <div 
+        className="flex w-full h-full transition-transform duration-700 ease-in-out" 
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+      >
+        {images.map((img, idx) => (
+          <img 
+            key={idx}
+            src={img} 
+            alt={`Foto ${idx + 1}`} 
+            className="w-full h-full object-cover flex-shrink-0"
+            loading="lazy"
+          />
+        ))}
+      </div>
+      
+      {/* Indicadores */}
+      <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+        {images.map((_, idx) => (
+          <div 
+            key={idx} 
+            className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const NewsSection = () => {
   const [newsItems, setNewsItems] = useState<Noticia[]>([]);
   const [offset, setOffset] = useState(0);
@@ -35,23 +89,31 @@ const NewsSection = () => {
             className="flex gap-6 transition-transform duration-500"
             style={{ transform: `translateX(-${offset * (100 / 3 + 2)}%)` }}
           >
-            {newsItems.map((item, i) => (
-              <article
-                key={i}
-                className="min-w-[calc(33.333%-1rem)] flex-shrink-0 group cursor-pointer max-md:min-w-[80%]"
-              >
-                <div className="overflow-hidden rounded-2xl mb-4 relative">
-                  <img
-                    src={item.imagem}
-                    alt={item.titulo}
-                    className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {item.categoria && (
-                    <span className="absolute top-3 left-3 text-xs font-bold uppercase tracking-wider bg-secondary text-primary-foreground px-3 py-1 rounded-full">
-                      {item.categoria}
-                    </span>
-                  )}
-                </div>
+            {newsItems.map((item, i) => {
+              let images: string[] = [];
+              try {
+                if (item.imagem && item.imagem.startsWith('[')) {
+                  images = JSON.parse(item.imagem);
+                } else if (item.imagem) {
+                  images = [item.imagem];
+                }
+              } catch {
+                if (item.imagem) images = [item.imagem];
+              }
+
+              return (
+                <article
+                  key={i}
+                  className="min-w-[calc(33.333%-1rem)] flex-shrink-0 group cursor-pointer max-md:min-w-[80%]"
+                >
+                  <div className="overflow-hidden rounded-2xl mb-4 relative">
+                    <ImageCarousel images={images} />
+                    {item.categoria && (
+                      <span className="absolute top-3 left-3 text-xs font-bold uppercase tracking-wider bg-secondary text-primary-foreground px-3 py-1 rounded-full z-10">
+                        {item.categoria}
+                      </span>
+                    )}
+                  </div>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mb-1.5">
                   <Calendar className="w-3 h-3" />
                   {item.data}
@@ -61,7 +123,7 @@ const NewsSection = () => {
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{item.corpo}</p>
               </article>
-            ))}
+            )})}
           </div>
         </div>
 

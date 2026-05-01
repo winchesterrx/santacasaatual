@@ -1,8 +1,78 @@
-import { Heart, Landmark, Copy, Check, Info, Calendar } from "lucide-react";
+import { Heart, Landmark, Copy, Check, Info, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { listarDoacoes, DoacaoTransparencia, listarContasDoacao, ContaDoacao } from "@/services/mockApi";
+
+const ImageCarousel = ({ images }: { images: string[] }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 4000); // 4 seconds
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  if (!images || images.length === 0) return null;
+  
+  if (images.length === 1) {
+    return (
+      <img 
+        src={images[0]} 
+        alt="Doação recebida" 
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+        loading="lazy"
+      />
+    );
+  }
+
+  return (
+    <div className="relative w-full h-full overflow-hidden">
+      <div 
+        className="flex w-full h-full transition-transform duration-700 ease-in-out" 
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+      >
+        {images.map((img, idx) => (
+          <img 
+            key={idx}
+            src={img} 
+            alt={`Foto ${idx + 1}`} 
+            className="w-full h-full object-cover flex-shrink-0"
+            loading="lazy"
+          />
+        ))}
+      </div>
+      
+      {/* Controles do Carrossel */}
+      <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <button 
+          onClick={(e) => { e.preventDefault(); setCurrentIndex((prev) => (prev - 1 + images.length) % images.length); }}
+          className="bg-black/20 hover:bg-black/40 text-white rounded-full p-1 backdrop-blur-sm transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button 
+          onClick={(e) => { e.preventDefault(); setCurrentIndex((prev) => (prev + 1) % images.length); }}
+          className="bg-black/20 hover:bg-black/40 text-white rounded-full p-1 backdrop-blur-sm transition-colors"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Indicadores */}
+      <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+        {images.map((_, idx) => (
+          <div 
+            key={idx} 
+            className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const DonationsSection = () => {
   const [copiedPix, setCopiedPix] = useState(false);
@@ -127,21 +197,28 @@ const DonationsSection = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {donations.length > 0 ? donations.map((post) => (
-                <div key={post.id} className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 group">
-                  {/* Imagem */}
-                  <div className="w-full aspect-[4/3] bg-slate-100 overflow-hidden relative">
-                    <img 
-                      src={post.imagem_url} 
-                      alt="Doação recebida" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </div>
+              {donations.length > 0 ? donations.map((post) => {
+                let images: string[] = [];
+                try {
+                  if (post.imagem_url.startsWith('[')) {
+                    images = JSON.parse(post.imagem_url);
+                  } else {
+                    images = [post.imagem_url];
+                  }
+                } catch {
+                  images = [post.imagem_url];
+                }
 
-                  {/* Conteúdo */}
-                  <div className="p-5 flex-1 flex flex-col">
+                return (
+                  <div key={post.id} className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 group">
+                    {/* Imagem */}
+                    <div className="w-full aspect-[4/3] bg-slate-100 overflow-hidden relative">
+                      <ImageCarousel images={images} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    </div>
+
+                    {/* Conteúdo */}
+                    <div className="p-5 flex-1 flex flex-col">
                     <div className="flex items-center gap-2 mb-3">
                       <Calendar className="w-3.5 h-3.5 text-emerald" />
                       <span className="text-xs font-bold text-emerald uppercase tracking-wider">{post.data_publicacao}</span>

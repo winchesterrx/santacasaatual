@@ -397,52 +397,85 @@ const NoticiasPanel = () => {
   const [items, setItems] = useState<Noticia[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Noticia | null>(null);
-  const [form, setForm] = useState({ titulo: "", corpo: "", categoria: "", imagem: "", data: "" });
+  const [form, setForm] = useState({ titulo: "", corpo: "", categoria: "", images: [] as string[], data: "" });
 
   const load = async () => setItems(await listarNoticias());
   useEffect(() => { load(); }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("A imagem deve ter no máximo 5MB.");
-        return;
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const newImages: string[] = [];
+      for (const file of files) {
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`A imagem ${file.name} excede o limite de 5MB.`);
+          continue;
+        }
+        const base64 = await fileToBase64(file);
+        newImages.push(base64);
       }
-      const base64 = await fileToBase64(file);
-      setForm({ ...form, imagem: base64 });
+      setForm(prev => ({ ...prev, images: [...prev.images, ...newImages] }));
     }
+  };
+
+  const removeImage = (index: number) => {
+    setForm(prev => {
+      const newImages = [...prev.images];
+      newImages.splice(index, 1);
+      return { ...prev, images: newImages };
+    });
   };
 
   const handleSave = async () => {
     if (!form.titulo || !form.data) return;
+    
+    const dataToSave = {
+      titulo: form.titulo,
+      corpo: form.corpo,
+      categoria: form.categoria,
+      imagem: form.images.length > 0 ? JSON.stringify(form.images) : "",
+      data: form.data
+    };
+
     if (editingItem) {
-      await editarNoticia(editingItem.id, form);
+      await editarNoticia(editingItem.id, dataToSave);
     } else {
-      await criarNoticia(form);
+      await criarNoticia(dataToSave);
     }
     setShowForm(false);
     setEditingItem(null);
-    setForm({ titulo: "", corpo: "", categoria: "", imagem: "", data: "" });
+    setForm({ titulo: "", corpo: "", categoria: "", images: [], data: "" });
     load();
   };
 
   const handleEdit = (n: Noticia) => {
     setEditingItem(n);
-    setForm({ titulo: n.titulo, corpo: n.corpo, categoria: n.categoria || "", imagem: n.imagem, data: n.data });
+    let parsedImages: string[] = [];
+    try {
+      if (n.imagem && n.imagem.startsWith('[')) {
+        parsedImages = JSON.parse(n.imagem);
+      } else if (n.imagem) {
+        parsedImages = [n.imagem];
+      }
+    } catch {
+      if (n.imagem) parsedImages = [n.imagem];
+    }
+    setForm({ titulo: n.titulo, corpo: n.corpo, categoria: n.categoria || "", images: parsedImages, data: n.data });
     setShowForm(true);
   };
 
   const handleDelete = async (id: string) => {
-    await excluirNoticia(id);
-    load();
+    if (confirm("Tem certeza que deseja excluir esta notícia?")) {
+      await excluirNoticia(id);
+      load();
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-navy">Notícias e Eventos</h2>
-        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ titulo: "", corpo: "", categoria: "", imagem: "", data: "" }); }}>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ titulo: "", corpo: "", categoria: "", images: [], data: "" }); }}>
           {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
           <span>{showForm ? "Cancelar" : "Nova Notícia"}</span>
         </Button>
@@ -478,14 +511,26 @@ const NoticiasPanel = () => {
             </div>
           </div>
           <div>
-            <label className="text-sm font-semibold text-navy block mb-1">Imagem de Capa (Max 2.5MB)</label>
-            <div className="flex gap-4 items-center">
-              <div className="flex-1">
-                <Input type="file" accept="image/*" onChange={handleImageUpload} className="cursor-pointer file:cursor-pointer" />
+            <label className="text-sm font-semibold text-navy block mb-1">Imagens (Max 5MB cada)</label>
+            <div className="flex flex-col gap-4 items-start">
+              <div className="w-full">
+                <Input type="file" accept="image/*" multiple onChange={handleImageUpload} className="cursor-pointer file:cursor-pointer mb-2" />
+                <p className="text-xs text-muted-foreground">Pode selecionar várias de uma vez.</p>
               </div>
-              {form.imagem && (
-                <div className="w-16 h-16 shrink-0 rounded-lg overflow-hidden border border-border">
-                  <img src={form.imagem} alt="Preview" className="w-full h-full object-cover" />
+              
+              {form.images.length > 0 && (
+                <div className="flex gap-2 flex-wrap w-full bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  {form.images.map((img, idx) => (
+                    <div key={idx} className="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden border border-border group">
+                      <img src={img} alt="Preview" className="w-full h-full object-cover" />
+                      <button 
+                        onClick={() => removeImage(idx)}
+                        className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -673,52 +718,83 @@ const DoacoesPanel = () => {
   const [items, setItems] = useState<DoacaoTransparencia[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<DoacaoTransparencia | null>(null);
-  const [form, setForm] = useState({ descricao: "", imagem_url: "" });
+  const [form, setForm] = useState({ descricao: "", images: [] as string[] });
 
   const load = async () => setItems(await listarDoacoes());
   useEffect(() => { load(); }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("A imagem deve ter no máximo 5MB.");
-        return;
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const newImages: string[] = [];
+      for (const file of files) {
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`A imagem ${file.name} excede o limite de 5MB.`);
+          continue;
+        }
+        const base64 = await fileToBase64(file);
+        newImages.push(base64);
       }
-      const base64 = await fileToBase64(file);
-      setForm({ ...form, imagem_url: base64 });
+      setForm(prev => ({ ...prev, images: [...prev.images, ...newImages] }));
     }
   };
 
+  const removeImage = (index: number) => {
+    setForm(prev => {
+      const newImages = [...prev.images];
+      newImages.splice(index, 1);
+      return { ...prev, images: newImages };
+    });
+  };
+
   const handleSave = async () => {
-    if (!form.descricao || !form.imagem_url) return;
+    if (!form.descricao || form.images.length === 0) return;
+    
+    // Converte o array de imagens para string JSON
+    const dataToSave = {
+      descricao: form.descricao,
+      imagem_url: JSON.stringify(form.images)
+    };
+
     if (editingItem) {
-      await editarDoacao(editingItem.id, form);
+      await editarDoacao(editingItem.id, dataToSave);
     } else {
-      await criarDoacao(form);
+      await criarDoacao(dataToSave);
     }
     setShowForm(false);
     setEditingItem(null);
-    setForm({ descricao: "", imagem_url: "" });
+    setForm({ descricao: "", images: [] });
     load();
   };
 
   const handleEdit = (d: DoacaoTransparencia) => {
     setEditingItem(d);
-    setForm({ descricao: d.descricao, imagem_url: d.imagem_url });
+    let parsedImages: string[] = [];
+    try {
+      if (d.imagem_url.startsWith('[')) {
+        parsedImages = JSON.parse(d.imagem_url);
+      } else {
+        parsedImages = [d.imagem_url]; // legacy single image
+      }
+    } catch {
+      parsedImages = [d.imagem_url];
+    }
+    setForm({ descricao: d.descricao, images: parsedImages });
     setShowForm(true);
   };
 
   const handleDelete = async (id: string) => {
-    await excluirDoacao(id);
-    load();
+    if (confirm("Tem certeza que deseja excluir esta doação?")) {
+      await excluirDoacao(id);
+      load();
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-navy">Feed de Transparência de Doações</h2>
-        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ descricao: "", imagem_url: "" }); }}>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ descricao: "", images: [] }); }}>
           {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
           <span>{showForm ? "Cancelar" : "Novo Post"}</span>
         </Button>
@@ -728,19 +804,30 @@ const DoacoesPanel = () => {
         <div className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
           <h3 className="font-bold text-navy">{editingItem ? "Editar Post" : "Novo Post de Doação"}</h3>
           <div>
-            <label className="text-sm font-semibold text-navy block mb-1">Foto da Doação (Max 2.5MB)</label>
-            <div className="flex gap-4 items-start">
-              <div className="flex-1">
+            <label className="text-sm font-semibold text-navy block mb-1">Fotos da Doação (Max 5MB cada)</label>
+            <div className="flex flex-col gap-4 items-start">
+              <div className="w-full">
                 <div className="relative border-2 border-dashed border-border rounded-xl p-8 hover:bg-slate-50 transition-colors text-center cursor-pointer">
-                  <Input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                  <Input type="file" accept="image/*" multiple onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   <UploadCloud className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm font-medium text-navy">Clique para anexar ou arraste a foto</p>
-                  <p className="text-xs text-muted-foreground mt-1">PNG, JPG ou WEBP (Max. 2.5MB)</p>
+                  <p className="text-sm font-medium text-navy">Clique para anexar ou arraste as fotos</p>
+                  <p className="text-xs text-muted-foreground mt-1">PNG, JPG ou WEBP (Pode selecionar várias de uma vez)</p>
                 </div>
               </div>
-              {form.imagem_url && (
-                <div className="w-32 h-32 shrink-0 rounded-xl overflow-hidden border shadow-sm">
-                  <img src={form.imagem_url} alt="Preview" className="w-full h-full object-cover" />
+              
+              {form.images.length > 0 && (
+                <div className="flex gap-2 flex-wrap w-full bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  {form.images.map((img, idx) => (
+                    <div key={idx} className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden border shadow-sm group">
+                      <img src={img} alt="Preview" className="w-full h-full object-cover" />
+                      <button 
+                        onClick={() => removeImage(idx)}
+                        className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -766,21 +853,34 @@ const DoacoesPanel = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map((d) => (
-              <TableRow key={d.id}>
-                <TableCell>
-                  <img src={d.imagem_url} alt="Doação" className="w-16 h-16 object-cover rounded-md" />
-                </TableCell>
-                <TableCell className="max-w-xs truncate">{d.descricao}</TableCell>
-                <TableCell className="text-xs">{d.data_publicacao}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex gap-2 justify-end">
-                    <Button variant="ghost" size="sm" onClick={() => handleEdit(d)}><Edit className="w-4 h-4" /></Button>
-                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(d.id)}><Trash2 className="w-4 h-4" /></Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {items.map((d) => {
+              let firstImage = "";
+              try {
+                if (d.imagem_url.startsWith('[')) {
+                  firstImage = JSON.parse(d.imagem_url)[0];
+                } else {
+                  firstImage = d.imagem_url;
+                }
+              } catch {
+                firstImage = d.imagem_url;
+              }
+
+              return (
+                <TableRow key={d.id}>
+                  <TableCell>
+                    <img src={firstImage} alt="Doação" className="w-16 h-16 object-cover rounded-md" />
+                  </TableCell>
+                  <TableCell className="max-w-xs truncate">{d.descricao}</TableCell>
+                  <TableCell className="text-xs">{d.data_publicacao}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex gap-2 justify-end">
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(d)}><Edit className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(d.id)}><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
