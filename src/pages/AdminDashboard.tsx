@@ -146,8 +146,8 @@ const OuvidoriaPanel = () => {
         </TableHeader>
         <TableBody>
           {filtered.map((m) => (
-            <Fragment key={m.id}>
-              <TableRow key={m.id}>
+            <Fragment key={`manifest-${m.id}`}>
+              <TableRow>
                 <TableCell className="font-medium text-navy">{m.protocolo}</TableCell>
                 <TableCell className="text-xs">{m.cpf}</TableCell>
                 <TableCell className="capitalize">{m.tipo}</TableCell>
@@ -167,7 +167,7 @@ const OuvidoriaPanel = () => {
                 </TableCell>
               </TableRow>
               {respondingId === m.id && (
-                <TableRow key={`${m.id}-resp`}>
+                <TableRow key={`resp-${m.id}`}>
                   <TableCell colSpan={7} className="bg-muted/50">
                     <div className="space-y-3 py-2">
                       <p className="text-sm"><strong>Mensagem do cidadão:</strong> {m.mensagem}</p>
@@ -254,8 +254,8 @@ const TransparenciaPanel = () => {
         </Button>
       </div>
 
-      {showForm && (
-        <div className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
+      {showForm ? (
+        <div key="transp-form" className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
           <h3 className="font-bold text-navy">{editingDoc ? "Editar Documento" : "Novo Documento"}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -353,7 +353,7 @@ const TransparenciaPanel = () => {
             {editingDoc ? "Salvar Alterações" : "Publicar Documento"}
           </Button>
         </div>
-      )}
+      ) : null}
 
       <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
         <Table>
@@ -481,8 +481,8 @@ const NoticiasPanel = () => {
         </Button>
       </div>
 
-      {showForm && (
-        <div className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
+      {showForm ? (
+        <div key="noticia-form" className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
           <h3 className="font-bold text-navy">{editingItem ? "Editar Notícia" : "Nova Notícia"}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -543,7 +543,7 @@ const NoticiasPanel = () => {
             {editingItem ? "Salvar Alterações" : "Publicar Notícia"}
           </Button>
         </div>
-      )}
+      ) : null}
 
       <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
         <Table>
@@ -800,8 +800,8 @@ const DoacoesPanel = () => {
         </Button>
       </div>
 
-      {showForm && (
-        <div className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
+      {showForm ? (
+        <div key="doacao-form" className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
           <h3 className="font-bold text-navy">{editingItem ? "Editar Post" : "Novo Post de Doação"}</h3>
           <div>
             <label className="text-sm font-semibold text-navy block mb-1">Fotos da Doação (Max 5MB cada)</label>
@@ -840,7 +840,7 @@ const DoacoesPanel = () => {
             {editingItem ? "Salvar Alterações" : "Publicar"}
           </Button>
         </div>
-      )}
+      ) : null}
 
       <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
         <Table>
