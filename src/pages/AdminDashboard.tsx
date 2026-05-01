@@ -886,7 +886,7 @@ const NumerosPanel = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.sort((a,b) => a.ordem - b.ordem).map((n) => (
+            {[...items].sort((a,b) => a.ordem - b.ordem).map((n) => (
               <TableRow key={n.id}>
                 <TableCell>{n.ordem}</TableCell>
                 <TableCell className="font-mono text-xs">{n.icone}</TableCell>

@@ -72,17 +72,24 @@ const StatsSection = () => {
           })}
         </div>
 
-        {/* Documents */}
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-primary-foreground mb-5 text-center">📄 Documentos para Download</h3>
+        {/* Documents Section Splitter */}
+        <div className="mt-20 mb-10 text-center border-t border-white/10 pt-16">
+          <span className="inline-block text-xs font-bold uppercase tracking-widest text-emerald-300 mb-3 bg-white/10 px-4 py-1.5 rounded-full shadow-sm backdrop-blur-sm">
+            Acesso Rápido
+          </span>
+          <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+            Documentos em Destaque
+          </h3>
+          <p className="text-primary-foreground/70 max-w-xl mx-auto text-sm">
+            Acesse rapidamente os principais arquivos e demonstrações de transparência da nossa instituição.
+          </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {documents.map((doc) => (
             <a
               key={doc.id}
               href={doc.arquivo || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
+              download={doc.nome}
               className="flex items-center gap-4 bg-white/10 hover:bg-white/20 rounded-xl p-5 text-left transition-colors border border-white/10 group"
             >
               <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center shrink-0 group-hover:bg-white/25 transition-colors">
