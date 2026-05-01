@@ -1,5 +1,6 @@
-import { Heart, Landmark, Copy, Check, Info, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Heart, Landmark, Copy, Check, Info, Calendar, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { listarDoacoes, DoacaoTransparencia, listarContasDoacao, ContaDoacao } from "@/services/mockApi";
@@ -203,14 +204,19 @@ const DonationsSection = () => {
           {/* Right Column: Donation Impact Feed */}
           <div className="w-full lg:w-7/12">
             <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-4 gap-4">
-              <h3 className="text-2xl md:text-3xl font-bold text-navy">Impacto das Doações</h3>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-2xl md:text-3xl font-bold text-navy">Impacto das Doações</h3>
+                <Link to="/todas-doacoes" className="text-emerald font-black text-[10px] uppercase tracking-[0.15em] flex items-center gap-1.5 hover:translate-x-1 transition-all w-fit">
+                  Ver histórico completo <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
               <span className="text-xs font-bold text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm w-fit">
                 Atualizações recentes
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {donations.length > 0 ? donations.map((post) => {
+              {donations.length > 0 ? donations.slice(0, 10).map((post) => {
                 let images: string[] = [];
                 try {
                   if (post.imagem_url.startsWith('[')) {
