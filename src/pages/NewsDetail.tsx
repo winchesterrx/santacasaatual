@@ -105,10 +105,10 @@ const NewsDetail = () => {
       <main className="pt-32 pb-24">
         <div className="container mx-auto px-6 max-w-5xl">
           {/* Breadcrumb / Back */}
-          <Link to="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-emerald font-bold mb-8 transition-colors group">
+          <a href="/#noticias" className="inline-flex items-center gap-2 text-slate-400 hover:text-emerald font-bold mb-8 transition-colors group">
             <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             Voltar para Notícias
-          </Link>
+          </a>
 
           {/* Header */}
           <div className="mb-12">
@@ -128,8 +128,8 @@ const NewsDetail = () => {
 
             <div className="flex items-center justify-between py-6 border-y border-slate-100">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-navy font-bold text-lg">
-                  SC
+                <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center p-2 border border-slate-100">
+                  <img src="/logo.png" alt="Santa Casa" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <div className="text-sm font-black text-navy uppercase tracking-widest">Santa Casa</div>
