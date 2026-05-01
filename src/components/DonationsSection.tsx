@@ -2,18 +2,20 @@ import { Heart, Landmark, Copy, Check, Info, Calendar } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { listarDoacoes, DoacaoTransparencia } from "@/services/mockApi";
+import { listarDoacoes, DoacaoTransparencia, listarContasDoacao, ContaDoacao } from "@/services/mockApi";
 
 const DonationsSection = () => {
   const [copiedPix, setCopiedPix] = useState(false);
   const [donations, setDonations] = useState<DoacaoTransparencia[]>([]);
+  const [contas, setContas] = useState<ContaDoacao[]>([]);
 
   useEffect(() => {
     listarDoacoes().then(setDonations).catch(console.error);
+    listarContasDoacao().then(setContas).catch(console.error);
   }, []);
 
-  const handleCopyPix = () => {
-    navigator.clipboard.writeText("53782355000146");
+  const handleCopyPix = (chave: string) => {
+    navigator.clipboard.writeText(chave);
     setCopiedPix(true);
     toast.success("Chave PIX copiada com sucesso!");
     setTimeout(() => setCopiedPix(false), 2500);
@@ -40,64 +42,71 @@ const DonationsSection = () => {
             </div>
 
             <div className="space-y-6">
-              {/* PIX */}
-              <div className="bg-white border-2 border-emerald/20 rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald/5 relative overflow-hidden group hover:border-emerald/40 transition-colors">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald/5 rounded-bl-full -z-10 blur-2xl group-hover:bg-emerald/10 transition-colors" />
-                
-                <div className="flex items-center gap-3 text-emerald-600 font-black mb-6">
-                  <div className="px-2.5 py-1 bg-emerald text-white rounded text-[11px] font-black italic shadow-md shadow-emerald/20 tracking-tighter">
-                    pix
-                  </div>
-                  Chave (CNPJ)
-                </div>
-                
-                <div className="mb-6">
-                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                    Favorecido
-                  </span>
-                  <span className="font-bold text-navy text-sm">
-                    Irmandade Santa Casa de Misericordia
-                  </span>
-                </div>
+              {contas.map((contaItem) => (
+                contaItem.tipo === 'pix' ? (
+                  /* PIX */
+                  <div key={contaItem.id} className="bg-white border-2 border-emerald/20 rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald/5 relative overflow-hidden group hover:border-emerald/40 transition-colors">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald/5 rounded-bl-full -z-10 blur-2xl group-hover:bg-emerald/10 transition-colors" />
+                    
+                    <div className="flex items-center gap-3 text-emerald-600 font-black mb-6">
+                      <div className="px-2.5 py-1 bg-emerald text-white rounded text-[11px] font-black italic shadow-md shadow-emerald/20 tracking-tighter">
+                        pix
+                      </div>
+                      {contaItem.descricao || "Chave PIX"}
+                    </div>
+                    
+                    <div className="mb-6">
+                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        Favorecido
+                      </span>
+                      <span className="font-bold text-navy text-sm">
+                        {contaItem.favorecido}
+                      </span>
+                    </div>
 
-                <div className="flex items-center mt-auto bg-slate-50 border border-slate-200 rounded-2xl p-1.5 pl-4 gap-2">
-                  <div className="flex-1 font-mono font-black text-base sm:text-lg text-emerald tracking-wide truncate">
-                    53.782.355/0001-46
+                    <div className="flex items-center mt-auto bg-slate-50 border border-slate-200 rounded-2xl p-1.5 pl-4 gap-2">
+                      <div className="flex-1 font-mono font-black text-base sm:text-lg text-emerald tracking-wide truncate">
+                        {contaItem.chave_pix}
+                      </div>
+                      <Button 
+                        onClick={() => handleCopyPix(contaItem.chave_pix || "")}
+                        className={`h-12 w-12 shrink-0 rounded-xl transition-all shadow-md ${copiedPix ? "bg-emerald text-white" : "bg-emerald text-white hover:bg-emerald-dark hover:scale-105"}`}
+                        aria-label="Copiar PIX"
+                      >
+                        {copiedPix ? <Check className="w-5 h-5" /> : <Copy className="w-4 h-4" />}
+                      </Button>
+                    </div>
                   </div>
-                  <Button 
-                    onClick={handleCopyPix}
-                    className={`h-12 w-12 shrink-0 rounded-xl transition-all shadow-md ${copiedPix ? "bg-emerald text-white" : "bg-emerald text-white hover:bg-emerald-dark hover:scale-105"}`}
-                    aria-label="Copiar PIX"
-                  >
-                    {copiedPix ? <Check className="w-5 h-5" /> : <Copy className="w-4 h-4" />}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Depósito Bancário */}
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-                <div className="flex items-center gap-3 text-navy font-black mb-6">
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
-                    <Landmark className="w-5 h-5 text-emerald" />
+                ) : (
+                  /* Depósito Bancário */
+                  <div key={contaItem.id} className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+                    <div className="flex items-center gap-3 text-navy font-black mb-6">
+                      <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                        <Landmark className="w-5 h-5 text-emerald" />
+                      </div>
+                      {contaItem.descricao || "Depósito Bancário"}
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <span className="text-sm font-semibold text-slate-500 uppercase tracking-widest text-[11px]">Banco</span>
+                        <span className="font-bold text-navy">{contaItem.banco}</span>
+                      </div>
+                      <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <span className="text-sm font-semibold text-slate-500 uppercase tracking-widest text-[11px]">Agência</span>
+                        <span className="font-bold text-navy font-mono tracking-widest">{contaItem.agencia}</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 mt-4">
+                        <span className="text-sm font-bold text-slate-500">Conta</span>
+                        <span className="font-black text-emerald text-lg font-mono tracking-wider">{contaItem.conta}</span>
+                      </div>
+                    </div>
                   </div>
-                  Depósito Bancário
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                    <span className="text-sm font-semibold text-slate-500 uppercase tracking-widest text-[11px]">Banco</span>
-                    <span className="font-bold text-navy">Banco do Brasil</span>
-                  </div>
-                  <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                    <span className="text-sm font-semibold text-slate-500 uppercase tracking-widest text-[11px]">Agência</span>
-                    <span className="font-bold text-navy font-mono tracking-widest">0507-X</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 mt-4">
-                    <span className="text-sm font-bold text-slate-500">Conta</span>
-                    <span className="font-black text-emerald text-lg font-mono tracking-wider">16580-8</span>
-                  </div>
-                </div>
-              </div>
+                )
+              ))}
+              {contas.length === 0 && (
+                <div className="text-slate-500 text-sm text-center py-4">Nenhuma conta configurada no momento.</div>
+              )}
             </div>
             
             <div className="flex items-start gap-3 bg-blue-50/50 border border-blue-100 rounded-2xl p-4 text-blue-800">

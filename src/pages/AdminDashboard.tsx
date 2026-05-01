@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import {
   Heart, LogOut, MessageCircle, FileText, Newspaper,
-  Send, Trash2, Edit, Plus, X, Filter, Star, CheckCircle, XCircle, UploadCloud, Settings, TrendingUp
+  Send, Trash2, Edit, Plus, X, Filter, Star, CheckCircle, XCircle, UploadCloud, Settings, TrendingUp, Landmark
 } from "lucide-react";
 import {
   Dialog,
@@ -36,7 +36,8 @@ import {
   listarDepoimentosAdmin, alterarStatusDepoimento, editarDepoimento, excluirDepoimento,
   listarDoacoes, criarDoacao, editarDoacao, excluirDoacao,
   listarNumeros, criarNumero, editarNumero, excluirNumero,
-  type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia, type NumeroEstatistico
+  listarContasDoacao, criarContaDoacao, editarContaDoacao, excluirContaDoacao,
+  type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia, type NumeroEstatistico, type ContaDoacao
 } from "@/services/mockApi";
 
 const AdminDashboard = () => {
@@ -76,6 +77,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="noticias" className="gap-2"><Newspaper className="w-4 h-4" /> Notícias</TabsTrigger>
             <TabsTrigger value="depoimentos" className="gap-2"><Star className="w-4 h-4" /> Depoimentos</TabsTrigger>
             <TabsTrigger value="doacoes" className="gap-2"><Heart className="w-4 h-4" /> Doações</TabsTrigger>
+            <TabsTrigger value="contas" className="gap-2"><Landmark className="w-4 h-4" /> Recebimentos</TabsTrigger>
             <TabsTrigger value="numeros" className="gap-2"><TrendingUp className="w-4 h-4" /> Números</TabsTrigger>
           </TabsList>
 
@@ -84,6 +86,7 @@ const AdminDashboard = () => {
           <TabsContent value="noticias"><NoticiasPanel /></TabsContent>
           <TabsContent value="depoimentos"><DepoimentosPanel /></TabsContent>
           <TabsContent value="doacoes"><DoacoesPanel /></TabsContent>
+          <TabsContent value="contas"><ContasPanel /></TabsContent>
           <TabsContent value="numeros"><NumerosPanel /></TabsContent>
         </Tabs>
       </div>
@@ -901,6 +904,194 @@ const NumerosPanel = () => {
                 </TableCell>
               </TableRow>
             ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+// ========================
+// Contas Panel (Financeiro / Recebimentos)
+// ========================
+const ContasPanel = () => {
+  const [items, setItems] = useState<ContaDoacao[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingItem, setEditingItem] = useState<ContaDoacao | null>(null);
+  
+  const defaultForm = {
+    tipo: "conta" as "pix" | "conta",
+    banco: "",
+    agencia: "",
+    conta: "",
+    chave_pix: "",
+    descricao: "",
+    favorecido: "Irmandade Santa Casa de Misericordia",
+    ordem: 0
+  };
+  
+  const [form, setForm] = useState(defaultForm);
+
+  const load = async () => setItems(await listarContasDoacao());
+  useEffect(() => { load(); }, []);
+
+  const handleSave = async () => {
+    if (!form.tipo || !form.favorecido) return;
+    if (form.tipo === 'pix' && !form.chave_pix) return;
+    if (form.tipo === 'conta' && (!form.banco || !form.agencia || !form.conta)) return;
+
+    if (editingItem) {
+      await editarContaDoacao(editingItem.id, form);
+    } else {
+      await criarContaDoacao(form as Omit<ContaDoacao, "id">);
+    }
+    setShowForm(false);
+    setEditingItem(null);
+    setForm(defaultForm);
+    load();
+  };
+
+  const handleEdit = (c: ContaDoacao) => {
+    setEditingItem(c);
+    setForm({
+      tipo: c.tipo,
+      banco: c.banco || "",
+      agencia: c.agencia || "",
+      conta: c.conta || "",
+      chave_pix: c.chave_pix || "",
+      descricao: c.descricao || "",
+      favorecido: c.favorecido,
+      ordem: c.ordem
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if(confirm("Tem certeza que deseja excluir esta conta?")) {
+      await excluirContaDoacao(id);
+      load();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-navy">Gerenciar Contas e PIX (Doações)</h2>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm(defaultForm); }}>
+          {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
+          <span>{showForm ? "Cancelar" : "Nova Conta/PIX"}</span>
+        </Button>
+      </div>
+
+      {showForm && (
+        <div className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
+          <h3 className="font-bold text-navy">{editingItem ? "Editar Conta/PIX" : "Adicionar Recebimento"}</h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Tipo</label>
+              <Select value={form.tipo} onValueChange={(val: "pix" | "conta") => setForm({ ...form, tipo: val })}>
+                <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="conta">Conta Bancária</SelectItem>
+                  <SelectItem value="pix">Chave PIX</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Favorecido (Titular)</label>
+              <Input value={form.favorecido} onChange={(e) => setForm({ ...form, favorecido: e.target.value })} />
+            </div>
+          </div>
+
+          {form.tipo === 'conta' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50 border border-slate-100 rounded-xl">
+              <div>
+                <label className="text-sm font-semibold text-navy block mb-1">Banco</label>
+                <Input placeholder="Ex: Banco do Brasil" value={form.banco} onChange={(e) => setForm({ ...form, banco: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-navy block mb-1">Agência</label>
+                <Input placeholder="Ex: 0507-X" value={form.agencia} onChange={(e) => setForm({ ...form, agencia: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-navy block mb-1">Conta Corrente</label>
+                <Input placeholder="Ex: 16580-8" value={form.conta} onChange={(e) => setForm({ ...form, conta: e.target.value })} />
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 p-4 bg-emerald/5 border border-emerald/10 rounded-xl">
+              <div>
+                <label className="text-sm font-semibold text-emerald-700 block mb-1">Chave PIX</label>
+                <Input placeholder="Ex: 53.782.355/0001-46 ou (11) 99999-9999" value={form.chave_pix} onChange={(e) => setForm({ ...form, chave_pix: e.target.value })} />
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Descrição Breve</label>
+              <Input placeholder="Ex: Depósito Bancário ou Chave (CNPJ)" value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Ordem (Ex: 1, 2, 3)</label>
+              <Input type="number" value={form.ordem} onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })} />
+            </div>
+          </div>
+
+          <Button variant="navy-solid" onClick={handleSave}>
+            {editingItem ? "Salvar Alterações" : "Adicionar Recebimento"}
+          </Button>
+        </div>
+      )}
+
+      <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Ordem</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead>Detalhes</TableHead>
+              <TableHead>Favorecido</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...items].sort((a,b) => a.ordem - b.ordem).map((c) => (
+              <TableRow key={c.id}>
+                <TableCell>{c.ordem}</TableCell>
+                <TableCell>
+                  <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-wider ${c.tipo === 'pix' ? 'bg-emerald/10 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                    {c.tipo}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  {c.tipo === 'conta' ? (
+                    <div>
+                      <div className="font-bold text-navy text-sm">{c.banco}</div>
+                      <div className="text-xs text-muted-foreground">Ag: {c.agencia} | CC: {c.conta}</div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="font-mono font-bold text-emerald-600 text-sm">{c.chave_pix}</div>
+                      <div className="text-xs text-muted-foreground">{c.descricao}</div>
+                    </div>
+                  )}
+                </TableCell>
+                <TableCell className="text-sm">{c.favorecido}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}><Edit className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+            {items.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">Nenhuma conta cadastrada.</TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

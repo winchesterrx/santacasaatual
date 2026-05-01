@@ -315,6 +315,54 @@ app.delete('/api/doacoes/:id', async (req, res) => {
   }
 });
 
+// ==========================================
+// CONTAS DE DOAÇÃO
+// ==========================================
+app.get('/api/contas-doacao', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM contas_doacao ORDER BY ordem ASC, criado_em DESC');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/contas-doacao', async (req, res) => {
+  try {
+    const { tipo, banco, agencia, conta, chave_pix, descricao, favorecido, ordem } = req.body;
+    const [result] = await db.query(
+      'INSERT INTO contas_doacao (tipo, banco, agencia, conta, chave_pix, descricao, favorecido, ordem) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [tipo, banco || null, agencia || null, conta || null, chave_pix || null, descricao || null, favorecido, ordem || 0]
+    );
+    res.json({ id: result.insertId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/contas-doacao/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { tipo, banco, agencia, conta, chave_pix, descricao, favorecido, ordem } = req.body;
+    await db.query(
+      'UPDATE contas_doacao SET tipo = ?, banco = ?, agencia = ?, conta = ?, chave_pix = ?, descricao = ?, favorecido = ?, ordem = ? WHERE id = ?',
+      [tipo, banco || null, agencia || null, conta || null, chave_pix || null, descricao || null, favorecido, ordem || 0, id]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/contas-doacao/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM contas_doacao WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Exporta o app usando ES Modules
 export default app;
 

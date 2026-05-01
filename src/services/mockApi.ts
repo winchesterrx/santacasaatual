@@ -59,6 +59,18 @@ export interface DoacaoTransparencia {
   data_publicacao: string;
 }
 
+export interface ContaDoacao {
+  id: string;
+  tipo: 'pix' | 'conta';
+  banco?: string;
+  agencia?: string;
+  conta?: string;
+  chave_pix?: string;
+  descricao?: string;
+  favorecido: string;
+  ordem: number;
+}
+
 // Helpers
 const fetchApi = async (url: string, options: RequestInit = {}) => {
   const token = sessionStorage.getItem("sc_admin_token");
@@ -327,6 +339,45 @@ export async function editarDoacao(id: string, data: Partial<DoacaoTransparencia
 
 export async function excluirDoacao(id: string): Promise<any> {
   return fetchApi(`/api/doacoes/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ========================
+// Contas de Doação API
+// ========================
+
+export async function listarContasDoacao(): Promise<ContaDoacao[]> {
+  const data = await fetchApi('/api/contas-doacao');
+  return data.map((d: any) => ({
+    id: d.id.toString(),
+    tipo: d.tipo,
+    banco: d.banco,
+    agencia: d.agencia,
+    conta: d.conta,
+    chave_pix: d.chave_pix,
+    descricao: d.descricao,
+    favorecido: d.favorecido,
+    ordem: d.ordem
+  }));
+}
+
+export async function criarContaDoacao(data: Omit<ContaDoacao, "id">): Promise<any> {
+  return fetchApi('/api/contas-doacao', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function editarContaDoacao(id: string, data: Partial<ContaDoacao>): Promise<any> {
+  return fetchApi(`/api/contas-doacao/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function excluirContaDoacao(id: string): Promise<any> {
+  return fetchApi(`/api/contas-doacao/${id}`, {
     method: 'DELETE',
   });
 }
