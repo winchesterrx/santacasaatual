@@ -74,8 +74,11 @@ const NewsSection = () => {
   };
 
   useEffect(() => {
-    if (newsItems.length <= 3) return;
-    const interval = setInterval(next, 6000);
+    const isMobile = window.innerWidth < 768;
+    const limit = isMobile ? 1 : 3;
+    if (newsItems.length <= limit) return;
+    
+    const interval = setInterval(next, 5000); // 5 segundos
     return () => clearInterval(interval);
   }, [next, newsItems.length]);
 
