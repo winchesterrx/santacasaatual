@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Download, Eye, FileText, Users, HeartPulse, Stethoscope, BedDouble, Award, TrendingUp, Activity, Building, Ambulance, ClipboardList } from "lucide-react";
 import { listarNumeros, listarDocumentos, type NumeroEstatistico, type DocumentoTransparencia } from "@/services/mockApi";
@@ -147,6 +148,19 @@ const StatsSection = () => {
               Nenhum documento em destaque no momento.
             </div>
           )}
+        </div>
+
+        {/* Link for all documents */}
+        <div className="mt-8 text-center">
+          <Link 
+            to="/transparencia" 
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/5 border border-white/10 text-white text-sm font-semibold hover:bg-white/10 hover:border-white/20 transition-all hover:-translate-y-0.5"
+          >
+            Ver todos os dados de transparência pública
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
         </div>
       </div>
     </section>
