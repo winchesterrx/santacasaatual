@@ -111,12 +111,12 @@ const DonationsSection = () => {
         <div className="flex flex-col lg:flex-row gap-16 items-start">
           
           {/* Left Column: Call to Action & Bank Info */}
-          <div className="w-full lg:w-5/12 space-y-10 sticky top-24">
+          <div className="w-full lg:w-5/12 space-y-10 lg:sticky lg:top-24">
             <div>
               <span className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald/10 text-emerald font-extrabold uppercase tracking-widest text-[11px] rounded-full mb-6">
                 <Heart className="w-3.5 h-3.5" fill="currentColor" /> Solidariedade
               </span>
-              <h2 className="text-4xl md:text-5xl font-black text-navy mb-5 tracking-tight">
+              <h2 className="text-3xl md:text-5xl font-black text-navy mb-5 tracking-tight">
                 Apoie a Santa Casa
               </h2>
               <p className="text-muted-foreground leading-relaxed text-lg">
@@ -202,9 +202,9 @@ const DonationsSection = () => {
 
           {/* Right Column: Donation Impact Feed */}
           <div className="w-full lg:w-7/12">
-            <div className="mb-8 flex items-center justify-between border-b border-slate-200 pb-4">
-              <h3 className="text-2xl font-bold text-navy">Impacto das Doações</h3>
-              <span className="text-sm font-medium text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-4 gap-4">
+              <h3 className="text-2xl md:text-3xl font-bold text-navy">Impacto das Doações</h3>
+              <span className="text-xs font-bold text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm w-fit">
                 Atualizações recentes
               </span>
             </div>
