@@ -388,6 +388,21 @@ export async function excluirContaDoacao(id: string): Promise<any> {
 }
 
 // ========================
+// CONFIGURAÇÕES GERAIS
+// ========================
+
+export async function listarConfiguracoes(): Promise<Record<string, string>> {
+  return fetchApi('/api/configuracoes');
+}
+
+export async function atualizarConfiguracao(chave: string, valor: string): Promise<any> {
+  return fetchApi(`/api/configuracoes/${chave}`, {
+    method: 'PUT',
+    body: JSON.stringify({ valor }),
+  });
+}
+
+// ========================
 // Auth API
 // ========================
 

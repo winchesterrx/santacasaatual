@@ -363,6 +363,36 @@ app.delete('/api/contas-doacao/:id', async (req, res) => {
   }
 });
 
+// ==========================================
+// CONFIGURAÇÕES GERAIS
+// ==========================================
+app.get('/api/configuracoes', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT chave, valor FROM configuracoes');
+    const configs = rows.reduce((acc, row) => {
+      acc[row.chave] = row.valor;
+      return acc;
+    }, {});
+    res.json(configs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/configuracoes/:chave', async (req, res) => {
+  try {
+    const { chave } = req.params;
+    const { valor } = req.body;
+    await db.query(
+      'INSERT INTO configuracoes (chave, valor) VALUES (?, ?) ON DUPLICATE KEY UPDATE valor = ?',
+      [chave, valor, valor]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Exporta o app usando ES Modules
 export default app;
 

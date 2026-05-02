@@ -37,6 +37,7 @@ import {
   listarDoacoes, criarDoacao, editarDoacao, excluirDoacao,
   listarNumeros, criarNumero, editarNumero, excluirNumero,
   listarContasDoacao, criarContaDoacao, editarContaDoacao, excluirContaDoacao,
+  listarConfiguracoes, atualizarConfiguracao,
   type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia, type NumeroEstatistico, type ContaDoacao
 } from "@/services/mockApi";
 
@@ -79,6 +80,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="doacoes" className="gap-2"><Heart className="w-4 h-4" /> Doações</TabsTrigger>
             <TabsTrigger value="contas" className="gap-2"><Landmark className="w-4 h-4" /> Recebimentos</TabsTrigger>
             <TabsTrigger value="numeros" className="gap-2"><TrendingUp className="w-4 h-4" /> Números</TabsTrigger>
+            <TabsTrigger value="configuracoes" className="gap-2"><Settings className="w-4 h-4" /> Configurações</TabsTrigger>
           </TabsList>
 
           <TabsContent value="ouvidoria"><OuvidoriaPanel /></TabsContent>
@@ -88,6 +90,7 @@ const AdminDashboard = () => {
           <TabsContent value="doacoes"><DoacoesPanel /></TabsContent>
           <TabsContent value="contas"><ContasPanel /></TabsContent>
           <TabsContent value="numeros"><NumerosPanel /></TabsContent>
+          <TabsContent value="configuracoes"><ConfiguracoesPanel /></TabsContent>
         </Tabs>
       </div>
     </div>
@@ -1194,6 +1197,116 @@ const ContasPanel = () => {
             )}
           </TableBody>
         </Table>
+      </div>
+    </div>
+  );
+};
+
+// ========================
+// Configuracoes Panel
+// ========================
+const ConfiguracoesPanel = () => {
+  const [configs, setConfigs] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+
+  const load = async () => {
+    const data = await listarConfiguracoes();
+    setConfigs(data);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleUpdate = async (chave: string, valor: string) => {
+    setSaving(true);
+    await atualizarConfiguracao(chave, valor);
+    toast.success("Configuração atualizada!");
+    setSaving(false);
+    load();
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("A imagem deve ter no máximo 2MB.");
+        return;
+      }
+      const base64 = await fileToBase64(file);
+      handleUpdate('popup_imagem', base64);
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Popup de Entrada */}
+        <div className="bg-card rounded-2xl border border-border/60 p-6 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+              <MessageCircle className="w-5 h-5 text-amber-600" />
+            </div>
+            <h3 className="font-bold text-navy text-lg">Aviso de Entrada (Popup)</h3>
+          </div>
+
+          <p className="text-sm text-muted-foreground">
+            Configure o aviso que aparece para todos os visitantes assim que entram no site.
+          </p>
+
+          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
+            <div className="space-y-0.5">
+              <label className="text-sm font-bold text-navy">Exibir Popup</label>
+              <p className="text-xs text-muted-foreground">Ativa ou desativa o popup no site</p>
+            </div>
+            <Switch 
+              checked={configs.popup_ativo === 'true'} 
+              onCheckedChange={(checked) => handleUpdate('popup_ativo', checked ? 'true' : 'false')} 
+              disabled={saving}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-sm font-bold text-navy">Imagem do Popup</label>
+            <div className="relative group">
+              <div className="aspect-[4/3] w-full rounded-xl overflow-hidden border-2 border-dashed border-border bg-slate-50 flex items-center justify-center">
+                {configs.popup_imagem ? (
+                  <img src={configs.popup_imagem} alt="Preview Popup" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-center">
+                    <UploadCloud className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                    <span className="text-xs text-muted-foreground">Sem imagem configurada</span>
+                  </div>
+                )}
+              </div>
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Button variant="secondary" size="sm" className="relative cursor-pointer">
+                  <UploadCloud className="w-4 h-4 mr-2" />
+                  Trocar Imagem
+                  <Input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageUpload} 
+                    className="absolute inset-0 opacity-0 cursor-pointer" 
+                    disabled={saving}
+                  />
+                </Button>
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground italic text-center">
+              * Recomendado: 800x600px ou similar. Máx 2MB.
+            </p>
+          </div>
+        </div>
+
+        {/* Outras Configurações (Placeholder para o futuro) */}
+        <div className="bg-card rounded-2xl border border-border/60 p-6 space-y-6 opacity-60 grayscale cursor-not-allowed">
+           <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+              <Settings className="w-5 h-5 text-slate-600" />
+            </div>
+            <h3 className="font-bold text-navy text-lg">Preferências do Site</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">Outras configurações globais estarão disponíveis aqui em breve.</p>
+        </div>
       </div>
     </div>
   );
