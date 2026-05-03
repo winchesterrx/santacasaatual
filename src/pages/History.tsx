@@ -45,218 +45,266 @@ const History = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB]">
+    <div className="min-h-screen bg-[#faf9f6] text-navy selection:bg-emerald selection:text-white overflow-x-hidden">
       <SEO 
-        title="Nossa História" 
-        description="Conheça a trajetória, missão, visão e valores da Santa Casa de Misericórdia de Paulo de Faria." 
+        title="Nossa História | Santa Casa de Paulo de Faria" 
+        description="Uma jornada de dedicação, fé e cuidado que começou em 1960. Conheça o legado da Santa Casa de Paulo de Faria." 
       />
       <SiteHeader />
       
+      {/* Texture Overlay */}
+      <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
+
       <main>
-        {/* Hero Section - Ultra Premium */}
-        <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-navy">
+        {/* HERO SECTION - THE AWAKENING */}
+        <section className="relative h-screen flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
-             <img 
-               src={historia.imagem_principal} 
-               className="w-full h-full object-cover opacity-30 scale-105 transition-transform duration-[10s] hover:scale-100" 
-               alt="Fachada Santa Casa"
-             />
-             <div className="absolute inset-0 bg-gradient-to-b from-navy/40 via-navy/60 to-navy" />
-             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')] opacity-20" />
+            <img 
+              src={historia.imagem_principal} 
+              className="w-full h-full object-cover scale-110 animate-subtle-zoom" 
+              alt="Santa Casa History"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/40 to-transparent" />
+            
+            {/* Geometric Masks */}
+            <div className="absolute top-0 right-0 w-1/3 h-full bg-emerald/20 skew-x-[-20deg] translate-x-1/2 backdrop-blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-secondary/10 rounded-full blur-[120px] -translate-x-1/4 translate-y-1/4" />
           </div>
-          
-          <div className="container relative z-10 mx-auto px-6 pt-20">
-            <div className="max-w-5xl mx-auto text-center">
-              <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-emerald/10 border border-emerald/20 text-emerald text-xs font-black uppercase tracking-[0.3em] mb-8 backdrop-blur-md animate-fade-in">
-                <HistoryIcon className="w-4 h-4" /> Tradição desde 1960
+
+          <div className="container relative z-10 mx-auto px-6">
+            <div className="max-w-4xl">
+              <div className="inline-flex items-center gap-4 mb-8">
+                <div className="h-[2px] w-12 bg-secondary animate-width" />
+                <span className="text-secondary font-black uppercase tracking-[0.4em] text-sm">Desde 1960</span>
               </div>
-              <h1 className="text-5xl md:text-8xl font-black text-white mb-8 leading-[1.1] tracking-tighter">
-                Nossa <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald to-secondary">História</span>
+              <h1 className="text-6xl md:text-[10rem] font-black text-white leading-[0.8] tracking-tighter mb-12 mix-blend-difference">
+                O Legado <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald to-emerald-light drop-shadow-2xl">do Cuidado</span>
               </h1>
-              <div className="h-1.5 w-24 bg-secondary mx-auto mb-8 rounded-full" />
-              <p className="text-xl md:text-2xl text-slate-300 font-medium max-w-3xl mx-auto leading-relaxed italic opacity-90">
-                "{historia.subtitulo}"
+              <p className="text-xl md:text-3xl text-white/80 font-light max-w-2xl leading-relaxed border-l-4 border-emerald pl-8 py-2">
+                {historia.subtitulo}
               </p>
             </div>
           </div>
 
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
-            <div className="w-6 h-10 border-2 border-white/20 rounded-full flex justify-center p-1">
-              <div className="w-1 h-2 bg-secondary rounded-full" />
-            </div>
+          {/* Floating Year Label */}
+          <div className="absolute right-[-5%] bottom-[10%] text-[20vw] font-black text-white/5 select-none leading-none rotate-90">
+            1960
           </div>
         </section>
 
-        {/* Introduction Section */}
-        <section className="py-24 relative overflow-hidden">
+        {/* STORYTELLING SECTION 1 - THE ORIGIN */}
+        <section className="py-32 relative">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-              <div className="lg:col-span-8 lg:col-start-3">
-                <div className="relative">
-                  <div className="absolute -left-12 top-0 text-[12rem] font-black text-slate-100 -z-10 leading-none select-none">
-                    1960
-                  </div>
-                  <div 
-                    className="prose prose-slate prose-xl max-w-none text-slate-700 leading-[1.8] font-medium 
-                               first-letter:text-7xl first-letter:font-black first-letter:text-navy first-letter:mr-3 first-letter:float-left
-                               [&>h3]:text-3xl [&>h3]:font-black [&>h3]:text-navy [&>h3]:mt-16 [&>h3]:mb-6 [&>h3]:flex [&>h3]:items-center [&>h3]:gap-4
-                               [&>p]:mb-8 [&>ul]:space-y-4 [&>ul]:mb-8 [&>li]:flex [&>li]:gap-3 [&>li]:before:content-[''] [&>li]:before:w-2 [&>li]:before:h-2 [&>li]:before:bg-emerald [&>li]:before:rounded-full [&>li]:before:mt-3" 
-                    dangerouslySetInnerHTML={{ __html: historia.texto_historia }} 
+            <div className="flex flex-col lg:flex-row items-center gap-20">
+              <div className="lg:w-1/2 relative">
+                <div className="relative z-10 rounded-[60px] overflow-hidden shadow-2xl group">
+                  <div className="absolute inset-0 bg-emerald/20 mix-blend-multiply opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  <img 
+                    src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2070&auto=format&fit=crop" 
+                    className="w-full aspect-[4/5] object-cover transition-transform duration-[2s] group-hover:scale-110" 
+                    alt="Fundação"
                   />
+                  {/* Image Mask Mask Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-12 bg-gradient-to-t from-navy/90 to-transparent">
+                    <span className="text-emerald font-black text-xs uppercase tracking-widest block mb-2">Capítulo I</span>
+                    <h3 className="text-3xl font-black text-white">A Fundação</h3>
+                  </div>
                 </div>
+                {/* Decorative Elements */}
+                <div className="absolute -top-10 -left-10 w-40 h-40 border-[20px] border-secondary/10 rounded-full animate-pulse" />
+                <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-emerald/5 rounded-[80px] rotate-12 -z-10" />
+              </div>
+
+              <div className="lg:w-1/2 space-y-8">
+                <h2 className="text-5xl md:text-7xl font-black text-navy leading-none tracking-tight">
+                  Nasceu do esforço <br /><span className="text-emerald">comunitário.</span>
+                </h2>
+                <div className="w-20 h-2 bg-secondary rounded-full" />
+                <div 
+                  className="text-xl text-slate-600 leading-relaxed font-medium space-y-6"
+                  dangerouslySetInnerHTML={{ __html: historia.texto_historia.split('</h3>')[1]?.split('<h3')[0] || historia.texto_historia }}
+                />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Mission Vision Values - Modern Glassmorphism */}
+        {/* LIDERANÇA - THE MESA ADMINISTRATIVA */}
         <section className="py-32 bg-navy relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
-            <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-secondary rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
           </div>
-
+          
           <div className="container mx-auto px-6 relative z-10">
-            <div className="text-center mb-20">
-               <h2 className="text-3xl md:text-5xl font-black text-white mb-4">Compromisso com a <span className="text-secondary">Vida</span></h2>
-               <p className="text-slate-400 font-medium">Os pilares que sustentam nossa jornada diária.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-               {/* Missão */}
-               <div className="group relative p-1 bg-gradient-to-br from-emerald/20 to-transparent rounded-[40px] transition-all hover:scale-105 duration-500">
-                  <div className="h-full bg-navy-light/40 backdrop-blur-xl p-10 rounded-[38px] border border-white/5">
-                    <div className="w-16 h-16 rounded-2xl bg-emerald flex items-center justify-center text-white mb-8 shadow-lg shadow-emerald/20">
-                       <Target className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-4">Missão</h3>
-                    <p className="text-slate-300 leading-relaxed font-medium">{historia.missao}</p>
-                  </div>
-               </div>
-
-               {/* Visão */}
-               <div className="group relative p-1 bg-gradient-to-br from-secondary/20 to-transparent rounded-[40px] transition-all hover:scale-105 duration-500">
-                  <div className="h-full bg-navy-light/40 backdrop-blur-xl p-10 rounded-[38px] border border-white/5">
-                    <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center text-white mb-8 shadow-lg shadow-secondary/20">
-                       <Eye className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-4">Visão</h3>
-                    <p className="text-slate-300 leading-relaxed font-medium">{historia.visao}</p>
-                  </div>
-               </div>
-
-               {/* Valores */}
-               <div className="group relative p-1 bg-gradient-to-br from-white/10 to-transparent rounded-[40px] transition-all hover:scale-105 duration-500">
-                  <div className="h-full bg-navy-light/40 backdrop-blur-xl p-10 rounded-[38px] border border-white/5">
-                    <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-white mb-8">
-                       <Heart className="w-8 h-8 text-secondary" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-4">Valores</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {historia.valores.split(',').map((v, i) => (
-                        <span key={i} className="px-4 py-1.5 bg-white/5 text-slate-200 text-xs font-bold rounded-full border border-white/10 hover:bg-white/10 transition-colors">
-                          {v.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-               </div>
+            <div className="flex flex-col lg:flex-row items-center gap-16">
+              <div className="lg:w-1/2 order-2 lg:order-1">
+                <div className="inline-block px-4 py-1 rounded-full bg-white/10 text-secondary text-xs font-black uppercase tracking-[0.3em] mb-6">
+                  Gestão Estratégica
+                </div>
+                <h2 className="text-5xl md:text-7xl font-black text-white mb-10 leading-none">
+                  Liderança e <br /><span className="text-secondary">Tradição</span>
+                </h2>
+                <div className="bg-white/5 backdrop-blur-xl rounded-[40px] p-10 border border-white/10 relative">
+                   <div className="absolute -top-6 -right-6 w-20 h-20 bg-secondary rounded-full flex items-center justify-center text-navy shadow-xl rotate-12">
+                      <Award className="w-10 h-10" />
+                   </div>
+                   <p className="text-2xl text-slate-300 font-serif italic mb-8 leading-relaxed">
+                     "O cargo de provedor, seguindo a tradição secular das Misericórdias, é uma função de liderança que coordena as relações entre o hospital, o poder público e a comunidade local..."
+                   </p>
+                   <div className="flex items-center gap-6">
+                      <div className="w-20 h-20 rounded-full bg-emerald flex items-center justify-center text-white text-3xl font-black">
+                        MC
+                      </div>
+                      <div>
+                        <h4 className="text-2xl font-black text-white">Manoel Cosmo Santana</h4>
+                        <p className="text-emerald font-bold uppercase tracking-widest text-sm">(Cosminho) · Provedor Atual</p>
+                      </div>
+                   </div>
+                </div>
+              </div>
+              
+              <div className="lg:w-1/2 order-1 lg:order-2">
+                 <div className="relative group">
+                    <div className="absolute inset-0 bg-emerald/30 rounded-[80px] blur-3xl group-hover:bg-secondary/20 transition-colors" />
+                    <img 
+                      src="https://images.unsplash.com/photo-1576091160550-2173bdb999ef?q=80&w=2070&auto=format&fit=crop" 
+                      className="relative z-10 w-full aspect-square object-cover rounded-[80px] border-8 border-white/5 shadow-2xl transition-transform duration-700 group-hover:scale-[1.02]" 
+                      alt="Gestão"
+                    />
+                 </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Gallery Section - Masonry-ish */}
-        {gallery.length > 0 && (
-          <section className="py-32 bg-slate-50">
-            <div className="container mx-auto px-6">
-              <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6">
-                <div>
-                  <h2 className="text-4xl md:text-6xl font-black text-navy tracking-tight">Memórias em <span className="text-emerald">Foco</span></h2>
-                  <p className="text-slate-500 font-medium mt-4 text-lg">Um registro visual das décadas de dedicação à Paulo de Faria.</p>
+        {/* MISSION & VALUES - THE DNA */}
+        <section className="py-40 relative">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-white p-12 rounded-[50px] shadow-xl shadow-navy/5 border border-slate-100 flex flex-col items-center text-center group hover:bg-navy hover:text-white transition-all duration-500">
+                <div className="w-24 h-24 rounded-[32px] bg-emerald/10 flex items-center justify-center text-emerald mb-10 group-hover:bg-emerald group-hover:text-white transition-all">
+                  <Target className="w-10 h-10" />
                 </div>
-                <div className="w-20 h-20 rounded-full border-2 border-emerald/20 flex items-center justify-center animate-pulse">
-                   <Camera className="w-8 h-8 text-emerald" />
-                </div>
+                <h3 className="text-3xl font-black mb-6">Missão</h3>
+                <p className="text-lg text-slate-500 group-hover:text-slate-300 transition-colors leading-relaxed">
+                  {historia.missao}
+                </p>
               </div>
 
-              <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
-                {gallery.map((item) => (
-                  <div key={item.id} className="break-inside-avoid group relative rounded-[32px] overflow-hidden shadow-xl bg-white border-4 border-white transition-all hover:shadow-2xl hover:-translate-y-2">
-                    <img 
-                      src={item.imagem_url} 
-                      alt={item.legenda} 
-                      className="w-full h-auto object-cover transition-transform duration-1000 group-hover:scale-110" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8">
-                      <span className="text-secondary font-black uppercase tracking-widest text-[10px] mb-2">Registro Histórico</span>
-                      <p className="text-white font-bold text-lg leading-tight">{item.legenda}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-emerald p-12 rounded-[50px] shadow-2xl shadow-emerald/20 flex flex-col items-center text-center text-white scale-110 z-10 transition-transform hover:scale-[1.12]">
+                <div className="w-24 h-24 rounded-[32px] bg-white/20 flex items-center justify-center text-white mb-10 backdrop-blur-md">
+                  <Eye className="w-10 h-10" />
+                </div>
+                <h3 className="text-3xl font-black mb-6">Visão</h3>
+                <p className="text-lg text-white/90 leading-relaxed">
+                  {historia.visao}
+                </p>
               </div>
+
+              <div className="bg-white p-12 rounded-[50px] shadow-xl shadow-navy/5 border border-slate-100 flex flex-col items-center text-center group hover:bg-navy hover:text-white transition-all duration-500">
+                <div className="w-24 h-24 rounded-[32px] bg-secondary/10 flex items-center justify-center text-secondary mb-10 group-hover:bg-secondary group-hover:text-white transition-all">
+                  <Heart className="w-10 h-10" />
+                </div>
+                <h3 className="text-3xl font-black mb-6">Valores</h3>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {historia.valores.split(',').map((v, i) => (
+                    <span key={i} className="px-4 py-2 bg-slate-50 text-slate-600 text-xs font-black rounded-full border border-slate-200 group-hover:bg-white/10 group-hover:text-white group-hover:border-white/20 transition-all">
+                      {v.trim()}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* GALLERY - THE VISUAL CHRONICLE */}
+        {gallery.length > 0 && (
+          <section className="py-32 bg-slate-100 relative">
+            {/* SVG Background Mask/Shape */}
+            <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0] fill-white">
+               <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-[calc(100%+1.3px)] h-[100px]">
+                  <path d="M1200 120L0 120 309.19 8C444.79 3.1 482.9 4.4 588.19 33.3 700.5 64.7 723.2 63.1 857.47 33.3 968.8 8.7 1011.6 3.1 1200 120z"></path>
+               </svg>
+            </div>
+
+            <div className="container mx-auto px-6 pt-20">
+               <div className="max-w-3xl mb-20">
+                  <div className="inline-flex items-center gap-2 text-emerald font-black uppercase tracking-[0.2em] text-xs mb-4">
+                     <Camera className="w-5 h-5" /> Crônica Visual
+                  </div>
+                  <h2 className="text-5xl md:text-7xl font-black text-navy leading-none">
+                    Momentos que <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald to-secondary">eternizam</span> o cuidado.
+                  </h2>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                  {gallery.map((item, idx) => (
+                    <div 
+                      key={item.id} 
+                      className={`relative overflow-hidden shadow-2xl transition-all duration-700 hover:scale-[1.03]
+                                  ${idx % 3 === 0 ? 'md:col-span-2 md:row-span-2 rounded-[60px]' : 'rounded-[40px]'}`}
+                    >
+                       <img 
+                         src={item.imagem_url} 
+                         alt={item.legenda} 
+                         className="w-full h-full object-cover aspect-square" 
+                       />
+                       <div className="absolute inset-0 bg-navy/60 opacity-0 hover:opacity-100 transition-opacity flex flex-col justify-end p-10 backdrop-blur-sm">
+                          <p className="text-white font-black text-xl leading-snug">{item.legenda}</p>
+                       </div>
+                    </div>
+                  ))}
+               </div>
             </div>
           </section>
         )}
 
-        {/* Impact Numbers - Elegant Dark Mode */}
-        <section className="py-24 bg-white">
-           <div className="container mx-auto px-6">
-             <div className="bg-navy rounded-[60px] p-12 md:p-24 relative overflow-hidden shadow-2xl">
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald/20 rounded-full blur-[100px]" />
-                <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-secondary/10 rounded-full blur-[100px]" />
-                
-                <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
-                   <div className="space-y-2">
-                     <div className="text-6xl md:text-8xl font-black text-white tracking-tighter">60<span className="text-emerald">+</span></div>
-                     <div className="text-slate-400 font-bold uppercase tracking-[0.3em] text-xs">Anos de Excelência</div>
-                   </div>
-                   <div className="space-y-2 border-y md:border-y-0 md:border-x border-white/10 py-12 md:py-0">
-                     <div className="text-6xl md:text-8xl font-black text-secondary tracking-tighter">100<span className="text-white text-4xl">%</span></div>
-                     <div className="text-slate-400 font-bold uppercase tracking-[0.3em] text-xs">Filantropia Real</div>
-                   </div>
-                   <div className="space-y-2">
-                     <div className="text-6xl md:text-8xl font-black text-white tracking-tighter">24<span className="text-emerald">h</span></div>
-                     <div className="text-slate-400 font-bold uppercase tracking-[0.3em] text-xs">Sempre Presentes</div>
-                   </div>
-                </div>
-             </div>
-           </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-32 bg-[#FDFCFB]">
-           <div className="container mx-auto px-6">
-              <div className="max-w-4xl mx-auto text-center space-y-12">
-                 <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-secondary/10 text-secondary text-xs font-black uppercase tracking-[0.2em] border border-secondary/20">
-                    <Users className="w-4 h-4" /> Comunidade Paulo-Fariense
-                 </div>
-                 <h2 className="text-4xl md:text-7xl font-black text-navy leading-[1.1] tracking-tight">
-                    Ajude-nos a escrever os <span className="text-emerald">próximos 60 anos</span>.
-                 </h2>
-                 <p className="text-slate-500 text-xl font-medium max-w-2xl mx-auto">
-                   Cada doação e cada apoio fortalece nossa missão de cuidar de quem mais precisa. Seja parte desta corrente do bem.
-                 </p>
-                 <div className="flex flex-wrap justify-center gap-6 pt-6">
-                    <a 
-                      href="/#doacoes" 
-                      className="px-12 py-5 bg-emerald text-white font-black rounded-2xl hover:bg-emerald-dark transition-all hover:scale-105 shadow-2xl shadow-emerald/30 text-lg"
-                    >
-                      Quero Contribuir
+        {/* CTA - THE CONTINUATION */}
+        <section className="py-40 bg-white relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/white-diamond.png')] opacity-20" />
+          <div className="container mx-auto px-6 relative z-10 text-center">
+            <div className="max-w-5xl mx-auto">
+               <h2 className="text-6xl md:text-[10rem] font-black text-navy/5 leading-none absolute left-0 right-0 top-1/2 -translate-y-1/2 select-none uppercase tracking-tighter">
+                 Paulo de Faria
+               </h2>
+               <div className="relative z-20 space-y-12">
+                  <h2 className="text-5xl md:text-8xl font-black text-navy leading-[0.9] tracking-tighter">
+                    O futuro é <br /><span className="text-emerald">filantrópico.</span>
+                  </h2>
+                  <p className="text-xl md:text-3xl text-slate-400 font-light max-w-3xl mx-auto">
+                    A Santa Casa não é apenas um prédio, é o coração pulsante de uma cidade que cuida de si mesma.
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-8 pt-8">
+                    <a href="/#doacoes" className="group relative px-12 py-6 bg-navy text-white font-black rounded-full overflow-hidden shadow-2xl">
+                       <span className="relative z-10 text-xl">Quero Contribuir</span>
+                       <div className="absolute inset-0 bg-emerald translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                     </a>
-                    <a 
-                      href="/#servicos" 
-                      className="px-12 py-5 bg-navy text-white font-black rounded-2xl hover:bg-navy-light transition-all hover:scale-105 shadow-2xl shadow-navy/30 text-lg"
-                    >
-                      Conhecer Serviços
+                    <a href="/#servicos" className="group relative px-12 py-6 border-4 border-navy text-navy font-black rounded-full overflow-hidden">
+                       <span className="relative z-10 text-xl">Conhecer Especialidades</span>
                     </a>
-                 </div>
-              </div>
-           </div>
+                  </div>
+               </div>
+            </div>
+          </div>
         </section>
       </main>
 
       <SiteFooter />
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes subtle-zoom {
+          0% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+        }
+        @keyframes width {
+          0% { width: 0; }
+          100% { width: 48px; }
+        }
+        .animate-subtle-zoom { animation: subtle-zoom 20s infinite alternate ease-in-out; }
+        .animate-width { animation: width 1s forwards; }
+      `}} />
     </div>
   );
 };
