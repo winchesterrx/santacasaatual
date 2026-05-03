@@ -8,6 +8,11 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
+// Rota de teste para verificar se o servidor está online (sem DB)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'online', message: 'Servidor da Santa Casa operando corretamente' });
+});
+
 // ==========================================
 // AUTH (MOCK SIMPLES -> EM BREVE COM BCRYPT E JWT)
 // ==========================================
