@@ -1,4 +1,5 @@
 // API service layer - Agora conectada ao backend real via Proxy (/api)
+import { withCache, cacheInvalidate } from './cache';
 
 export interface Manifestacao {
   id: string;
@@ -89,6 +90,7 @@ export interface Infraestrutura {
 }
 
 // Helpers
+
 const fetchApi = async (url: string, options: RequestInit = {}) => {
   const token = sessionStorage.getItem("sc_admin_token");
   const headers: HeadersInit = {
@@ -105,6 +107,11 @@ const fetchApi = async (url: string, options: RequestInit = {}) => {
   }
   return response.json();
 };
+
+// TTLs de cache (ms)
+const TTL_LONGO  = 10 * 60 * 1000; // 10 min — dados que mudam pouco
+const TTL_MEDIO  =  5 * 60 * 1000; //  5 min — dados moderadamente dinâmicos
+const TTL_CURTO  =  2 * 60 * 1000; //  2 min — dados mais frequentes
 
 // ========================
 // Ouvidoria API
@@ -137,6 +144,13 @@ export async function listarManifestacoes(): Promise<Manifestacao[]> {
   }));
 }
 
+// Invalida cache de ouvidoria após resposta
+export async function responderManifestacaoComCache(id: string, resposta: string): Promise<any> {
+  const r = await responderManifestacao(id, resposta);
+  cacheInvalidate('ouvidoria');
+  return r;
+}
+
 export async function responderManifestacao(id: string, resposta: string): Promise<any> {
   return fetchApi(`/api/ouvidoria/${id}/responder`, {
     method: 'PUT',
@@ -149,47 +163,35 @@ export async function responderManifestacao(id: string, resposta: string): Promi
 // ========================
 
 export async function listarDocumentos(): Promise<DocumentoTransparencia[]> {
-  const data = await fetchApi('/api/documentos');
-  return data.map((d: any) => ({
-    id: d.id.toString(),
-    nome: d.nome,
-    categoria: d.categoria,
-    dataPublicacao: new Date(d.data_publicacao).toISOString().split('T')[0],
-    arquivo: d.arquivo_url,
-    is_favorite: d.is_favorite === 1 || d.is_favorite === true
-  }));
+  return withCache('documentos', async () => {
+    const data = await fetchApi('/api/documentos');
+    return data.map((d: any) => ({
+      id: d.id.toString(),
+      nome: d.nome,
+      categoria: d.categoria,
+      dataPublicacao: new Date(d.data_publicacao).toISOString().split('T')[0],
+      arquivo: d.arquivo_url,
+      is_favorite: d.is_favorite === 1 || d.is_favorite === true
+    }));
+  }, TTL_LONGO);
 }
 
 export async function criarDocumento(data: Omit<DocumentoTransparencia, "id">): Promise<any> {
-  return fetchApi('/api/documentos', {
-    method: 'POST',
-    body: JSON.stringify({
-      nome: data.nome,
-      categoria: data.categoria,
-      data_publicacao: data.dataPublicacao,
-      arquivo_url: data.arquivo || null,
-      is_favorite: data.is_favorite
-    }),
-  });
+  const r = await fetchApi('/api/documentos', { method: 'POST', body: JSON.stringify({ nome: data.nome, categoria: data.categoria, data_publicacao: data.dataPublicacao, arquivo_url: data.arquivo || null, is_favorite: data.is_favorite }) });
+  cacheInvalidate('documentos');
+  return r;
 }
 
 export async function editarDocumento(id: string, data: Partial<DocumentoTransparencia>): Promise<any> {
-  return fetchApi(`/api/documentos/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      nome: data.nome,
-      categoria: data.categoria,
-      data_publicacao: data.dataPublicacao,
-      arquivo_url: data.arquivo,
-      is_favorite: data.is_favorite
-    }),
-  });
+  const r = await fetchApi(`/api/documentos/${id}`, { method: 'PUT', body: JSON.stringify({ nome: data.nome, categoria: data.categoria, data_publicacao: data.dataPublicacao, arquivo_url: data.arquivo, is_favorite: data.is_favorite }) });
+  cacheInvalidate('documentos');
+  return r;
 }
 
 export async function excluirDocumento(id: string): Promise<any> {
-  return fetchApi(`/api/documentos/${id}`, {
-    method: 'DELETE',
-  });
+  const r = await fetchApi(`/api/documentos/${id}`, { method: 'DELETE' });
+  cacheInvalidate('documentos');
+  return r;
 }
 
 // ========================
@@ -201,35 +203,28 @@ export async function excluirDocumento(id: string): Promise<any> {
 // ========================
 
 export async function listarNumeros(): Promise<NumeroEstatistico[]> {
-  const data = await fetchApi('/api/numeros');
-  return data.map((d: any) => ({
-    id: d.id.toString(),
-    icone: d.icone,
-    valor: d.valor,
-    titulo: d.titulo,
-    descricao: d.descricao,
-    ordem: d.ordem
-  }));
+  return withCache('numeros', async () => {
+    const data = await fetchApi('/api/numeros');
+    return data.map((d: any) => ({ id: d.id.toString(), icone: d.icone, valor: d.valor, titulo: d.titulo, descricao: d.descricao, ordem: d.ordem }));
+  }, TTL_LONGO);
 }
 
 export async function criarNumero(data: Omit<NumeroEstatistico, "id">): Promise<any> {
-  return fetchApi('/api/numeros', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  const r = await fetchApi('/api/numeros', { method: 'POST', body: JSON.stringify(data) });
+  cacheInvalidate('numeros');
+  return r;
 }
 
 export async function editarNumero(id: string, data: Partial<NumeroEstatistico>): Promise<any> {
-  return fetchApi(`/api/numeros/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  });
+  const r = await fetchApi(`/api/numeros/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  cacheInvalidate('numeros');
+  return r;
 }
 
 export async function excluirNumero(id: string): Promise<any> {
-  return fetchApi(`/api/numeros/${id}`, {
-    method: 'DELETE',
-  });
+  const r = await fetchApi(`/api/numeros/${id}`, { method: 'DELETE' });
+  cacheInvalidate('numeros');
+  return r;
 }
 
 export async function buscarNoticiaPorId(id: string): Promise<Noticia | null> {
@@ -238,47 +233,28 @@ export async function buscarNoticiaPorId(id: string): Promise<Noticia | null> {
 }
 
 export async function listarNoticias(): Promise<Noticia[]> {
-  const data = await fetchApi('/api/noticias');
-  return data.map((d: any) => ({
-    id: d.id.toString(),
-    titulo: d.titulo,
-    corpo: d.corpo,
-    categoria: d.categoria || "Geral",
-    imagem: d.imagem_url || "",
-    data: new Date(d.data_publicacao).toISOString().split('T')[0]
-  }));
+  return withCache('noticias', async () => {
+    const data = await fetchApi('/api/noticias');
+    return data.map((d: any) => ({ id: d.id.toString(), titulo: d.titulo, corpo: d.corpo, categoria: d.categoria || "Geral", imagem: d.imagem_url || "", data: new Date(d.data_publicacao).toISOString().split('T')[0] }));
+  }, TTL_MEDIO);
 }
 
 export async function criarNoticia(data: any): Promise<any> {
-  return fetchApi('/api/noticias', {
-    method: 'POST',
-    body: JSON.stringify({
-      titulo: data.titulo,
-      corpo: data.corpo,
-      categoria: data.categoria,
-      imagem_url: data.imagem,
-      data_publicacao: data.data
-    }),
-  });
+  const r = await fetchApi('/api/noticias', { method: 'POST', body: JSON.stringify({ titulo: data.titulo, corpo: data.corpo, categoria: data.categoria, imagem_url: data.imagem, data_publicacao: data.data }) });
+  cacheInvalidate('noticias');
+  return r;
 }
 
 export async function editarNoticia(id: string, data: any): Promise<any> {
-  return fetchApi(`/api/noticias/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      titulo: data.titulo,
-      corpo: data.corpo,
-      categoria: data.categoria,
-      imagem_url: data.imagem,
-      data_publicacao: data.data
-    }),
-  });
+  const r = await fetchApi(`/api/noticias/${id}`, { method: 'PUT', body: JSON.stringify({ titulo: data.titulo, corpo: data.corpo, categoria: data.categoria, imagem_url: data.imagem, data_publicacao: data.data }) });
+  cacheInvalidate('noticias');
+  return r;
 }
 
 export async function excluirNoticia(id: string): Promise<any> {
-  return fetchApi(`/api/noticias/${id}`, {
-    method: 'DELETE',
-  });
+  const r = await fetchApi(`/api/noticias/${id}`, { method: 'DELETE' });
+  cacheInvalidate('noticias');
+  return r;
 }
 
 // ========================
@@ -287,20 +263,14 @@ export async function excluirNoticia(id: string): Promise<any> {
 
 export async function listarDepoimentosAdmin(): Promise<Depoimento[]> {
   const data = await fetchApi('/api/depoimentos');
-  return data.map((d: any) => ({
-    id: d.id.toString(),
-    autor: d.autor,
-    papel: d.papel,
-    texto: d.texto,
-    estrelas: d.estrelas,
-    status: d.status,
-    data: new Date(d.data_criacao).toISOString().split('T')[0]
-  }));
+  return data.map((d: any) => ({ id: d.id.toString(), autor: d.autor, papel: d.papel, texto: d.texto, estrelas: d.estrelas, status: d.status, data: new Date(d.data_criacao).toISOString().split('T')[0] }));
 }
 
 export async function listarDepoimentosAprovados(): Promise<Depoimento[]> {
-  const todos = await listarDepoimentosAdmin();
-  return todos.filter((d: Depoimento) => d.status === 'aprovado');
+  return withCache('depoimentos_aprovados', async () => {
+    const todos = await listarDepoimentosAdmin();
+    return todos.filter((d: Depoimento) => d.status === 'aprovado');
+  }, TTL_MEDIO);
 }
 
 export async function criarDepoimento(data: Omit<Depoimento, "id" | "status" | "data">): Promise<any> {
@@ -335,34 +305,28 @@ export async function excluirDepoimento(id: string): Promise<any> {
 // ========================
 
 export async function listarDoacoes(): Promise<DoacaoTransparencia[]> {
-  const data = await fetchApi('/api/doacoes');
-  return data.map((d: any) => ({
-    id: d.id.toString(),
-    descricao: d.descricao,
-    imagem_url: d.imagem_url,
-    curtidas: d.curtidas,
-    data_publicacao: new Date(d.data_publicacao).toISOString().split('T')[0]
-  }));
+  return withCache('doacoes', async () => {
+    const data = await fetchApi('/api/doacoes');
+    return data.map((d: any) => ({ id: d.id.toString(), descricao: d.descricao, imagem_url: d.imagem_url, curtidas: d.curtidas, data_publicacao: new Date(d.data_publicacao).toISOString().split('T')[0] }));
+  }, TTL_MEDIO);
 }
 
 export async function criarDoacao(data: Omit<DoacaoTransparencia, "id" | "data_publicacao" | "curtidas">): Promise<any> {
-  return fetchApi('/api/doacoes', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  const r = await fetchApi('/api/doacoes', { method: 'POST', body: JSON.stringify(data) });
+  cacheInvalidate('doacoes');
+  return r;
 }
 
 export async function editarDoacao(id: string, data: Partial<DoacaoTransparencia>): Promise<any> {
-  return fetchApi(`/api/doacoes/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  });
+  const r = await fetchApi(`/api/doacoes/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  cacheInvalidate('doacoes');
+  return r;
 }
 
 export async function excluirDoacao(id: string): Promise<any> {
-  return fetchApi(`/api/doacoes/${id}`, {
-    method: 'DELETE',
-  });
+  const r = await fetchApi(`/api/doacoes/${id}`, { method: 'DELETE' });
+  cacheInvalidate('doacoes');
+  return r;
 }
 
 // ========================
@@ -370,38 +334,28 @@ export async function excluirDoacao(id: string): Promise<any> {
 // ========================
 
 export async function listarContasDoacao(): Promise<ContaDoacao[]> {
-  const data = await fetchApi('/api/contas-doacao');
-  return data.map((d: any) => ({
-    id: d.id.toString(),
-    tipo: d.tipo,
-    banco: d.banco,
-    agencia: d.agencia,
-    conta: d.conta,
-    chave_pix: d.chave_pix,
-    descricao: d.descricao,
-    favorecido: d.favorecido,
-    ordem: d.ordem
-  }));
+  return withCache('contas_doacao', async () => {
+    const data = await fetchApi('/api/contas-doacao');
+    return data.map((d: any) => ({ id: d.id.toString(), tipo: d.tipo, banco: d.banco, agencia: d.agencia, conta: d.conta, chave_pix: d.chave_pix, descricao: d.descricao, favorecido: d.favorecido, ordem: d.ordem }));
+  }, TTL_LONGO);
 }
 
 export async function criarContaDoacao(data: Omit<ContaDoacao, "id">): Promise<any> {
-  return fetchApi('/api/contas-doacao', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  const r = await fetchApi('/api/contas-doacao', { method: 'POST', body: JSON.stringify(data) });
+  cacheInvalidate('contas_doacao');
+  return r;
 }
 
 export async function editarContaDoacao(id: string, data: Partial<ContaDoacao>): Promise<any> {
-  return fetchApi(`/api/contas-doacao/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  });
+  const r = await fetchApi(`/api/contas-doacao/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  cacheInvalidate('contas_doacao');
+  return r;
 }
 
 export async function excluirContaDoacao(id: string): Promise<any> {
-  return fetchApi(`/api/contas-doacao/${id}`, {
-    method: 'DELETE',
-  });
+  const r = await fetchApi(`/api/contas-doacao/${id}`, { method: 'DELETE' });
+  cacheInvalidate('contas_doacao');
+  return r;
 }
 
 // ========================
@@ -409,32 +363,28 @@ export async function excluirContaDoacao(id: string): Promise<any> {
 // ========================
 
 export async function listarServicos(): Promise<Servico[]> {
-  const data = await fetchApi('/api/servicos');
-  return data.map((d: any) => ({
-    ...d,
-    id: d.id.toString(),
-    destaque: d.destaque === 1 || d.destaque === true
-  }));
+  return withCache('servicos', async () => {
+    const data = await fetchApi('/api/servicos');
+    return data.map((d: any) => ({ ...d, id: d.id.toString(), destaque: d.destaque === 1 || d.destaque === true }));
+  }, TTL_LONGO);
 }
 
 export async function criarServico(data: Omit<Servico, "id">): Promise<any> {
-  return fetchApi('/api/servicos', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  const r = await fetchApi('/api/servicos', { method: 'POST', body: JSON.stringify(data) });
+  cacheInvalidate('servicos');
+  return r;
 }
 
 export async function editarServico(id: string, data: Partial<Servico>): Promise<any> {
-  return fetchApi(`/api/servicos/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  });
+  const r = await fetchApi(`/api/servicos/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  cacheInvalidate('servicos');
+  return r;
 }
 
 export async function excluirServico(id: string): Promise<any> {
-  return fetchApi(`/api/servicos/${id}`, {
-    method: 'DELETE',
-  });
+  const r = await fetchApi(`/api/servicos/${id}`, { method: 'DELETE' });
+  cacheInvalidate('servicos');
+  return r;
 }
 
 // ========================
@@ -442,31 +392,28 @@ export async function excluirServico(id: string): Promise<any> {
 // ========================
 
 export async function listarInfraestrutura(): Promise<Infraestrutura[]> {
-  const data = await fetchApi('/api/infraestrutura');
-  return data.map((d: any) => ({
-    ...d,
-    id: d.id.toString()
-  }));
+  return withCache('infraestrutura', async () => {
+    const data = await fetchApi('/api/infraestrutura');
+    return data.map((d: any) => ({ ...d, id: d.id.toString() }));
+  }, TTL_LONGO);
 }
 
 export async function criarInfraestrutura(data: Omit<Infraestrutura, "id">): Promise<any> {
-  return fetchApi('/api/infraestrutura', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  const r = await fetchApi('/api/infraestrutura', { method: 'POST', body: JSON.stringify(data) });
+  cacheInvalidate('infraestrutura');
+  return r;
 }
 
 export async function editarInfraestrutura(id: string, data: Partial<Infraestrutura>): Promise<any> {
-  return fetchApi(`/api/infraestrutura/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  });
+  const r = await fetchApi(`/api/infraestrutura/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  cacheInvalidate('infraestrutura');
+  return r;
 }
 
 export async function excluirInfraestrutura(id: string): Promise<any> {
-  return fetchApi(`/api/infraestrutura/${id}`, {
-    method: 'DELETE',
-  });
+  const r = await fetchApi(`/api/infraestrutura/${id}`, { method: 'DELETE' });
+  cacheInvalidate('infraestrutura');
+  return r;
 }
 
 // ========================
@@ -529,17 +476,26 @@ export interface HistoriaGaleria {
   ordem: number;
 }
 
-export const buscarHistoria = () => fetchApi('/api/historia');
-export const atualizarHistoria = (data: Partial<Historia>) => fetchApi('/api/historia', {
-  method: 'PUT',
-  body: JSON.stringify(data)
-});
+export const buscarHistoria = () =>
+  withCache('historia', () => fetchApi('/api/historia'), TTL_LONGO);
 
-export const listarGaleriaHistoria = () => fetchApi('/api/historia/galeria');
-export const adicionarGaleriaHistoria = (data: Partial<HistoriaGaleria>) => fetchApi('/api/historia/galeria', {
-  method: 'POST',
-  body: JSON.stringify(data)
-});
-export const excluirGaleriaHistoria = (id: number) => fetchApi(`/api/historia/galeria/${id}`, {
-  method: 'DELETE'
-});
+export const atualizarHistoria = async (data: Partial<Historia>) => {
+  const r = await fetchApi('/api/historia', { method: 'PUT', body: JSON.stringify(data) });
+  cacheInvalidate('historia');
+  return r;
+};
+
+export const listarGaleriaHistoria = () =>
+  withCache('historia_galeria', () => fetchApi('/api/historia/galeria'), TTL_LONGO);
+
+export const adicionarGaleriaHistoria = async (data: Partial<HistoriaGaleria>) => {
+  const r = await fetchApi('/api/historia/galeria', { method: 'POST', body: JSON.stringify(data) });
+  cacheInvalidate('historia_galeria');
+  return r;
+};
+
+export const excluirGaleriaHistoria = async (id: number) => {
+  const r = await fetchApi(`/api/historia/galeria/${id}`, { method: 'DELETE' });
+  cacheInvalidate('historia_galeria');
+  return r;
+};
