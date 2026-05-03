@@ -71,6 +71,23 @@ export interface ContaDoacao {
   ordem: number;
 }
 
+export interface Servico {
+  id: string;
+  icone: string;
+  titulo: string;
+  descricao: string;
+  destaque: boolean;
+  ordem: number;
+}
+
+export interface Infraestrutura {
+  id: string;
+  icone: string;
+  nome: string;
+  quantidade: number;
+  ordem: number;
+}
+
 // Helpers
 const fetchApi = async (url: string, options: RequestInit = {}) => {
   const token = sessionStorage.getItem("sc_admin_token");
@@ -383,6 +400,71 @@ export async function editarContaDoacao(id: string, data: Partial<ContaDoacao>):
 
 export async function excluirContaDoacao(id: string): Promise<any> {
   return fetchApi(`/api/contas-doacao/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ========================
+// SERVIÇOS (ESPECIALIDADES) API
+// ========================
+
+export async function listarServicos(): Promise<Servico[]> {
+  const data = await fetchApi('/api/servicos');
+  return data.map((d: any) => ({
+    ...d,
+    id: d.id.toString(),
+    destaque: d.destaque === 1 || d.destaque === true
+  }));
+}
+
+export async function criarServico(data: Omit<Servico, "id">): Promise<any> {
+  return fetchApi('/api/servicos', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function editarServico(id: string, data: Partial<Servico>): Promise<any> {
+  return fetchApi(`/api/servicos/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function excluirServico(id: string): Promise<any> {
+  return fetchApi(`/api/servicos/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ========================
+// INFRAESTRUTURA API
+// ========================
+
+export async function listarInfraestrutura(): Promise<Infraestrutura[]> {
+  const data = await fetchApi('/api/infraestrutura');
+  return data.map((d: any) => ({
+    ...d,
+    id: d.id.toString()
+  }));
+}
+
+export async function criarInfraestrutura(data: Omit<Infraestrutura, "id">): Promise<any> {
+  return fetchApi('/api/infraestrutura', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function editarInfraestrutura(id: string, data: Partial<Infraestrutura>): Promise<any> {
+  return fetchApi(`/api/infraestrutura/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function excluirInfraestrutura(id: string): Promise<any> {
+  return fetchApi(`/api/infraestrutura/${id}`, {
     method: 'DELETE',
   });
 }

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Calendar, ChevronLeft, Heart } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import SEO from "@/components/SEO";
 import { listarDoacoes, type DoacaoTransparencia } from "@/services/mockApi";
 
 const ImageCarousel = ({ images }: { images: string[] }) => {
@@ -64,6 +65,10 @@ const AllDonations = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <SEO 
+        title="Histórico de Doações" 
+        description="Veja como as doações estão transformando a Santa Casa de Paulo de Faria." 
+      />
       <SiteHeader />
       
       <main className="pt-32 pb-24">

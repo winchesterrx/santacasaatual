@@ -63,3 +63,22 @@ CREATE TABLE IF NOT EXISTS doacoes_transparencia (
     curtidas INT DEFAULT 0,
     data_publicacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Criação da tabela de Serviços (Cards de Especialidades)
+CREATE TABLE IF NOT EXISTS servicos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    icone VARCHAR(50) NOT NULL,
+    titulo VARCHAR(100) NOT NULL,
+    descricao TEXT NOT NULL,
+    destaque BOOLEAN DEFAULT FALSE,
+    ordem INT DEFAULT 0
+);
+
+-- Criação da tabela de Infraestrutura (Capacidade do Hospital)
+CREATE TABLE IF NOT EXISTS infraestrutura (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    icone VARCHAR(50) NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    quantidade INT DEFAULT 1,
+    ordem INT DEFAULT 0
+);

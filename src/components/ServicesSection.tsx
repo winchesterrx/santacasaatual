@@ -1,33 +1,37 @@
+import { useState, useEffect } from "react";
 import {
   Stethoscope, Baby, HeartPulse, Microscope, Scan, Ambulance, Activity, Atom,
   Building2, ArrowRight, BedSingle, Bandage, Users, Scissors
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { listarServicos, listarInfraestrutura, type Servico, type Infraestrutura } from "@/services/mockApi";
 
-const services = [
-  { icon: Ambulance, title: "Urgência e Emergência", desc: "Pronto-Socorro 24 horas com equipe médica de plantão, sala de estabilização e atendimento imediato.", highlight: true },
-  { icon: Microscope, title: "Laboratório Clínico", desc: "Análises clínicas completas com equipamentos modernos e resultados ágeis para diagnósticos precisos." },
-  { icon: Scan, title: "Diagnóstico por Imagem", desc: "Raio-X digital, ultrassonografia e exames de imagem de alta resolução." },
-  { icon: Activity, title: "Métodos Gráficos Dinâmicos", desc: "Eletrocardiograma (ECG), monitoramento cardíaco e exames gráficos especializados." },
-  { icon: Atom, title: "Medicina Nuclear", desc: "Cintilografia, PET-CT e exames nucleares para diagnósticos avançados." },
-  { icon: Baby, title: "Pré-natal, Parto e Nascimento", desc: "Acompanhamento gestacional, parto humanizado e alojamento conjunto para mãe e bebê." },
-  { icon: HeartPulse, title: "Transplante", desc: "Serviço credenciado de captação e transplante de órgãos e tecidos." },
-  { icon: Stethoscope, title: "Clínica Médica", desc: "Consultas ambulatoriais, internação clínica e acompanhamento multidisciplinar." },
-];
-
-const infra = [
-  { name: "Atendimento Indiferenciado", qty: 1, icon: Users },
-  { name: "Sala de Curativos", qty: 1, icon: Bandage },
-  { name: "Clínicas Especializadas", qty: 1, icon: Building2 },
-  { name: "Consultórios (Outros)", qty: 1, icon: Stethoscope },
-  { name: "Repouso e Observação", qty: 2, icon: BedSingle },
-  { name: "Centros Cirúrgicos", qty: 2, icon: Scissors },
-  { name: "Recuperação Pós-Anestésica", qty: 1, icon: Activity },
-  { name: "Centro de Parto", qty: 1, icon: Baby },
-  { name: "Estabilização / Risco", qty: 1, icon: HeartPulse },
-];
+const iconMap: Record<string, any> = {
+  Ambulance, Microscope, Scan, Activity, Atom, Baby, HeartPulse, Stethoscope, Building2, BedSingle, Bandage, Users, Scissors
+};
 
 const ServicesSection = () => {
+  const [services, setServices] = useState<Servico[]>([]);
+  const [infra, setInfra] = useState<Infraestrutura[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [svcs, inf] = await Promise.all([listarServicos(), listarInfraestrutura()]);
+        setServices(svcs);
+        setInfra(inf);
+      } catch (error) {
+        console.error("Erro ao carregar serviços/infra", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading && services.length === 0) return null;
+
   return (
     <section id="servicos" className="relative py-20 md:py-28 overflow-hidden">
       {/* Background Fachada Santa Casa */}
@@ -50,35 +54,38 @@ const ServicesSection = () => {
             Especialidades e Atendimento
           </h2>
           <p className="text-white/80 max-w-2xl mx-auto leading-relaxed">
-            Hospital Geral filantrópico com <strong className="text-white">8 especialidades médicas</strong>, atendendo a comunidade de Paulo de Faria e 
+            Hospital Geral filantrópico com <strong className="text-white">{services.length} especialidades médicas</strong>, atendendo a comunidade de Paulo de Faria e 
             municípios da região noroeste paulista pelo SUS.
           </p>
         </div>
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
-          {services.map((svc) => (
-            <div
-              key={svc.title}
-              className={`group rounded-2xl border p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 ${
-                svc.highlight
-                  ? "bg-navy text-primary-foreground border-transparent"
-                  : "bg-card border-border/60"
-              }`}
-            >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${
-                svc.highlight
-                  ? "bg-white/15"
-                  : "bg-emerald/10 group-hover:bg-emerald group-hover:text-primary-foreground"
-              }`}>
-                <svc.icon className={`w-6 h-6 transition-colors ${
-                  svc.highlight ? "text-secondary" : "text-emerald group-hover:text-primary-foreground"
-                }`} />
+          {services.map((svc) => {
+            const Icon = iconMap[svc.icone] || Stethoscope;
+            return (
+              <div
+                key={svc.id}
+                className={`group rounded-2xl border p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 ${
+                  svc.destaque
+                    ? "bg-navy text-primary-foreground border-transparent"
+                    : "bg-card border-border/60"
+                }`}
+              >
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${
+                  svc.destaque
+                    ? "bg-white/15"
+                    : "bg-emerald/10 group-hover:bg-emerald group-hover:text-primary-foreground"
+                }`}>
+                  <Icon className={`w-6 h-6 transition-colors ${
+                    svc.destaque ? "text-secondary" : "text-emerald group-hover:text-primary-foreground"
+                  }`} />
+                </div>
+                <h3 className={`text-base font-bold mb-1.5 ${svc.destaque ? "text-primary-foreground" : "text-navy"}`}>{svc.titulo}</h3>
+                <p className={`text-sm leading-relaxed ${svc.destaque ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{svc.descricao}</p>
               </div>
-              <h3 className={`text-base font-bold mb-1.5 ${svc.highlight ? "text-primary-foreground" : "text-navy"}`}>{svc.title}</h3>
-              <p className={`text-sm leading-relaxed ${svc.highlight ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{svc.desc}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Infrastructure */}
@@ -97,22 +104,25 @@ const ServicesSection = () => {
             </div>
             
             <div className="flex flex-wrap justify-center gap-4 lg:gap-5">
-              {infra.map((item, i) => (
-                <div 
-                  key={i} 
-                  className="bg-card w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.8rem)] lg:w-[calc(20%-1rem)] border border-border hover:border-emerald/40 hover:shadow-lg rounded-2xl p-6 flex flex-col items-center justify-center text-center transition-all duration-300 group hover:-translate-y-1"
-                >
-                  <div className="w-14 h-14 rounded-full bg-emerald/10 text-emerald flex items-center justify-center mb-5 group-hover:bg-emerald group-hover:text-primary-foreground transition-colors duration-300">
-                    <item.icon className="w-7 h-7" />
+              {infra.map((item) => {
+                const Icon = iconMap[item.icone] || Users;
+                return (
+                  <div 
+                    key={item.id} 
+                    className="bg-card w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.8rem)] lg:w-[calc(20%-1rem)] border border-border hover:border-emerald/40 hover:shadow-lg rounded-2xl p-6 flex flex-col items-center justify-center text-center transition-all duration-300 group hover:-translate-y-1"
+                  >
+                    <div className="w-14 h-14 rounded-full bg-emerald/10 text-emerald flex items-center justify-center mb-5 group-hover:bg-emerald group-hover:text-primary-foreground transition-colors duration-300">
+                      <Icon className="w-7 h-7" />
+                    </div>
+                    <h4 className="text-sm font-bold text-navy mb-3 leading-snug">
+                      {item.nome}
+                    </h4>
+                    <div className="mt-auto text-[11px] uppercase font-bold tracking-widest text-emerald bg-emerald/5 px-3 py-1.5 rounded-md w-full border border-emerald/10">
+                      {item.quantidade} {item.quantidade === 1 ? 'Unidade' : 'Unidades'}
+                    </div>
                   </div>
-                  <h4 className="text-sm font-bold text-navy mb-3 leading-snug">
-                    {item.name}
-                  </h4>
-                  <div className="mt-auto text-[11px] uppercase font-bold tracking-widest text-emerald bg-emerald/5 px-3 py-1.5 rounded-md w-full border border-emerald/10">
-                    {item.qty} {item.qty === 1 ? 'Unidade' : 'Unidades'}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between mt-12 pt-8 border-t border-white/20">

@@ -37,9 +37,36 @@ import {
   listarDoacoes, criarDoacao, editarDoacao, excluirDoacao,
   listarNumeros, criarNumero, editarNumero, excluirNumero,
   listarContasDoacao, criarContaDoacao, editarContaDoacao, excluirContaDoacao,
+  listarServicos, criarServico, editarServico, excluirServico,
+  listarInfraestrutura, criarInfraestrutura, editarInfraestrutura, excluirInfraestrutura,
   listarConfiguracoes, atualizarConfiguracao,
-  type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia, type NumeroEstatistico, type ContaDoacao
+  type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia, type NumeroEstatistico, type ContaDoacao, type Servico, type Infraestrutura
 } from "@/services/mockApi";
+
+import { 
+  Stethoscope, Baby, HeartPulse, Microscope, Scan, Ambulance, Activity, Atom,
+  Building2, BedSingle, Bandage, Users, Scissors
+} from "lucide-react";
+
+const iconOptions = [
+  { value: "Ambulance", label: "Urgência", icon: Ambulance },
+  { value: "Microscope", label: "Laboratório", icon: Microscope },
+  { value: "Scan", label: "Imagem", icon: Scan },
+  { value: "Activity", label: "Monitoramento", icon: Activity },
+  { value: "Atom", label: "Medicina Nuclear", icon: Atom },
+  { value: "Baby", label: "Maternidade", icon: Baby },
+  { value: "HeartPulse", label: "Cardio/Transplante", icon: HeartPulse },
+  { value: "Stethoscope", label: "Clínica", icon: Stethoscope },
+  { value: "Building2", label: "Prédio", icon: Building2 },
+  { value: "BedSingle", label: "Leito", icon: BedSingle },
+  { value: "Bandage", label: "Curativo", icon: Bandage },
+  { value: "Users", label: "Pessoas", icon: Users },
+  { value: "Scissors", label: "Cirurgia", icon: Scissors },
+];
+
+const iconMap: Record<string, any> = {
+  Ambulance, Microscope, Scan, Activity, Atom, Baby, HeartPulse, Stethoscope, Building2, BedSingle, Bandage, Users, Scissors
+};
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -79,6 +106,8 @@ const AdminDashboard = () => {
             <TabsTrigger value="depoimentos" className="gap-2"><Star className="w-4 h-4" /> Depoimentos</TabsTrigger>
             <TabsTrigger value="doacoes" className="gap-2"><Heart className="w-4 h-4" /> Doações</TabsTrigger>
             <TabsTrigger value="contas" className="gap-2"><Landmark className="w-4 h-4" /> Recebimentos</TabsTrigger>
+            <TabsTrigger value="servicos" className="gap-2"><Stethoscope className="w-4 h-4" /> Especialidades</TabsTrigger>
+            <TabsTrigger value="infraestrutura" className="gap-2"><Building2 className="w-4 h-4" /> Infraestrutura</TabsTrigger>
             <TabsTrigger value="numeros" className="gap-2"><TrendingUp className="w-4 h-4" /> Números</TabsTrigger>
             <TabsTrigger value="configuracoes" className="gap-2"><Settings className="w-4 h-4" /> Configurações</TabsTrigger>
           </TabsList>
@@ -89,6 +118,8 @@ const AdminDashboard = () => {
           <TabsContent value="depoimentos"><DepoimentosPanel /></TabsContent>
           <TabsContent value="doacoes"><DoacoesPanel /></TabsContent>
           <TabsContent value="contas"><ContasPanel /></TabsContent>
+          <TabsContent value="servicos"><ServicosPanel /></TabsContent>
+          <TabsContent value="infraestrutura"><InfraestruturaPanel /></TabsContent>
           <TabsContent value="numeros"><NumerosPanel /></TabsContent>
           <TabsContent value="configuracoes"><ConfiguracoesPanel /></TabsContent>
         </Tabs>
@@ -1307,6 +1338,252 @@ const ConfiguracoesPanel = () => {
           </div>
           <p className="text-sm text-muted-foreground">Outras configurações globais estarão disponíveis aqui em breve.</p>
         </div>
+      </div>
+    </div>
+  );
+};
+
+// ========================
+// Serviços Panel
+// ========================
+const ServicosPanel = () => {
+  const [items, setItems] = useState<Servico[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingItem, setEditingItem] = useState<Servico | null>(null);
+  const [form, setForm] = useState({ icone: "Stethoscope", titulo: "", descricao: "", destaque: false, ordem: 0 });
+
+  const load = async () => setItems(await listarServicos());
+  useEffect(() => { load(); }, []);
+
+  const handleSave = async () => {
+    if (!form.titulo) return;
+    if (editingItem) {
+      await editarServico(editingItem.id, form);
+    } else {
+      await criarServico(form);
+    }
+    setShowForm(false);
+    setEditingItem(null);
+    setForm({ icone: "Stethoscope", titulo: "", descricao: "", destaque: false, ordem: 0 });
+    load();
+  };
+
+  const handleEdit = (s: Servico) => {
+    setEditingItem(s);
+    setForm({ icone: s.icone, titulo: s.titulo, descricao: s.descricao, destaque: s.destaque, ordem: s.ordem });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Deseja excluir este serviço?")) {
+      await excluirServico(id);
+      load();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-navy">Especialidades e Atendimentos</h2>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ icone: "Stethoscope", titulo: "", descricao: "", destaque: false, ordem: 0 }); }}>
+          {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
+          {showForm ? "Cancelar" : "Novo Atendimento"}
+        </Button>
+      </div>
+
+      {showForm && (
+        <div className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Ícone</label>
+              <Select value={form.icone} onValueChange={(val) => setForm({ ...form, icone: val })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {iconOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      <div className="flex items-center gap-2">
+                        <opt.icon className="w-4 h-4" /> {opt.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-sm font-semibold text-navy block mb-1">Título</label>
+              <Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} />
+            </div>
+            <div className="md:col-span-3">
+              <label className="text-sm font-semibold text-navy block mb-1">Descrição</label>
+              <Textarea value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} rows={2} />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Ordem</label>
+              <Input type="number" value={form.ordem} onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })} />
+            </div>
+            <div className="flex items-center gap-2 pt-6">
+              <Switch checked={form.destaque} onCheckedChange={(val) => setForm({ ...form, destaque: val })} />
+              <label className="text-sm font-semibold text-navy">Destaque (Cor escura)</label>
+            </div>
+          </div>
+          <Button variant="navy-solid" onClick={handleSave}>Salvar Atendimento</Button>
+        </div>
+      )}
+
+      <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Ícone</TableHead>
+              <TableHead>Título</TableHead>
+              <TableHead>Destaque</TableHead>
+              <TableHead>Ordem</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((s) => {
+              const Icon = iconMap[s.icone] || Stethoscope;
+              return (
+                <TableRow key={s.id}>
+                  <TableCell><Icon className="w-5 h-5 text-navy" /></TableCell>
+                  <TableCell className="font-bold text-navy">{s.titulo}</TableCell>
+                  <TableCell>{s.destaque ? "Sim" : "Não"}</TableCell>
+                  <TableCell>{s.ordem}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex gap-2 justify-end">
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(s)}><Edit className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(s.id)}><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+// ========================
+// Infraestrutura Panel
+// ========================
+const InfraestruturaPanel = () => {
+  const [items, setItems] = useState<Infraestrutura[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingItem, setEditingItem] = useState<Infraestrutura | null>(null);
+  const [form, setForm] = useState({ icone: "Users", nome: "", quantidade: 1, ordem: 0 });
+
+  const load = async () => setItems(await listarInfraestrutura());
+  useEffect(() => { load(); }, []);
+
+  const handleSave = async () => {
+    if (!form.nome) return;
+    if (editingItem) {
+      await editarInfraestrutura(editingItem.id, form);
+    } else {
+      await criarInfraestrutura(form);
+    }
+    setShowForm(false);
+    setEditingItem(null);
+    setForm({ icone: "Users", nome: "", quantidade: 1, ordem: 0 });
+    load();
+  };
+
+  const handleEdit = (i: Infraestrutura) => {
+    setEditingItem(i);
+    setForm({ icone: i.icone, nome: i.nome, quantidade: i.quantidade, ordem: i.ordem });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Deseja excluir este item de infraestrutura?")) {
+      await excluirInfraestrutura(id);
+      load();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-navy">Infraestrutura e Capacidade</h2>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ icone: "Users", nome: "", quantidade: 1, ordem: 0 }); }}>
+          {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
+          {showForm ? "Cancelar" : "Novo Item"}
+        </Button>
+      </div>
+
+      {showForm && (
+        <div className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Ícone</label>
+              <Select value={form.icone} onValueChange={(val) => setForm({ ...form, icone: val })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {iconOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      <div className="flex items-center gap-2">
+                        <opt.icon className="w-4 h-4" /> {opt.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-sm font-semibold text-navy block mb-1">Nome do Local/Recurso</label>
+              <Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Quantidade</label>
+              <Input type="number" value={form.quantidade} onChange={(e) => setForm({ ...form, quantidade: Number(e.target.value) })} />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Ordem</label>
+              <Input type="number" value={form.ordem} onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })} />
+            </div>
+          </div>
+          <Button variant="navy-solid" onClick={handleSave}>Salvar Item</Button>
+        </div>
+      )}
+
+      <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Ícone</TableHead>
+              <TableHead>Local</TableHead>
+              <TableHead>Quantidade</TableHead>
+              <TableHead>Ordem</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((i) => {
+              const Icon = iconMap[i.icone] || Users;
+              return (
+                <TableRow key={i.id}>
+                  <TableCell><Icon className="w-5 h-5 text-navy" /></TableCell>
+                  <TableCell className="font-bold text-navy">{i.nome}</TableCell>
+                  <TableCell>{i.quantidade} unidades</TableCell>
+                  <TableCell>{i.ordem}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex gap-2 justify-end">
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(i)}><Edit className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(i.id)}><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

@@ -3,9 +3,11 @@ import { useParams, Link } from "react-router-dom";
 import { Calendar, ChevronLeft, Share2, Tag } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import SEO from "@/components/SEO";
 import { buscarNoticiaPorId, type Noticia } from "@/services/mockApi";
 
 const ImageCarousel = ({ images }: { images: string[] }) => {
+// ... (rest of ImageCarousel remains the same)
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -100,6 +102,12 @@ const NewsDetail = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO 
+        title={news.titulo}
+        description={news.corpo.substring(0, 160)}
+        image={images[0]}
+        type="article"
+      />
       <SiteHeader />
       
       <main className="pt-32 pb-24">

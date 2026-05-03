@@ -316,6 +316,102 @@ app.delete('/api/doacoes/:id', async (req, res) => {
 });
 
 // ==========================================
+// SERVIÇOS (ESPECIALIDADES)
+// ==========================================
+app.get('/api/servicos', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM servicos ORDER BY ordem ASC, id ASC');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/servicos', async (req, res) => {
+  try {
+    const { icone, titulo, descricao, destaque, ordem } = req.body;
+    const [result] = await db.query(
+      'INSERT INTO servicos (icone, titulo, descricao, destaque, ordem) VALUES (?, ?, ?, ?, ?)',
+      [icone, titulo, descricao, destaque ? 1 : 0, ordem || 0]
+    );
+    res.json({ id: result.insertId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/servicos/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { icone, titulo, descricao, destaque, ordem } = req.body;
+    await db.query(
+      'UPDATE servicos SET icone = ?, titulo = ?, descricao = ?, destaque = ?, ordem = ? WHERE id = ?',
+      [icone, titulo, descricao, destaque ? 1 : 0, ordem || 0, id]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/servicos/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM servicos WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ==========================================
+// INFRAESTRUTURA
+// ==========================================
+app.get('/api/infraestrutura', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM infraestrutura ORDER BY ordem ASC, id ASC');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/infraestrutura', async (req, res) => {
+  try {
+    const { icone, nome, quantidade, ordem } = req.body;
+    const [result] = await db.query(
+      'INSERT INTO infraestrutura (icone, nome, quantidade, ordem) VALUES (?, ?, ?, ?)',
+      [icone, nome, quantidade || 1, ordem || 0]
+    );
+    res.json({ id: result.insertId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/infraestrutura/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { icone, nome, quantidade, ordem } = req.body;
+    await db.query(
+      'UPDATE infraestrutura SET icone = ?, nome = ?, quantidade = ?, ordem = ? WHERE id = ?',
+      [icone, nome, quantidade || 1, ordem || 0, id]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/infraestrutura/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM infraestrutura WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ==========================================
 // CONTAS DE DOAÇÃO
 // ==========================================
 app.get('/api/contas-doacao', async (req, res) => {
