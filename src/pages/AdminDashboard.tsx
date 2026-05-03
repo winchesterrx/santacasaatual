@@ -13,7 +13,8 @@ import {
   Send, Trash2, Edit, Plus, X, Filter, Star, CheckCircle, XCircle, UploadCloud, Settings, TrendingUp, Landmark,
   Layout, BookOpen, Target, Award, Camera, Save, AlertCircle, Eye, History as HistoryIcon,
   Stethoscope, Baby, HeartPulse, Microscope, Scan, Ambulance, Activity, Atom,
-  Building2, BedSingle, Bandage, Users, Scissors
+  Building2, BedSingle, Bandage, Users, Scissors,
+  Facebook, Instagram, Youtube
 } from "lucide-react";
 import {
   Dialog,
@@ -22,16 +23,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-// Helper para converter File para Base64
-const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-};
 import {
   listarManifestacoes, responderManifestacao,
   listarDocumentos, criarDocumento, editarDocumento, excluirDocumento,
@@ -46,6 +37,26 @@ import {
   buscarHistoria, atualizarHistoria, listarGaleriaHistoria, adicionarGaleriaHistoria, excluirGaleriaHistoria,
   type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia, type NumeroEstatistico, type ContaDoacao, type Servico, type Infraestrutura, type Historia, type HistoriaGaleria
 } from "@/services/mockApi";
+
+// ========================
+// REORGANIZED FILE STRUCTURE
+// ========================
+
+// 1. HELPER FUNCTIONS
+// --------------------
+
+// Helper para converter File para Base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+// 2. ICON CONFIGURATIONS
+// --------------------
 
 const iconOptions = [
   { value: "Ambulance", label: "Urgência", icon: Ambulance },
@@ -65,68 +76,6 @@ const iconOptions = [
 
 const iconMap: Record<string, any> = {
   Ambulance, Microscope, Scan, Activity, Atom, Baby, HeartPulse, Stethoscope, Building2, BedSingle, Bandage, Users, Scissors
-};
-
-const AdminDashboard = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!sessionStorage.getItem("sc_admin_token")) navigate("/admin");
-  }, [navigate]);
-
-  const logout = () => {
-    sessionStorage.removeItem("sc_admin_token");
-    navigate("/admin");
-  };
-
-  return (
-    <div className="min-h-screen bg-muted notranslate" translate="no">
-      {/* Admin Header */}
-      <header className="bg-navy sticky top-0 z-50">
-        <div className="container mx-auto flex items-center justify-between h-16 px-6">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center">
-              <Heart className="w-5 h-5 text-primary-foreground" fill="currentColor" />
-            </div>
-            <span className="text-primary-foreground font-bold">Admin · Santa Casa</span>
-          </Link>
-          <Button variant="ghost" className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10" onClick={logout}>
-            <LogOut className="w-4 h-4 mr-2" /> Sair
-          </Button>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-6 py-8">
-        <Tabs defaultValue="ouvidoria">
-          <TabsList className="mb-8 h-12 flex flex-wrap h-auto">
-            <TabsTrigger value="ouvidoria" className="gap-2"><MessageCircle className="w-4 h-4" /> Ouvidoria</TabsTrigger>
-            <TabsTrigger value="transparencia" className="gap-2"><FileText className="w-4 h-4" /> Transparência</TabsTrigger>
-            <TabsTrigger value="noticias" className="gap-2"><Newspaper className="w-4 h-4" /> Notícias</TabsTrigger>
-            <TabsTrigger value="depoimentos" className="gap-2"><Star className="w-4 h-4" /> Depoimentos</TabsTrigger>
-            <TabsTrigger value="doacoes" className="gap-2"><Heart className="w-4 h-4" /> Doações</TabsTrigger>
-            <TabsTrigger value="contas" className="gap-2"><Landmark className="w-4 h-4" /> Recebimentos</TabsTrigger>
-            <TabsTrigger value="servicos" className="gap-2"><Stethoscope className="w-4 h-4" /> Especialidades</TabsTrigger>
-            <TabsTrigger value="infraestrutura" className="gap-2"><Building2 className="w-4 h-4" /> Infraestrutura</TabsTrigger>
-            <TabsTrigger value="numeros" className="gap-2"><TrendingUp className="w-4 h-4" /> Números</TabsTrigger>
-            <TabsTrigger value="historia" className="gap-2"><HistoryIcon className="w-4 h-4" /> História</TabsTrigger>
-            <TabsTrigger value="configuracoes" className="gap-2"><Settings className="w-4 h-4" /> Configurações</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="ouvidoria"><OuvidoriaPanel /></TabsContent>
-          <TabsContent value="transparencia"><TransparenciaPanel /></TabsContent>
-          <TabsContent value="noticias"><NoticiasPanel /></TabsContent>
-          <TabsContent value="depoimentos"><DepoimentosPanel /></TabsContent>
-          <TabsContent value="doacoes"><DoacoesPanel /></TabsContent>
-          <TabsContent value="contas"><ContasPanel /></TabsContent>
-          <TabsContent value="servicos"><ServicosPanel /></TabsContent>
-          <TabsContent value="infraestrutura"><InfraestruturaPanel /></TabsContent>
-          <TabsContent value="numeros"><NumerosPanel /></TabsContent>
-          <TabsContent value="historia"><HistoriaPanel /></TabsContent>
-          <TabsContent value="configuracoes"><ConfiguracoesPanel /></TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  );
 };
 
 // ========================
@@ -1863,6 +1812,264 @@ const InfraestruturaPanel = () => {
             })}
           </TableBody>
         </Table>
+      </div>
+    </div>
+  );
+};
+
+// ========================
+// Serviços Panel
+// ========================
+const ServicosPanel = () => {
+  const [items, setItems] = useState<Servico[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingItem, setEditingItem] = useState<Servico | null>(null);
+  const [form, setForm] = useState({ icone: "Ambulance", titulo: "", descricao: "", destaque: false, ordem: 0 });
+
+  const load = async () => setItems(await listarServicos());
+  useEffect(() => { load(); }, []);
+
+  const handleSave = async () => {
+    if (!form.titulo) return;
+    if (editingItem) {
+      await editarServico(editingItem.id, form);
+    } else {
+      await criarServico(form);
+    }
+    setShowForm(false);
+    setEditingItem(null);
+    setForm({ icone: "Ambulance", titulo: "", descricao: "", destaque: false, ordem: 0 });
+    load();
+  };
+
+  const handleEdit = (s: Servico) => {
+    setEditingItem(s);
+    setForm({ icone: s.icone, titulo: s.titulo, descricao: s.descricao, destaque: s.destaque, ordem: s.ordem });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Deseja excluir este serviço?")) {
+      await excluirServico(id);
+      load();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-navy">Especialidades e Serviços</h2>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ icone: "Ambulance", titulo: "", descricao: "", destaque: false, ordem: 0 }); }}>
+          {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
+          {showForm ? "Cancelar" : "Novo Serviço"}
+        </Button>
+      </div>
+
+      {showForm && (
+        <div className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1">Ícone</label>
+              <Select value={form.icone} onValueChange={(val) => setForm({ ...form, icone: val })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {iconOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      <div className="flex items-center gap-2">
+                        <opt.icon className="w-4 h-4" /> {opt.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-sm font-semibold text-navy block mb-1">Título do Serviço</label>
+              <Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-navy block mb-1">Descrição</label>
+            <Textarea value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} rows={3} />
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Switch id="destaque" checked={form.destaque} onCheckedChange={(val) => setForm({ ...form, destaque: val })} />
+              <label htmlFor="destaque" className="text-sm font-medium">Destaque na Home</label>
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy inline-block mr-2">Ordem:</label>
+              <Input type="number" className="w-20 inline-block" value={form.ordem} onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })} />
+            </div>
+          </div>
+          <Button variant="navy-solid" onClick={handleSave}>Salvar Serviço</Button>
+        </div>
+      )}
+
+      <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Ícone</TableHead>
+              <TableHead>Título</TableHead>
+              <TableHead>Destaque</TableHead>
+              <TableHead>Ordem</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((s) => {
+              const Icon = iconMap[s.icone] || Stethoscope;
+              return (
+                <TableRow key={s.id}>
+                  <TableCell><Icon className="w-5 h-5 text-navy" /></TableCell>
+                  <TableCell className="font-bold text-navy">{s.titulo}</TableCell>
+                  <TableCell>{s.destaque ? <Star className="w-4 h-4 text-amber-500 fill-amber-500" /> : "-"}</TableCell>
+                  <TableCell>{s.ordem}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex gap-2 justify-end">
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(s)}><Edit className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(s.id)}><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+// ========================
+// Configurações Panel
+// ========================
+const ConfiguracoesPanel = () => {
+  const [configs, setConfigs] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    const data = await listarConfiguracoes();
+    setConfigs(data || {});
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleSave = async (chave: string, valor: string) => {
+    await atualizarConfiguracao(chave, valor);
+    toast.success("Configuração atualizada!");
+    load();
+  };
+
+  if (loading) return <div className="p-10 text-center">Carregando configurações...</div>;
+
+  const fields = [
+    { chave: 'whatsapp', label: 'WhatsApp (Link ou Número)', icon: MessageCircle },
+    { chave: 'telefone', label: 'Telefone de Contato', icon: Activity },
+    { chave: 'email', label: 'E-mail Institucional', icon: Send },
+    { chave: 'endereco', label: 'Endereço Completo', icon: Landmark },
+    { chave: 'facebook', label: 'Link Facebook', icon: Facebook },
+    { chave: 'instagram', label: 'Link Instagram', icon: Instagram },
+    { chave: 'youtube', label: 'Link YouTube', icon: Youtube },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="space-y-6">
+        <h2 className="text-xl font-bold text-navy">Contatos e Endereço</h2>
+        {fields.slice(0, 4).map(f => (
+          <div key={f.chave} className="space-y-2">
+            <label className="text-sm font-semibold text-navy flex items-center gap-2">
+              <f.icon className="w-4 h-4 text-emerald" /> {f.label}
+            </label>
+            <div className="flex gap-2">
+              <Input value={configs[f.chave] || ""} onChange={(e) => setConfigs({ ...configs, [f.chave]: e.target.value })} />
+              <Button size="sm" variant="outline" onClick={() => handleSave(f.chave, configs[f.chave])}>Salvar</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-6">
+        <h2 className="text-xl font-bold text-navy">Redes Sociais</h2>
+        {fields.slice(4).map(f => (
+          <div key={f.chave} className="space-y-2">
+            <label className="text-sm font-semibold text-navy flex items-center gap-2">
+              <f.icon className="w-4 h-4 text-secondary" /> {f.label}
+            </label>
+            <div className="flex gap-2">
+              <Input value={configs[f.chave] || ""} onChange={(e) => setConfigs({ ...configs, [f.chave]: e.target.value })} />
+              <Button size="sm" variant="outline" onClick={() => handleSave(f.chave, configs[f.chave])}>Salvar</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ========================
+// MAIN DASHBOARD COMPONENT
+// ========================
+const AdminDashboard = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!sessionStorage.getItem("sc_admin_token")) navigate("/admin");
+  }, [navigate]);
+
+  const logout = () => {
+    sessionStorage.removeItem("sc_admin_token");
+    navigate("/admin");
+  };
+
+  return (
+    <div className="min-h-screen bg-muted notranslate" translate="no">
+      {/* Admin Header */}
+      <header className="bg-navy sticky top-0 z-50">
+        <div className="container mx-auto flex items-center justify-between h-16 px-6">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center">
+              <Heart className="w-5 h-5 text-primary-foreground" fill="currentColor" />
+            </div>
+            <span className="text-primary-foreground font-bold">Admin · Santa Casa</span>
+          </Link>
+          <Button variant="ghost" className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10" onClick={logout}>
+            <LogOut className="w-4 h-4 mr-2" /> Sair
+          </Button>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-6 py-8">
+        <Tabs defaultValue="ouvidoria">
+          <TabsList className="mb-8 h-12 flex flex-wrap h-auto">
+            <TabsTrigger value="ouvidoria" className="gap-2"><MessageCircle className="w-4 h-4" /> Ouvidoria</TabsTrigger>
+            <TabsTrigger value="transparencia" className="gap-2"><FileText className="w-4 h-4" /> Transparência</TabsTrigger>
+            <TabsTrigger value="noticias" className="gap-2"><Newspaper className="w-4 h-4" /> Notícias</TabsTrigger>
+            <TabsTrigger value="depoimentos" className="gap-2"><Star className="w-4 h-4" /> Depoimentos</TabsTrigger>
+            <TabsTrigger value="doacoes" className="gap-2"><Heart className="w-4 h-4" /> Doações</TabsTrigger>
+            <TabsTrigger value="contas" className="gap-2"><Landmark className="w-4 h-4" /> Recebimentos</TabsTrigger>
+            <TabsTrigger value="servicos" className="gap-2"><Stethoscope className="w-4 h-4" /> Especialidades</TabsTrigger>
+            <TabsTrigger value="infraestrutura" className="gap-2"><Building2 className="w-4 h-4" /> Infraestrutura</TabsTrigger>
+            <TabsTrigger value="numeros" className="gap-2"><TrendingUp className="w-4 h-4" /> Números</TabsTrigger>
+            <TabsTrigger value="historia" className="gap-2"><HistoryIcon className="w-4 h-4" /> História</TabsTrigger>
+            <TabsTrigger value="configuracoes" className="gap-2"><Settings className="w-4 h-4" /> Configurações</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="ouvidoria"><OuvidoriaPanel /></TabsContent>
+          <TabsContent value="transparencia"><TransparenciaPanel /></TabsContent>
+          <TabsContent value="noticias"><NoticiasPanel /></TabsContent>
+          <TabsContent value="depoimentos"><DepoimentosPanel /></TabsContent>
+          <TabsContent value="doacoes"><DoacoesPanel /></TabsContent>
+          <TabsContent value="contas"><ContasPanel /></TabsContent>
+          <TabsContent value="servicos"><ServicosPanel /></TabsContent>
+          <TabsContent value="infraestrutura"><InfraestruturaPanel /></TabsContent>
+          <TabsContent value="numeros"><NumerosPanel /></TabsContent>
+          <TabsContent value="historia"><HistoriaPanel /></TabsContent>
+          <TabsContent value="configuracoes"><ConfiguracoesPanel /></TabsContent>
+        </Tabs>
       </div>
     </div>
   );
