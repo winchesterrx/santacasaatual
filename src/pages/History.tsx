@@ -41,7 +41,10 @@ const History = () => {
     missao: "Prestar assistência à saúde com humanização.",
     visao: "Ser referência regional em saúde.",
     valores: "Humanização, Ética, Excelência",
-    imagem_principal: "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit  return (
+    imagem_principal: "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop"
+  };
+
+  return (
     <div className="min-h-screen bg-[#faf9f6] text-navy selection:bg-emerald selection:text-white overflow-x-hidden">
       <SEO 
         title="Nossa História | Santa Casa de Paulo de Faria" 
