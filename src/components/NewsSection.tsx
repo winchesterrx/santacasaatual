@@ -5,7 +5,7 @@ import { listarNoticias, type Noticia } from "@/services/mockApi";
 import useEmblaCarousel from 'embla-carousel-react';
 
 const ImageCarousel = ({ images }: { images: string[] }) => {
-  const [emblaRef] = useEmblaCarousel({ loop: true });
+  const [emblaRef] = useEmblaCarousel({ loop: false });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   if (!images || images.length === 0) return null;
@@ -38,7 +38,7 @@ const NewsSection = () => {
   const navigate = useNavigate();
   
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    loop: true,
+    loop: false,
     align: 'start',
     slidesToScroll: 1,
     breakpoints: {
@@ -61,7 +61,11 @@ const NewsSection = () => {
   useEffect(() => {
     if (!emblaApi) return;
     const interval = setInterval(() => {
-      emblaApi.scrollNext();
+      if (emblaApi.canScrollNext()) {
+        emblaApi.scrollNext();
+      } else {
+        emblaApi.scrollTo(0);
+      }
     }, 5000);
     return () => clearInterval(interval);
   }, [emblaApi]);
