@@ -2,28 +2,19 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Calendar, ArrowRight } from "lucide-react";
 import { listarNoticias, type Noticia } from "@/services/mockApi";
+import useEmblaCarousel from 'embla-carousel-react';
 
 const ImageCarousel = ({ images }: { images: string[] }) => {
+  const [emblaRef] = useEmblaCarousel({ loop: true });
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (images.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [images.length]);
 
   if (!images || images.length === 0) return null;
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      <div 
-        className="flex w-full h-full transition-transform duration-700 ease-in-out" 
-        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-      >
+    <div className="relative w-full h-full overflow-hidden" ref={emblaRef}>
+      <div className="flex w-full h-full">
         {images.map((img, idx) => (
-          <div key={idx} className="w-full h-full flex-shrink-0 relative bg-slate-900/5">
+          <div key={idx} className="flex-[0_0_100%] h-full relative bg-slate-900/5 min-w-0">
             <img 
               src={img} 
               alt="" 
@@ -38,49 +29,42 @@ const ImageCarousel = ({ images }: { images: string[] }) => {
           </div>
         ))}
       </div>
-      {images.length > 1 && (
-        <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
-          {images.map((_, idx) => (
-            <div 
-              key={idx} 
-              className={`h-1 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-4 bg-white' : 'w-1 bg-white/50'}`}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 };
 
 const NewsSection = () => {
   const [newsItems, setNewsItems] = useState<Noticia[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
+  
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true,
+    align: 'start',
+    slidesToScroll: 1,
+    breakpoints: {
+      '(min-width: 768px)': { slidesToScroll: 1 }
+    }
+  });
 
   useEffect(() => {
     listarNoticias().then(setNewsItems);
   }, []);
 
-  const next = useCallback(() => {
-    if (newsItems.length === 0) return;
-    // Em desktop mostramos 3, então o máximo index é total - 3
-    const maxIndex = Math.max(0, newsItems.length - 3);
-    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-  }, [newsItems.length]);
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
 
-  const prev = () => {
-    const maxIndex = Math.max(0, newsItems.length - 3);
-    setCurrentIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
-  };
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
 
   useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-    const limit = isMobile ? 1 : 3;
-    if (newsItems.length <= limit) return;
-    
-    const interval = setInterval(next, 5000); // 5 segundos
+    if (!emblaApi) return;
+    const interval = setInterval(() => {
+      emblaApi.scrollNext();
+    }, 5000);
     return () => clearInterval(interval);
-  }, [next, newsItems.length]);
+  }, [emblaApi]);
 
   return (
     <section id="noticias" className="py-24 bg-slate-50 overflow-hidden">
@@ -112,11 +96,8 @@ const NewsSection = () => {
 
         <div className="relative group">
           {/* Slider Container */}
-          <div className="relative overflow-hidden">
-            <div 
-              className="flex gap-6 transition-transform duration-1000 ease-in-out"
-              style={{ transform: `translateX(-${currentIndex * (100 / (window.innerWidth < 768 ? 1.1 : 3.08))}%)` }}
-            >
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex gap-6">
               {newsItems.map((item, i) => {
                 let images: string[] = [];
                 try {
@@ -133,7 +114,7 @@ const NewsSection = () => {
                   <article
                     key={item.id || i}
                     onClick={() => navigate(`/noticia/${item.id}`)}
-                    className="min-w-[85%] md:min-w-[32%] group flex flex-col bg-white rounded-[32px] overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 cursor-pointer"
+                    className="flex-[0_0_85%] md:flex-[0_0_32%] min-w-0 group flex flex-col bg-white rounded-[32px] overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 cursor-pointer"
                   >
                     <div className="aspect-[16/10] overflow-hidden relative">
                       <ImageCarousel images={images} />
@@ -173,22 +154,18 @@ const NewsSection = () => {
           </div>
 
           {/* Slider Arrows */}
-          {newsItems.length > 3 && (
-            <>
-              <button 
-                onClick={prev}
-                className="absolute -left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-lg border border-slate-100 flex items-center justify-center text-navy hover:bg-emerald hover:text-white transition-all z-30 opacity-0 group-hover:opacity-100 max-md:hidden"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button 
-                onClick={next}
-                className="absolute -right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-lg border border-slate-100 flex items-center justify-center text-navy hover:bg-emerald hover:text-white transition-all z-30 opacity-0 group-hover:opacity-100 max-md:hidden"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            </>
-          )}
+          <button 
+            onClick={scrollPrev}
+            className="absolute -left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-lg border border-slate-100 flex items-center justify-center text-navy hover:bg-emerald hover:text-white transition-all z-30 opacity-0 group-hover:opacity-100 max-md:hidden"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button 
+            onClick={scrollNext}
+            className="absolute -right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-lg border border-slate-100 flex items-center justify-center text-navy hover:bg-emerald hover:text-white transition-all z-30 opacity-0 group-hover:opacity-100 max-md:hidden"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
         </div>
       </div>
     </section>
