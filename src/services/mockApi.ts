@@ -515,6 +515,11 @@ export interface Historia {
   visao: string;
   valores: string;
   imagem_principal: string;
+  provedor_nome: string;
+  provedor_cargo: string;
+  provedor_citacao: string;
+  infra_titulo: string;
+  infra_subtitulo: string;
 }
 
 export interface HistoriaGaleria {

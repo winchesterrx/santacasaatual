@@ -119,23 +119,23 @@ const History = () => {
             <div className="flex flex-col lg:flex-row items-center gap-12 bg-white/5 backdrop-blur-md p-8 md:p-16 rounded-[40px] border border-white/10">
               <div className="lg:w-1/3 flex flex-col items-center text-center lg:items-start lg:text-left">
                 <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-emerald flex items-center justify-center text-white text-4xl md:text-5xl font-black mb-6 shadow-xl border-4 border-white/5">
-                  MC
+                  {data?.provedor_nome?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "SC"}
                 </div>
-                <span className="text-secondary font-black uppercase tracking-widest text-[10px] mb-2">Provedor Atual</span>
-                <h3 className="text-2xl md:text-3xl font-black text-white">Manoel Cosmo Santana</h3>
-                <p className="text-slate-400 text-sm italic mt-2">"Cosminho"</p>
+                <span className="text-secondary font-black uppercase tracking-widest text-[10px] mb-2">{data?.provedor_cargo || "Provedor"}</span>
+                <h3 className="text-2xl md:text-3xl font-black text-navy">{data?.provedor_nome || "Nome do Provedor"}</h3>
+                <p className="text-slate-400 text-sm italic mt-2">"{data?.provedor_citacao || ""}"</p>
               </div>
 
               <div className="lg:w-2/3 space-y-6">
-                <h2 className="text-3xl md:text-4xl font-black text-white">Gestão e <span className="text-secondary">Liderança</span></h2>
-                <p className="text-slate-300 text-lg leading-relaxed">
+                <h2 className="text-3xl md:text-4xl font-black text-navy">Gestão e <span className="text-secondary">Liderança</span></h2>
+                <p className="text-slate-600 text-lg leading-relaxed">
                   A gestão da Irmandade é conduzida por uma Mesa Administrativa, órgão responsável pelas decisões estratégicas e pela manutenção da sustentabilidade institucional. Atualmente, a responsabilidade pela condução da entidade recai sobre uma liderança comprometida com o bem-estar comunitário.
                 </p>
                 <div className="flex flex-wrap gap-4 pt-4">
-                  <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-white text-xs font-bold uppercase tracking-widest border border-white/5">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full text-navy text-xs font-bold uppercase tracking-widest border border-slate-200">
                     <Award className="w-4 h-4 text-secondary" /> Tradição Secular
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-white text-xs font-bold uppercase tracking-widest border border-white/5">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full text-navy text-xs font-bold uppercase tracking-widest border border-slate-200">
                     <Users className="w-4 h-4 text-emerald" /> Esforço Coletivo
                   </div>
                 </div>
@@ -155,7 +155,7 @@ const History = () => {
                 </div>
                 <h3 className="text-xl font-black text-navy uppercase tracking-tight mb-4">Nossa Missão</h3>
                 <p className="text-slate-600 leading-relaxed text-base">
-                  {historia.missao}
+                  {data?.missao || "Carregando missão..."}
                 </p>
               </div>
 
@@ -166,7 +166,7 @@ const History = () => {
                 </div>
                 <h3 className="text-xl font-black text-navy uppercase tracking-tight mb-4">Nossa Visão</h3>
                 <p className="text-slate-600 leading-relaxed text-base">
-                  {historia.visao}
+                  {data?.visao || "Carregando visão..."}
                 </p>
               </div>
 
@@ -177,7 +177,7 @@ const History = () => {
                 </div>
                 <h3 className="text-xl font-black text-white uppercase tracking-tight mb-6">Nossos Valores</h3>
                 <div className="flex flex-wrap gap-2">
-                  {historia.valores.split(',').map((v, i) => (
+                  {(data?.valores || "").split(',').map((v, i) => (
                     <span key={i} className="px-3 py-1.5 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-lg border border-white/5">
                       {v.trim()}
                     </span>
@@ -192,9 +192,11 @@ const History = () => {
         <section className="py-20 bg-[#faf9f6]">
           <div className="container mx-auto px-6">
             <div className="max-w-2xl mb-12">
-              <h2 className="text-3xl md:text-4xl font-black text-navy mb-4">Infraestrutura & <span className="text-emerald">Serviços</span></h2>
+              <h2 className="text-3xl md:text-4xl font-black text-navy mb-4">
+                {data?.infra_titulo || "Infraestrutura & Serviços"}
+              </h2>
               <p className="text-slate-500 font-medium leading-relaxed">
-                Localizada estrategicamente no centro de Paulo de Faria, oferecendo suporte contínuo à região.
+                {data?.infra_subtitulo || "Localizada estrategicamente no centro de Paulo de Faria."}
               </p>
             </div>
 

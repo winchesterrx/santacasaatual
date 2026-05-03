@@ -525,10 +525,16 @@ app.get('/api/historia', async (req, res) => {
 
 app.put('/api/historia', async (req, res) => {
   try {
-    const { titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal } = req.body;
+    const { 
+      titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal,
+      provedor_nome, provedor_cargo, provedor_citacao, infra_titulo, infra_subtitulo
+    } = req.body;
     await db.query(
-      `INSERT INTO pagina_historia (id, titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal)
-       VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+      `INSERT INTO pagina_historia (
+        id, titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal,
+        provedor_nome, provedor_cargo, provedor_citacao, infra_titulo, infra_subtitulo
+       )
+       VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE 
         titulo = VALUES(titulo), 
         subtitulo = VALUES(subtitulo), 
@@ -536,8 +542,16 @@ app.put('/api/historia', async (req, res) => {
         missao = VALUES(missao),
         visao = VALUES(visao),
         valores = VALUES(valores),
-        imagem_principal = VALUES(imagem_principal)`,
-      [titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal]
+        imagem_principal = VALUES(imagem_principal),
+        provedor_nome = VALUES(provedor_nome),
+        provedor_cargo = VALUES(provedor_cargo),
+        provedor_citacao = VALUES(provedor_citacao),
+        infra_titulo = VALUES(infra_titulo),
+        infra_subtitulo = VALUES(infra_subtitulo)`,
+      [
+        titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal,
+        provedor_nome, provedor_cargo, provedor_citacao, infra_titulo, infra_subtitulo
+      ]
     );
     res.json({ success: true });
   } catch (error) {

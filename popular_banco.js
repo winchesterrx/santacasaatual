@@ -161,6 +161,11 @@ async function populate() {
           visao TEXT NULL,
           valores TEXT NULL,
           imagem_principal LONGTEXT NULL,
+          provedor_nome VARCHAR(255) NULL,
+          provedor_cargo VARCHAR(255) NULL,
+          provedor_citacao TEXT NULL,
+          infra_titulo VARCHAR(255) NULL,
+          infra_subtitulo TEXT NULL,
           atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
@@ -205,12 +210,24 @@ async function populate() {
     `.trim();
 
     await db.query(`
-      INSERT INTO pagina_historia (id, titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal)
-      VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO pagina_historia (
+        id, titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal,
+        provedor_nome, provedor_cargo, provedor_citacao, infra_titulo, infra_subtitulo
+      )
+      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE 
         titulo = VALUES(titulo), 
         subtitulo = VALUES(subtitulo), 
-        texto_historia = VALUES(texto_historia)
+        texto_historia = VALUES(texto_historia),
+        missao = VALUES(missao),
+        visao = VALUES(visao),
+        valores = VALUES(valores),
+        imagem_principal = VALUES(imagem_principal),
+        provedor_nome = VALUES(provedor_nome),
+        provedor_cargo = VALUES(provedor_cargo),
+        provedor_citacao = VALUES(provedor_citacao),
+        infra_titulo = VALUES(infra_titulo),
+        infra_subtitulo = VALUES(infra_subtitulo)
     `, [
       "Registro Histórico: Irmandade da Santa Casa de Misericórdia de Paulo de Faria",
       "A trajetória da Irmandade da Santa Casa de Misericórdia de Paulo de Faria é um pilar central na cronologia do município de Paulo de Faria, estado de São Paulo.",
@@ -218,7 +235,12 @@ async function populate() {
       "Prestar assistência à saúde de forma humanizada, resolutiva e sustentável, promovendo o bem-estar da comunidade com excelência e ética.",
       "Ser reconhecida como a melhor instituição de saúde regional, destacando-se pela inovação, atendimento humanizado e segurança do paciente.",
       "Humanização, Ética e Transparência, Excelência Técnica, Responsabilidade Social",
-      "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop"
+      "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop",
+      "Manoel Cosmo Santana",
+      "Provedor Atual",
+      "O cargo de provedor, seguindo a tradição secular das Misericórdias, é uma função de liderança que coordena as relações entre o hospital, o poder público e a comunidade local...",
+      "Infraestrutura & Serviços",
+      "Localizada estrategicamente no centro de Paulo de Faria, oferecendo suporte contínuo à região."
     ]);
 
     // Inserir Serviços

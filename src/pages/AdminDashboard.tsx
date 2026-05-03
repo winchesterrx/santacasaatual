@@ -1247,6 +1247,7 @@ const HistoriaPanel = () => {
   const [gallery, setGallery] = useState<HistoriaGaleria[]>([]);
   const [loading, setLoading] = useState(true);
   const [newImage, setNewImage] = useState({ imagem_url: "", legenda: "", ordem: 0 });
+  const [activeTab, setActiveTab] = useState("hero");
 
   const load = async () => {
     setLoading(true);
@@ -1263,7 +1264,7 @@ const HistoriaPanel = () => {
 
   useEffect(() => { load(); }, []);
 
-  const handleSaveText = async () => {
+  const handleSave = async () => {
     if (!data) return;
     try {
       await atualizarHistoria(data);
@@ -1300,11 +1301,15 @@ const HistoriaPanel = () => {
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, target: 'hero' | 'gallery') => {
     const file = e.target.files?.[0];
     if (file) {
       const base64 = await fileToBase64(file);
-      setNewImage({ ...newImage, imagem_url: base64 });
+      if (target === 'hero') {
+        setData(d => d ? {...d, imagem_principal: base64} : null);
+      } else {
+        setNewImage({ ...newImage, imagem_url: base64 });
+      }
     }
   };
 
@@ -1317,109 +1322,196 @@ const HistoriaPanel = () => {
   }
 
   return (
-    <div className="space-y-12 pb-20">
-      {/* Texto da História */}
-      <div className="bg-card rounded-2xl p-8 border border-border/60 space-y-6 shadow-sm">
-        <div className="flex items-center justify-between border-b pb-4">
-          <h2 className="text-xl font-bold text-navy flex items-center gap-2">
-            <HistoryIcon className="w-5 h-5 text-emerald" /> Conteúdo da Página História
-          </h2>
-          <Button variant="emerald-solid" onClick={handleSaveText} className="shadow-lg shadow-emerald/20">
-            Salvar Alterações de Texto
-          </Button>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-semibold text-navy block mb-1 uppercase tracking-wider">Título Principal</label>
-              <Input value={data?.titulo || ""} onChange={e => setData(d => d ? {...d, titulo: e.target.value} : null)} className="font-bold" />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-navy block mb-1 uppercase tracking-wider">Subtítulo / Introdução</label>
-              <Input value={data?.subtitulo || ""} onChange={e => setData(d => d ? {...d, subtitulo: e.target.value} : null)} />
-            </div>
-          </div>
-          <div>
-            <label className="text-sm font-semibold text-navy block mb-1 uppercase tracking-wider">Corpo do Registro Histórico (Aceita formatação HTML)</label>
-            <Textarea 
-              value={data?.texto_historia || ""} 
-              onChange={e => setData(d => d ? {...d, texto_historia: e.target.value} : null)} 
-              rows={15} 
-              className="font-mono text-sm leading-relaxed bg-slate-50" 
-              placeholder="Use tags <p>, <h3>, <ul>, <li> para formatar o texto."
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-          <div className="p-4 bg-emerald/5 rounded-xl border border-emerald/10">
-            <label className="text-sm font-black text-emerald block mb-2 uppercase tracking-widest">Nossa Missão</label>
-            <Textarea value={data?.missao || ""} onChange={e => setData(d => d ? {...d, missao: e.target.value} : null)} rows={4} className="bg-white" />
-          </div>
-          <div className="p-4 bg-navy/5 rounded-xl border border-navy/10">
-            <label className="text-sm font-black text-navy block mb-2 uppercase tracking-widest">Nossa Visão</label>
-            <Textarea value={data?.visao || ""} onChange={e => setData(d => d ? {...d, visao: e.target.value} : null)} rows={4} className="bg-white" />
-          </div>
-          <div className="p-4 bg-secondary/5 rounded-xl border border-secondary/10">
-            <label className="text-sm font-black text-secondary block mb-2 uppercase tracking-widest">Nossos Valores</label>
-            <Textarea value={data?.valores || ""} onChange={e => setData(d => d ? {...d, valores: e.target.value} : null)} rows={4} className="bg-white" placeholder="Separe por vírgula: Valor 1, Valor 2..." />
-          </div>
-        </div>
+    <div className="space-y-8 pb-20">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-black text-navy flex items-center gap-3">
+          <HistoryIcon className="w-6 h-6 text-emerald" /> Gestão de Conteúdo: Nossa História
+        </h2>
+        <Button variant="emerald-solid" onClick={handleSave} className="shadow-lg shadow-emerald/20 px-8 py-6 rounded-xl font-bold">
+          <Save className="w-5 h-5 mr-2" /> Salvar Todas as Seções
+        </Button>
       </div>
 
-      {/* Galeria de Fotos */}
-      <div className="bg-card rounded-2xl p-8 border border-border/60 space-y-6 shadow-sm">
-        <h2 className="text-xl font-bold text-navy flex items-center gap-2 border-b pb-4">
-          <Camera className="w-5 h-5 text-emerald" /> Galeria de Fotos Históricas
-        </h2>
+      <div className="flex flex-wrap gap-2 p-1 bg-slate-100 rounded-2xl w-fit">
+        {[
+          { id: 'hero', label: 'Início (Hero)', icon: Layout },
+          { id: 'fundacao', label: 'Cap. I: Fundação', icon: BookOpen },
+          { id: 'dna', label: 'DNA (M/V/V)', icon: Target },
+          { id: 'lideranca', label: 'Liderança', icon: Award },
+          { id: 'infra', label: 'Infraestrutura', icon: Building2 },
+          { id: 'galeria', label: 'Galeria', icon: Camera },
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${
+              activeTab === tab.id ? 'bg-white text-navy shadow-md' : 'text-slate-500 hover:text-navy hover:bg-white/50'
+            }`}
+          >
+            <tab.icon className="w-4 h-4" />
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 flex flex-col gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-             <div className="md:col-span-1">
-                <label className="text-sm font-semibold text-navy block mb-1">Upload da Foto</label>
-                <div className="flex items-center gap-4">
-                   <div className="relative flex-1">
-                      <Input type="file" accept="image/*" onChange={handleFileChange} className="bg-white pr-10" />
-                      <UploadCloud className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <div className="bg-white rounded-[32px] p-8 border border-border/60 shadow-xl shadow-navy/5 min-h-[400px]">
+        {activeTab === 'hero' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                   <div>
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Título de Impacto</label>
+                      <Input value={data?.titulo || ""} onChange={e => setData(d => d ? {...d, titulo: e.target.value} : null)} className="h-14 text-lg font-bold" />
                    </div>
-                   {newImage.imagem_url && <img src={newImage.imagem_url} className="h-10 w-10 object-cover rounded-lg shadow-sm border border-white" />}
+                   <div>
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Subtítulo (Abaixo do Título)</label>
+                      <Textarea value={data?.subtitulo || ""} onChange={e => setData(d => d ? {...d, subtitulo: e.target.value} : null)} rows={4} />
+                   </div>
                 </div>
-             </div>
-             <div className="md:col-span-1">
-                <label className="text-sm font-semibold text-navy block mb-1">Legenda da Foto</label>
-                <Input value={newImage.legenda} onChange={e => setNewImage({...newImage, legenda: e.target.value})} placeholder="Ex: Inauguração da ala leste" className="bg-white" />
-             </div>
-             <div className="md:col-span-1 flex gap-2">
-                <div className="w-24">
-                   <label className="text-sm font-semibold text-navy block mb-1">Ordem</label>
-                   <Input type="number" value={newImage.ordem} onChange={e => setNewImage({...newImage, ordem: Number(e.target.value)})} className="bg-white" />
+                <div className="space-y-2">
+                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Imagem de Fundo Monumental</label>
+                   <div className="relative group aspect-video rounded-3xl overflow-hidden border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center">
+                      {data?.imagem_principal ? (
+                        <>
+                          <img src={data.imagem_principal} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                             <Button variant="secondary" className="relative cursor-pointer">
+                                <Camera className="w-4 h-4 mr-2" /> Trocar Imagem
+                                <Input type="file" accept="image/*" onChange={e => handleFileChange(e, 'hero')} className="absolute inset-0 opacity-0 cursor-pointer" />
+                             </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center">
+                           <UploadCloud className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                           <p className="text-sm text-slate-400">Clique para fazer upload</p>
+                           <Input type="file" accept="image/*" onChange={e => handleFileChange(e, 'hero')} className="absolute inset-0 opacity-0 cursor-pointer" />
+                        </div>
+                      )}
+                   </div>
                 </div>
-                <Button variant="navy-solid" onClick={handleAddImage} className="flex-1">
-                  <Plus className="w-4 h-4 mr-1" /> Adicionar Foto
-                </Button>
              </div>
           </div>
-        </div>
+        )}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 pt-4">
-          {gallery.map(img => (
-            <div key={img.id} className="relative group aspect-square rounded-2xl overflow-hidden border-2 border-white shadow-md hover:shadow-xl transition-all">
-              <img src={img.imagem_url} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-              <div className="absolute inset-0 bg-navy/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-4 text-center">
-                 <p className="text-[10px] text-white font-bold leading-tight">{img.legenda || "Sem legenda"}</p>
-                 <Button variant="ghost" size="sm" className="h-8 w-8 text-white hover:text-red-400 hover:bg-white/10 rounded-full" onClick={() => handleDeleteImage(img.id)}>
-                   <Trash2 className="w-4 h-4" />
-                 </Button>
+        {activeTab === 'fundacao' && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+             <div>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Corpo do Texto (Fundação)</label>
+                <p className="text-[10px] text-emerald font-bold mb-2 italic">* Dica: Use tags HTML como &lt;p&gt; e &lt;b&gt; para formatação fina se desejar.</p>
+                <Textarea 
+                  value={data?.texto_historia || ""} 
+                  onChange={e => setData(d => d ? {...d, texto_historia: e.target.value} : null)} 
+                  rows={15} 
+                  className="font-mono text-sm leading-relaxed bg-slate-50" 
+                />
+             </div>
+          </div>
+        )}
+
+        {activeTab === 'dna' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="p-6 bg-emerald/5 rounded-3xl border border-emerald/10 space-y-4">
+              <div className="flex items-center gap-2 text-emerald">
+                 <Target className="w-5 h-5" />
+                 <h3 className="font-black uppercase tracking-widest text-sm">Missão</h3>
               </div>
+              <Textarea value={data?.missao || ""} onChange={e => setData(d => d ? {...d, missao: e.target.value} : null)} rows={6} className="bg-white border-emerald/20" />
             </div>
-          ))}
-          {gallery.length === 0 && (
-            <div className="col-span-full py-12 text-center text-slate-400 font-medium">
-              Nenhuma imagem na galeria. Adicione fotos históricas acima.
+            <div className="p-6 bg-secondary/5 rounded-3xl border border-secondary/10 space-y-4">
+              <div className="flex items-center gap-2 text-secondary">
+                 <Eye className="w-5 h-5" />
+                 <h3 className="font-black uppercase tracking-widest text-sm">Visão</h3>
+              </div>
+              <Textarea value={data?.visao || ""} onChange={e => setData(d => d ? {...d, visao: e.target.value} : null)} rows={6} className="bg-white border-secondary/20" />
             </div>
-          )}
-        </div>
+            <div className="p-6 bg-navy/5 rounded-3xl border border-navy/10 space-y-4">
+              <div className="flex items-center gap-2 text-navy">
+                 <Heart className="w-5 h-5" />
+                 <h3 className="font-black uppercase tracking-widest text-sm">Valores</h3>
+              </div>
+              <Textarea value={data?.valores || ""} onChange={e => setData(d => d ? {...d, valores: e.target.value} : null)} rows={6} className="bg-white border-navy/20" placeholder="Humanização, Ética, Excelência..." />
+              <p className="text-[10px] text-slate-400 italic">Separe os valores por vírgula para criar os cards automáticos.</p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'lideranca' && (
+          <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Nome do Provedor</label>
+                   <Input value={data?.provedor_nome || ""} onChange={e => setData(d => d ? {...d, provedor_nome: e.target.value} : null)} className="h-12" />
+                </div>
+                <div>
+                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Cargo / Título</label>
+                   <Input value={data?.provedor_cargo || ""} onChange={e => setData(d => d ? {...d, provedor_cargo: e.target.value} : null)} placeholder="Ex: Provedor Atual" />
+                </div>
+             </div>
+             <div>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Citação de Impacto (Pull Quote)</label>
+                <Textarea value={data?.provedor_citacao || ""} onChange={e => setData(d => d ? {...d, provedor_citacao: e.target.value} : null)} rows={4} placeholder="Uma frase marcante sobre a gestão..." />
+             </div>
+          </div>
+        )}
+
+        {activeTab === 'infra' && (
+          <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+             <div>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Título da Seção Infraestrutura</label>
+                <Input value={data?.infra_titulo || ""} onChange={e => setData(d => d ? {...d, infra_titulo: e.target.value} : null)} className="h-12 text-lg font-bold" />
+             </div>
+             <div>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Subtítulo da Seção</label>
+                <Textarea value={data?.infra_subtitulo || ""} onChange={e => setData(d => d ? {...d, infra_subtitulo: e.target.value} : null)} rows={3} />
+             </div>
+             <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600" />
+                <p className="text-xs text-amber-800 font-medium">Os 3 cards específicos (Urgência, Internações, Diagnóstico) são fixos estruturalmente para manter o design, mas seus textos agora refletem os dados acima.</p>
+             </div>
+          </div>
+        )}
+
+        {activeTab === 'galeria' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+             <div className="bg-slate-50 p-8 rounded-[32px] border border-dashed border-slate-200">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+                   <div className="md:col-span-4">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Escolher Foto</label>
+                      <div className="flex items-center gap-4">
+                         <div className="relative flex-1">
+                            <Input type="file" accept="image/*" onChange={e => handleFileChange(e, 'gallery')} className="bg-white" />
+                         </div>
+                         {newImage.imagem_url && <img src={newImage.imagem_url} className="h-10 w-10 object-cover rounded-xl shadow-md" />}
+                      </div>
+                   </div>
+                   <div className="md:col-span-5">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Legenda Visual</label>
+                      <Input value={newImage.legenda} onChange={e => setNewImage({...newImage, legenda: e.target.value})} placeholder="O que está acontecendo nesta foto?" className="bg-white" />
+                   </div>
+                   <div className="md:col-span-3">
+                      <Button variant="navy-solid" onClick={handleAddImage} className="w-full h-10 font-bold uppercase tracking-widest text-[10px]">
+                        <Plus className="w-4 h-4 mr-2" /> Adicionar à Galeria
+                      </Button>
+                   </div>
+                </div>
+             </div>
+
+             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {gallery.map(img => (
+                  <div key={img.id} className="relative group aspect-square rounded-2xl overflow-hidden shadow-md">
+                    <img src={img.imagem_url} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-navy/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4">
+                       <p className="text-[10px] text-white font-bold text-center mb-4">{img.legenda || "Sem legenda"}</p>
+                       <Button variant="ghost" size="sm" className="h-8 w-8 text-white hover:text-red-400 rounded-full" onClick={() => handleDeleteImage(img.id)}>
+                         <Trash2 className="w-4 h-4" />
+                       </Button>
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </div>
+        )}
       </div>
     </div>
   );
