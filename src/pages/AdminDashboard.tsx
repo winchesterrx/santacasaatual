@@ -10,7 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import {
   Heart, LogOut, MessageCircle, FileText, Newspaper,
-  Send, Trash2, Edit, Plus, X, Filter, Star, CheckCircle, XCircle, UploadCloud, Settings, TrendingUp, Landmark
+  Send, Trash2, Edit, Plus, X, Filter, Star, CheckCircle, XCircle, UploadCloud, Settings, TrendingUp, Landmark,
+  Layout, BookOpen, Target, Award, Camera, Save, AlertCircle, Eye, History as HistoryIcon,
+  Stethoscope, Baby, HeartPulse, Microscope, Scan, Ambulance, Activity, Atom,
+  Building2, BedSingle, Bandage, Users, Scissors
 } from "lucide-react";
 import {
   Dialog,
@@ -43,11 +46,6 @@ import {
   buscarHistoria, atualizarHistoria, listarGaleriaHistoria, adicionarGaleriaHistoria, excluirGaleriaHistoria,
   type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia, type NumeroEstatistico, type ContaDoacao, type Servico, type Infraestrutura, type Historia, type HistoriaGaleria
 } from "@/services/mockApi";
-
-import { 
-  Stethoscope, Baby, HeartPulse, Microscope, Scan, Ambulance, Activity, Atom,
-  Building2, BedSingle, Bandage, Users, Scissors
-} from "lucide-react";
 
 const iconOptions = [
   { value: "Ambulance", label: "Urgência", icon: Ambulance },
