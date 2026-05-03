@@ -13,6 +13,23 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'online', message: 'Servidor da Santa Casa operando corretamente' });
 });
 
+// Rota para testar a conexão real com o Banco de Dados
+app.get('/api/db-test', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT 1 as test');
+    res.json({ success: true, message: 'Conexão com o banco estabelecida com sucesso!', data: rows });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Falha na conexão com o banco', 
+      error: error.message,
+      code: error.code,
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER
+    });
+  }
+});
+
 // ==========================================
 // AUTH (MOCK SIMPLES -> EM BREVE COM BCRYPT E JWT)
 // ==========================================
