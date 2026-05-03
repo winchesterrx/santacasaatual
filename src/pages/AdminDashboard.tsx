@@ -1467,10 +1467,13 @@ const HistoriaPanel = () => {
 const ConfiguracoesPanel = () => {
   const [configs, setConfigs] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
+    setLoading(true);
     const data = await listarConfiguracoes();
-    setConfigs(data);
+    setConfigs(data || {});
+    setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
@@ -1495,11 +1498,23 @@ const ConfiguracoesPanel = () => {
     }
   };
 
+  if (loading) return <div className="p-10 text-center text-navy font-bold">Carregando configurações...</div>;
+
+  const socialFields = [
+    { chave: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, color: 'emerald' },
+    { chave: 'telefone', label: 'Telefone', icon: Activity, color: 'navy' },
+    { chave: 'email', label: 'E-mail', icon: Send, color: 'navy' },
+    { chave: 'endereco', label: 'Endereço', icon: Landmark, color: 'navy' },
+    { chave: 'facebook', label: 'Facebook', icon: Facebook, color: 'secondary' },
+    { chave: 'instagram', label: 'Instagram', icon: Instagram, color: 'secondary' },
+    { chave: 'youtube', label: 'YouTube', icon: Youtube, color: 'secondary' },
+  ];
+
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Popup de Entrada */}
-        <div className="bg-card rounded-2xl border border-border/60 p-6 space-y-6">
+        <div className="bg-card rounded-2xl border border-border/60 p-6 space-y-6 lg:col-span-1 h-fit">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
               <MessageCircle className="w-5 h-5 text-amber-600" />
@@ -1507,14 +1522,10 @@ const ConfiguracoesPanel = () => {
             <h3 className="font-bold text-navy text-lg">Aviso de Entrada (Popup)</h3>
           </div>
 
-          <p className="text-sm text-muted-foreground">
-            Configure o aviso que aparece para todos os visitantes assim que entram no site.
-          </p>
-
           <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
             <div className="space-y-0.5">
               <label className="text-sm font-bold text-navy">Exibir Popup</label>
-              <p className="text-xs text-muted-foreground">Ativa ou desativa o popup no site</p>
+              <p className="text-xs text-muted-foreground">Ativar no site</p>
             </div>
             <Switch 
               checked={configs.popup_ativo === 'true'} 
@@ -1525,51 +1536,69 @@ const ConfiguracoesPanel = () => {
 
           <div className="space-y-3">
             <label className="text-sm font-bold text-navy">Imagem do Popup</label>
-            <div className="relative group">
-              <div className="aspect-[4/3] w-full rounded-xl overflow-hidden border-2 border-dashed border-border bg-slate-50 flex items-center justify-center">
-                {configs.popup_imagem ? (
-                  <img src={configs.popup_imagem} alt="Preview Popup" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="text-center">
-                    <UploadCloud className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                    <span className="text-xs text-muted-foreground">Sem imagem configurada</span>
-                  </div>
-                )}
-              </div>
+            <div className="relative group aspect-[4/3] rounded-xl overflow-hidden border-2 border-dashed border-border bg-slate-50">
+              {configs.popup_imagem ? (
+                <img src={configs.popup_imagem} alt="Preview Popup" className="w-full h-full object-cover" />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                  <UploadCloud className="w-8 h-8 text-muted-foreground mb-2" />
+                  <span className="text-xs text-muted-foreground">Sem imagem</span>
+                </div>
+              )}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <Button variant="secondary" size="sm" className="relative cursor-pointer">
                   <UploadCloud className="w-4 h-4 mr-2" />
-                  Trocar Imagem
-                  <Input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleImageUpload} 
-                    className="absolute inset-0 opacity-0 cursor-pointer" 
-                    disabled={saving}
-                  />
+                  Trocar
+                  <Input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" disabled={saving} />
                 </Button>
               </div>
             </div>
-            <p className="text-[10px] text-muted-foreground italic text-center">
-              * Recomendado: 800x600px ou similar. Máx 2MB.
-            </p>
           </div>
         </div>
 
-        {/* Outras Configurações (Placeholder para o futuro) */}
-        <div className="bg-card rounded-2xl border border-border/60 p-6 space-y-6 opacity-60 grayscale cursor-not-allowed">
-           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-              <Settings className="w-5 h-5 text-slate-600" />
+        {/* Contatos e Redes Sociais */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-card rounded-2xl border border-border/60 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                <Settings className="w-5 h-5 text-blue-600" />
+              </div>
+              <h3 className="font-bold text-navy text-lg">Contatos e Redes Sociais</h3>
             </div>
-            <h3 className="font-bold text-navy text-lg">Preferências do Site</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+              {socialFields.map(f => (
+                <div key={f.chave} className="space-y-2">
+                  <label className="text-xs font-black text-navy uppercase tracking-wider flex items-center gap-2">
+                    <f.icon className={`w-3.5 h-3.5 text-${f.color}`} /> {f.label}
+                  </label>
+                  <div className="flex gap-2">
+                    <Input 
+                      placeholder={`Link ou número do ${f.label}`}
+                      value={configs[f.chave] || ""} 
+                      onChange={(e) => setConfigs({ ...configs, [f.chave]: e.target.value })} 
+                      className="bg-muted/30 border-border/50 focus:border-emerald/50"
+                    />
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => handleUpdate(f.chave, configs[f.chave])}
+                      disabled={saving}
+                      className="hover:bg-emerald hover:text-white transition-colors"
+                    >
+                      {saving ? "..." : "Salvar"}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">Outras configurações globais estarão disponíveis aqui em breve.</p>
         </div>
       </div>
     </div>
   );
 };
+
 
 // ========================
 // Serviços Panel
@@ -1817,198 +1846,7 @@ const InfraestruturaPanel = () => {
   );
 };
 
-// ========================
-// Serviços Panel
-// ========================
-const ServicosPanel = () => {
-  const [items, setItems] = useState<Servico[]>([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState<Servico | null>(null);
-  const [form, setForm] = useState({ icone: "Ambulance", titulo: "", descricao: "", destaque: false, ordem: 0 });
 
-  const load = async () => setItems(await listarServicos());
-  useEffect(() => { load(); }, []);
-
-  const handleSave = async () => {
-    if (!form.titulo) return;
-    if (editingItem) {
-      await editarServico(editingItem.id, form);
-    } else {
-      await criarServico(form);
-    }
-    setShowForm(false);
-    setEditingItem(null);
-    setForm({ icone: "Ambulance", titulo: "", descricao: "", destaque: false, ordem: 0 });
-    load();
-  };
-
-  const handleEdit = (s: Servico) => {
-    setEditingItem(s);
-    setForm({ icone: s.icone, titulo: s.titulo, descricao: s.descricao, destaque: s.destaque, ordem: s.ordem });
-    setShowForm(true);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm("Deseja excluir este serviço?")) {
-      await excluirServico(id);
-      load();
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-navy">Especialidades e Serviços</h2>
-        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingItem(null); setForm({ icone: "Ambulance", titulo: "", descricao: "", destaque: false, ordem: 0 }); }}>
-          {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
-          {showForm ? "Cancelar" : "Novo Serviço"}
-        </Button>
-      </div>
-
-      {showForm && (
-        <div className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-semibold text-navy block mb-1">Ícone</label>
-              <Select value={form.icone} onValueChange={(val) => setForm({ ...form, icone: val })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {iconOptions.map(opt => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      <div className="flex items-center gap-2">
-                        <opt.icon className="w-4 h-4" /> {opt.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="md:col-span-2">
-              <label className="text-sm font-semibold text-navy block mb-1">Título do Serviço</label>
-              <Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} />
-            </div>
-          </div>
-          <div>
-            <label className="text-sm font-semibold text-navy block mb-1">Descrição</label>
-            <Textarea value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} rows={3} />
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Switch id="destaque" checked={form.destaque} onCheckedChange={(val) => setForm({ ...form, destaque: val })} />
-              <label htmlFor="destaque" className="text-sm font-medium">Destaque na Home</label>
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-navy inline-block mr-2">Ordem:</label>
-              <Input type="number" className="w-20 inline-block" value={form.ordem} onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })} />
-            </div>
-          </div>
-          <Button variant="navy-solid" onClick={handleSave}>Salvar Serviço</Button>
-        </div>
-      )}
-
-      <div className="bg-card rounded-2xl border border-border/60 overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Ícone</TableHead>
-              <TableHead>Título</TableHead>
-              <TableHead>Destaque</TableHead>
-              <TableHead>Ordem</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((s) => {
-              const Icon = iconMap[s.icone] || Stethoscope;
-              return (
-                <TableRow key={s.id}>
-                  <TableCell><Icon className="w-5 h-5 text-navy" /></TableCell>
-                  <TableCell className="font-bold text-navy">{s.titulo}</TableCell>
-                  <TableCell>{s.destaque ? <Star className="w-4 h-4 text-amber-500 fill-amber-500" /> : "-"}</TableCell>
-                  <TableCell>{s.ordem}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(s)}><Edit className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(s.id)}><Trash2 className="w-4 h-4" /></Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
-  );
-};
-
-// ========================
-// Configurações Panel
-// ========================
-const ConfiguracoesPanel = () => {
-  const [configs, setConfigs] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
-
-  const load = async () => {
-    setLoading(true);
-    const data = await listarConfiguracoes();
-    setConfigs(data || {});
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); }, []);
-
-  const handleSave = async (chave: string, valor: string) => {
-    await atualizarConfiguracao(chave, valor);
-    toast.success("Configuração atualizada!");
-    load();
-  };
-
-  if (loading) return <div className="p-10 text-center">Carregando configurações...</div>;
-
-  const fields = [
-    { chave: 'whatsapp', label: 'WhatsApp (Link ou Número)', icon: MessageCircle },
-    { chave: 'telefone', label: 'Telefone de Contato', icon: Activity },
-    { chave: 'email', label: 'E-mail Institucional', icon: Send },
-    { chave: 'endereco', label: 'Endereço Completo', icon: Landmark },
-    { chave: 'facebook', label: 'Link Facebook', icon: Facebook },
-    { chave: 'instagram', label: 'Link Instagram', icon: Instagram },
-    { chave: 'youtube', label: 'Link YouTube', icon: Youtube },
-  ];
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div className="space-y-6">
-        <h2 className="text-xl font-bold text-navy">Contatos e Endereço</h2>
-        {fields.slice(0, 4).map(f => (
-          <div key={f.chave} className="space-y-2">
-            <label className="text-sm font-semibold text-navy flex items-center gap-2">
-              <f.icon className="w-4 h-4 text-emerald" /> {f.label}
-            </label>
-            <div className="flex gap-2">
-              <Input value={configs[f.chave] || ""} onChange={(e) => setConfigs({ ...configs, [f.chave]: e.target.value })} />
-              <Button size="sm" variant="outline" onClick={() => handleSave(f.chave, configs[f.chave])}>Salvar</Button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="space-y-6">
-        <h2 className="text-xl font-bold text-navy">Redes Sociais</h2>
-        {fields.slice(4).map(f => (
-          <div key={f.chave} className="space-y-2">
-            <label className="text-sm font-semibold text-navy flex items-center gap-2">
-              <f.icon className="w-4 h-4 text-secondary" /> {f.label}
-            </label>
-            <div className="flex gap-2">
-              <Input value={configs[f.chave] || ""} onChange={(e) => setConfigs({ ...configs, [f.chave]: e.target.value })} />
-              <Button size="sm" variant="outline" onClick={() => handleSave(f.chave, configs[f.chave])}>Salvar</Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 // ========================
 // MAIN DASHBOARD COMPONENT
