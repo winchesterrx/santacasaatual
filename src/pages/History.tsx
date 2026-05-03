@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
-import { Award, Heart, History as HistoryIcon, Target, Eye, Users, Camera } from "lucide-react";
+import { Award, Heart, History as HistoryIcon, Target, Eye, Users, Camera, Quote, Activity, Clock, BedSingle, Stethoscope } from "lucide-react";
 import { buscarHistoria, listarGaleriaHistoria, type Historia as HistoriaType, type HistoriaGaleria } from "@/services/mockApi";
 
 const History = () => {
