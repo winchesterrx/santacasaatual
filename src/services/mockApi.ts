@@ -501,3 +501,40 @@ export async function loginAdmin(usuario: string, senha: string): Promise<{ succ
     return { success: false, message: 'Erro ao conectar ao servidor' };
   }
 }
+
+// ========================
+// História API
+// ========================
+
+export interface Historia {
+  id: number;
+  titulo: string;
+  subtitulo: string;
+  texto_historia: string;
+  missao: string;
+  visao: string;
+  valores: string;
+  imagem_principal: string;
+}
+
+export interface HistoriaGaleria {
+  id: number;
+  imagem_url: string;
+  legenda: string;
+  ordem: number;
+}
+
+export const buscarHistoria = () => fetchApi('/api/historia');
+export const atualizarHistoria = (data: Partial<Historia>) => fetchApi('/api/historia', {
+  method: 'PUT',
+  body: JSON.stringify(data)
+});
+
+export const listarGaleriaHistoria = () => fetchApi('/api/historia/galeria');
+export const adicionarGaleriaHistoria = (data: Partial<HistoriaGaleria>) => fetchApi('/api/historia/galeria', {
+  method: 'POST',
+  body: JSON.stringify(data)
+});
+export const excluirGaleriaHistoria = (id: number) => fetchApi(`/api/historia/galeria/${id}`, {
+  method: 'DELETE'
+});

@@ -1,13 +1,48 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
-import { Award, Heart, History as HistoryIcon, Target, Eye, Users } from "lucide-react";
+import { Award, Heart, History as HistoryIcon, Target, Eye, Users, Camera } from "lucide-react";
+import { buscarHistoria, listarGaleriaHistoria, type Historia as HistoriaType, type HistoriaGaleria } from "@/services/mockApi";
 
 const History = () => {
+  const [data, setData] = useState<HistoriaType | null>(null);
+  const [gallery, setGallery] = useState<HistoriaGaleria[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    const loadData = async () => {
+      try {
+        const [hist, gal] = await Promise.all([buscarHistoria(), listarGaleriaHistoria()]);
+        setData(hist);
+        setGallery(gal);
+      } catch (error) {
+        console.error("Erro ao carregar história", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
   }, []);
+
+  if (loading && !data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald"></div>
+      </div>
+    );
+  }
+
+  const historia = data || {
+    titulo: "Nossa História",
+    subtitulo: "Carregando...",
+    texto_historia: "",
+    missao: "Prestar assistência à saúde com humanização.",
+    visao: "Ser referência regional em saúde.",
+    valores: "Humanização, Ética, Excelência",
+    imagem_principal: "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop"
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -22,9 +57,9 @@ const History = () => {
         <section className="relative py-24 md:py-32 overflow-hidden bg-navy">
           <div className="absolute inset-0 z-0">
              <img 
-               src="https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop" 
+               src={historia.imagem_principal} 
                className="w-full h-full object-cover opacity-20" 
-               alt="Hospital Vintage"
+               alt="Fachada Santa Casa"
              />
              <div className="absolute inset-0 bg-gradient-to-b from-navy/50 to-navy" />
           </div>
@@ -33,11 +68,11 @@ const History = () => {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-emerald text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-sm">
               <HistoryIcon className="w-4 h-4" /> Desde 1960 servindo com amor
             </div>
-            <h1 className="text-4xl md:text-7xl font-black text-white mb-8 leading-tight">
-              Uma trajetória de <span className="text-emerald">Cuidado</span> e <span className="text-secondary">Dedicatória</span>
+            <h1 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight max-w-5xl mx-auto">
+              {historia.titulo}
             </h1>
-            <p className="text-primary-foreground/70 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed">
-              Há mais de seis décadas, a Santa Casa de Paulo de Faria é o pilar da saúde em nossa região, unindo tradição, tecnologia e um profundo compromisso com a vida humana.
+            <p className="text-primary-foreground/70 max-w-3xl mx-auto text-lg md:text-xl leading-relaxed italic">
+              "{historia.subtitulo}"
             </p>
           </div>
         </section>
@@ -45,51 +80,19 @@ const History = () => {
         {/* Timeline / Content */}
         <section className="py-20 md:py-32">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
-              <div className="relative">
-                <div className="aspect-square rounded-[48px] overflow-hidden shadow-2xl relative z-10">
-                  <img 
-                    src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2070&auto=format&fit=crop" 
-                    className="w-full h-full object-cover" 
-                    alt="Santa Casa Antiga"
-                  />
-                </div>
-                <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-emerald/10 rounded-[48px] -z-0 blur-2xl" />
-                <div className="absolute -top-8 -left-8 w-64 h-64 bg-secondary/10 rounded-[48px] -z-0 blur-2xl" />
-              </div>
-              
-              <div className="space-y-8">
-                <h2 className="text-3xl md:text-5xl font-black text-navy leading-tight">
-                  Nossa <span className="text-emerald">Origem</span>
-                </h2>
-                <p className="text-slate-600 text-lg leading-relaxed">
-                  A Irmandade da Santa Casa de Misericórdia de Paulo de Faria nasceu do sonho de uma comunidade que acreditava no acesso digno à saúde para todos. Desde os primeiros passos, nossa instituição foi moldada pela filantropia e pelo espírito de ajuda mútua.
-                </p>
-                <p className="text-slate-600 text-lg leading-relaxed">
-                  Ao longo dos anos, evoluímos de um pequeno posto de atendimento para um Hospital Geral de referência, mantendo sempre a essência de acolhimento que nos define. Hoje, atendemos milhares de pessoas anualmente pelo SUS, garantindo que a excelência médica chegue a quem mais precisa.
-                </p>
-                <div className="flex items-center gap-4 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm group hover:shadow-md transition-shadow">
-                   <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
-                      <Award className="w-8 h-8" />
-                   </div>
-                   <div>
-                      <h4 className="font-bold text-navy">Referência Regional</h4>
-                      <p className="text-sm text-slate-500">Reconhecida pela qualidade no atendimento e gestão hospitalar.</p>
-                   </div>
-                </div>
-              </div>
+            <div className="max-w-4xl mx-auto mb-32">
+              <div className="prose prose-slate prose-lg max-w-none text-slate-600 leading-relaxed" 
+                   dangerouslySetInnerHTML={{ __html: historia.texto_historia }} />
             </div>
 
             {/* Mission Vision Values */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">
                <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500">
                   <div className="w-16 h-16 rounded-2xl bg-emerald/10 flex items-center justify-center text-emerald mb-8">
                      <Target className="w-8 h-8" />
                   </div>
                   <h3 className="text-2xl font-black text-navy mb-4">Missão</h3>
-                  <p className="text-slate-500 leading-relaxed">
-                    Prestar assistência à saúde de forma humanizada, resolutiva e sustentável, promovendo o bem-estar da comunidade com excelência e ética.
-                  </p>
+                  <p className="text-slate-500 leading-relaxed">{historia.missao}</p>
                </div>
 
                <div className="bg-navy p-10 rounded-[40px] shadow-2xl hover:-translate-y-2 transition-all duration-500">
@@ -97,9 +100,7 @@ const History = () => {
                      <Eye className="w-8 h-8" />
                   </div>
                   <h3 className="text-2xl font-black text-white mb-4">Visão</h3>
-                  <p className="text-primary-foreground/70 leading-relaxed">
-                    Ser reconhecida como a melhor instituição de saúde regional, destacando-se pela inovação, atendimento humanizado e segurança do paciente.
-                  </p>
+                  <p className="text-primary-foreground/70 leading-relaxed">{historia.visao}</p>
                </div>
 
                <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500">
@@ -107,14 +108,44 @@ const History = () => {
                      <Heart className="w-8 h-8" />
                   </div>
                   <h3 className="text-2xl font-black text-navy mb-4">Valores</h3>
-                  <ul className="space-y-3 text-slate-500">
-                    <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald" /> Humanização</li>
-                    <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald" /> Ética e Transparência</li>
-                    <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald" /> Excelência Técnica</li>
-                    <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald" /> Responsabilidade Social</li>
-                  </ul>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {historia.valores.split(',').map((v, i) => (
+                      <span key={i} className="px-3 py-1 bg-slate-50 text-slate-600 text-xs font-bold rounded-full border border-slate-100">
+                        {v.trim()}
+                      </span>
+                    ))}
+                  </div>
                </div>
             </div>
+
+            {/* Gallery Section */}
+            {gallery.length > 0 && (
+              <div className="mb-32">
+                <div className="flex items-center justify-between mb-12">
+                  <h2 className="text-3xl md:text-4xl font-black text-navy">Galeria <span className="text-emerald">Histórica</span></h2>
+                  <div className="flex items-center gap-2 text-slate-400">
+                    <Camera className="w-5 h-5" />
+                    <span className="text-sm font-bold uppercase tracking-widest">Memórias Registradas</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {gallery.map((item) => (
+                    <div key={item.id} className="group relative aspect-[4/3] rounded-[32px] overflow-hidden shadow-lg">
+                      <img 
+                        src={item.imagem_url} 
+                        alt={item.legenda} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                      />
+                      {item.legenda && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
+                          <p className="text-white font-bold text-sm leading-snug">{item.legenda}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Impact Numbers */}
             <div className="bg-emerald rounded-[48px] p-12 md:p-20 relative overflow-hidden">

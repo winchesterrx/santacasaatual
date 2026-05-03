@@ -511,6 +511,71 @@ app.put('/api/configuracoes/:chave', async (req, res) => {
   }
 });
 
+// ==========================================
+// PÁGINA HISTÓRIA
+// ==========================================
+app.get('/api/historia', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM pagina_historia WHERE id = 1');
+    res.json(rows[0] || {});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/historia', async (req, res) => {
+  try {
+    const { titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal } = req.body;
+    await db.query(
+      `INSERT INTO pagina_historia (id, titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal)
+       VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE 
+        titulo = VALUES(titulo), 
+        subtitulo = VALUES(subtitulo), 
+        texto_historia = VALUES(texto_historia),
+        missao = VALUES(missao),
+        visao = VALUES(visao),
+        valores = VALUES(valores),
+        imagem_principal = VALUES(imagem_principal)`,
+      [titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/historia/galeria', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM historia_galeria ORDER BY ordem ASC, id DESC');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/historia/galeria', async (req, res) => {
+  try {
+    const { imagem_url, legenda, ordem } = req.body;
+    const [result] = await db.query(
+      'INSERT INTO historia_galeria (imagem_url, legenda, ordem) VALUES (?, ?, ?)',
+      [imagem_url, legenda || null, ordem || 0]
+    );
+    res.json({ id: result.insertId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/historia/galeria/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM historia_galeria WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Exporta o app usando ES Modules
 export default app;
 

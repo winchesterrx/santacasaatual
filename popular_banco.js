@@ -150,12 +150,76 @@ async function populate() {
           ordem INT DEFAULT 0
       )
     `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS pagina_historia (
+          id INT PRIMARY KEY,
+          titulo VARCHAR(255) NOT NULL,
+          subtitulo TEXT NULL,
+          texto_historia LONGTEXT NOT NULL,
+          missao TEXT NULL,
+          visao TEXT NULL,
+          valores TEXT NULL,
+          imagem_principal LONGTEXT NULL,
+          atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS historia_galeria (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          imagem_url LONGTEXT NOT NULL,
+          legenda VARCHAR(255) NULL,
+          ordem INT DEFAULT 0
+      )
+    `);
+
     console.log("✅ Todas as tabelas verificadas/criadas.");
 
     // Limpar tabelas existentes para evitar duplicatas
     await db.query("DELETE FROM servicos");
     await db.query("DELETE FROM infraestrutura");
+    // Não vamos limpar a pagina_historia se ela já tiver conteúdo customizado, 
+    // mas para o script de popular vamos garantir o conteúdo inicial.
     console.log("✅ Tabelas limpas.");
+
+    // Inserir Conteúdo Inicial da História
+    const textoHistoria = `
+<h3 class="text-2xl font-bold text-navy mb-4">1. Fundação e Contexto Institucional</h3>
+<p class="mb-6">A entidade foi oficialmente constituída em 16 de março de 1960. Sua fundação ocorreu em um período de amadurecimento administrativo da cidade, que buscava autonomia e infraestrutura própria para atender às demandas de saúde decorrentes do crescimento populacional e da atividade agrícola da época. Juridicamente, a Santa Casa é uma associação privada sem fins lucrativos, reconhecida como entidade filantrópica.</p>
+
+<h3 class="text-2xl font-bold text-navy mb-4">2. Liderança e Administração</h3>
+<p class="mb-4">A gestão da Irmandade é conduzida por uma Mesa Administrativa, órgão responsável pelas decisões estratégicas e pela manutenção da sustentabilidade institucional. Atualmente, a responsabilidade pela condução da entidade recai sobre:</p>
+<p class="mb-6"><strong>Provedor:</strong> Manoel Cosmo Santana (conhecido como Cosminho). O cargo de provedor, seguindo a tradição secular das Misericórdias, é uma função de liderança que coordena as relações entre o hospital, o poder público e a comunidade local, zelando pelo cumprimento da missão assistencial da casa.</p>
+
+<h3 class="text-2xl font-bold text-navy mb-4">3. Infraestrutura e Serviços</h3>
+<p class="mb-4">Sediada na Rua Zenha Ribeiro, 958, no centro de Paulo de Faria, a unidade funciona como um Hospital Geral. A estrutura é fundamental para o suporte de média e baixa complexidade na região, oferecendo:</p>
+<ul class="list-disc pl-6 mb-6 space-y-2">
+  <li>Atendimento de Urgência e Emergência 24 horas;</li>
+  <li>Internações clínicas e cirúrgicas;</li>
+  <li>Serviços de diagnóstico e terapia vinculados ao Sistema Único de Saúde (SUS).</li>
+</ul>
+
+<h3 class="text-2xl font-bold text-navy mb-4">4. Sustentabilidade e Relevância Social</h3>
+<p class="mb-6">A história da Santa Casa de Paulo de Faria é mantida por meio de um sistema misto de financiamento, que inclui repasses governamentais, convênios municipais e, historicamente, o apoio da sociedade civil. Eventos beneficentes e doações de produtores locais são práticas consolidadas que permitem a renovação de equipamentos e a manutenção das instalações, reforçando o hospital como um patrimônio coletivo da cidade.</p>
+    `.trim();
+
+    await db.query(`
+      INSERT INTO pagina_historia (id, titulo, subtitulo, texto_historia, missao, visao, valores, imagem_principal)
+      VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE 
+        titulo = VALUES(titulo), 
+        subtitulo = VALUES(subtitulo), 
+        texto_historia = VALUES(texto_historia)
+    `, [
+      "Registro Histórico: Irmandade da Santa Casa de Misericórdia de Paulo de Faria",
+      "A trajetória da Irmandade da Santa Casa de Misericórdia de Paulo de Faria é um pilar central na cronologia do município de Paulo de Faria, estado de São Paulo.",
+      textoHistoria,
+      "Prestar assistência à saúde de forma humanizada, resolutiva e sustentável, promovendo o bem-estar da comunidade com excelência e ética.",
+      "Ser reconhecida como a melhor instituição de saúde regional, destacando-se pela inovação, atendimento humanizado e segurança do paciente.",
+      "Humanização, Ética e Transparência, Excelência Técnica, Responsabilidade Social",
+      "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop"
+    ]);
 
     // Inserir Serviços
     for (const s of services) {

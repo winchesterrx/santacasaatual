@@ -40,7 +40,8 @@ import {
   listarServicos, criarServico, editarServico, excluirServico,
   listarInfraestrutura, criarInfraestrutura, editarInfraestrutura, excluirInfraestrutura,
   listarConfiguracoes, atualizarConfiguracao,
-  type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia, type NumeroEstatistico, type ContaDoacao, type Servico, type Infraestrutura
+  buscarHistoria, atualizarHistoria, listarGaleriaHistoria, adicionarGaleriaHistoria, excluirGaleriaHistoria,
+  type Manifestacao, type DocumentoTransparencia, type Noticia, type Depoimento, type DoacaoTransparencia, type NumeroEstatistico, type ContaDoacao, type Servico, type Infraestrutura, type Historia, type HistoriaGaleria
 } from "@/services/mockApi";
 
 import { 
@@ -109,6 +110,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="servicos" className="gap-2"><Stethoscope className="w-4 h-4" /> Especialidades</TabsTrigger>
             <TabsTrigger value="infraestrutura" className="gap-2"><Building2 className="w-4 h-4" /> Infraestrutura</TabsTrigger>
             <TabsTrigger value="numeros" className="gap-2"><TrendingUp className="w-4 h-4" /> Números</TabsTrigger>
+            <TabsTrigger value="historia" className="gap-2"><HistoryIcon className="w-4 h-4" /> História</TabsTrigger>
             <TabsTrigger value="configuracoes" className="gap-2"><Settings className="w-4 h-4" /> Configurações</TabsTrigger>
           </TabsList>
 
@@ -121,6 +123,7 @@ const AdminDashboard = () => {
           <TabsContent value="servicos"><ServicosPanel /></TabsContent>
           <TabsContent value="infraestrutura"><InfraestruturaPanel /></TabsContent>
           <TabsContent value="numeros"><NumerosPanel /></TabsContent>
+          <TabsContent value="historia"><HistoriaPanel /></TabsContent>
           <TabsContent value="configuracoes"><ConfiguracoesPanel /></TabsContent>
         </Tabs>
       </div>
@@ -1236,6 +1239,192 @@ const ContasPanel = () => {
 // ========================
 // Configuracoes Panel
 // ========================
+// ========================
+// História Panel
+// ========================
+const HistoriaPanel = () => {
+  const [data, setData] = useState<Historia | null>(null);
+  const [gallery, setGallery] = useState<HistoriaGaleria[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newImage, setNewImage] = useState({ imagem_url: "", legenda: "", ordem: 0 });
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const [hist, gal] = await Promise.all([buscarHistoria(), listarGaleriaHistoria()]);
+      setData(hist);
+      setGallery(gal);
+    } catch (err) {
+      toast.error("Erro ao carregar dados da história");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleSaveText = async () => {
+    if (!data) return;
+    try {
+      await atualizarHistoria(data);
+      toast.success("História atualizada com sucesso!");
+    } catch (err) {
+      toast.error("Erro ao salvar história");
+    }
+  };
+
+  const handleAddImage = async () => {
+    if (!newImage.imagem_url) {
+      toast.error("Selecione uma imagem primeiro");
+      return;
+    }
+    try {
+      await adicionarGaleriaHistoria(newImage);
+      setNewImage({ imagem_url: "", legenda: "", ordem: 0 });
+      load();
+      toast.success("Imagem adicionada à galeria!");
+    } catch (err) {
+      toast.error("Erro ao adicionar imagem");
+    }
+  };
+
+  const handleDeleteImage = async (id: number) => {
+    if (confirm("Deseja excluir esta imagem da galeria histórica?")) {
+      try {
+        await excluirGaleriaHistoria(id);
+        load();
+        toast.success("Imagem removida");
+      } catch (err) {
+        toast.error("Erro ao remover imagem");
+      }
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const base64 = await fileToBase64(file);
+      setNewImage({ ...newImage, imagem_url: base64 });
+    }
+  };
+
+  if (loading && !data) {
+    return (
+      <div className="flex items-center justify-center p-20">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-12 pb-20">
+      {/* Texto da História */}
+      <div className="bg-card rounded-2xl p-8 border border-border/60 space-y-6 shadow-sm">
+        <div className="flex items-center justify-between border-b pb-4">
+          <h2 className="text-xl font-bold text-navy flex items-center gap-2">
+            <HistoryIcon className="w-5 h-5 text-emerald" /> Conteúdo da Página História
+          </h2>
+          <Button variant="emerald-solid" onClick={handleSaveText} className="shadow-lg shadow-emerald/20">
+            Salvar Alterações de Texto
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1 uppercase tracking-wider">Título Principal</label>
+              <Input value={data?.titulo || ""} onChange={e => setData(d => d ? {...d, titulo: e.target.value} : null)} className="font-bold" />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-navy block mb-1 uppercase tracking-wider">Subtítulo / Introdução</label>
+              <Input value={data?.subtitulo || ""} onChange={e => setData(d => d ? {...d, subtitulo: e.target.value} : null)} />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-navy block mb-1 uppercase tracking-wider">Corpo do Registro Histórico (Aceita formatação HTML)</label>
+            <Textarea 
+              value={data?.texto_historia || ""} 
+              onChange={e => setData(d => d ? {...d, texto_historia: e.target.value} : null)} 
+              rows={15} 
+              className="font-mono text-sm leading-relaxed bg-slate-50" 
+              placeholder="Use tags <p>, <h3>, <ul>, <li> para formatar o texto."
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+          <div className="p-4 bg-emerald/5 rounded-xl border border-emerald/10">
+            <label className="text-sm font-black text-emerald block mb-2 uppercase tracking-widest">Nossa Missão</label>
+            <Textarea value={data?.missao || ""} onChange={e => setData(d => d ? {...d, missao: e.target.value} : null)} rows={4} className="bg-white" />
+          </div>
+          <div className="p-4 bg-navy/5 rounded-xl border border-navy/10">
+            <label className="text-sm font-black text-navy block mb-2 uppercase tracking-widest">Nossa Visão</label>
+            <Textarea value={data?.visao || ""} onChange={e => setData(d => d ? {...d, visao: e.target.value} : null)} rows={4} className="bg-white" />
+          </div>
+          <div className="p-4 bg-secondary/5 rounded-xl border border-secondary/10">
+            <label className="text-sm font-black text-secondary block mb-2 uppercase tracking-widest">Nossos Valores</label>
+            <Textarea value={data?.valores || ""} onChange={e => setData(d => d ? {...d, valores: e.target.value} : null)} rows={4} className="bg-white" placeholder="Separe por vírgula: Valor 1, Valor 2..." />
+          </div>
+        </div>
+      </div>
+
+      {/* Galeria de Fotos */}
+      <div className="bg-card rounded-2xl p-8 border border-border/60 space-y-6 shadow-sm">
+        <h2 className="text-xl font-bold text-navy flex items-center gap-2 border-b pb-4">
+          <Camera className="w-5 h-5 text-emerald" /> Galeria de Fotos Históricas
+        </h2>
+
+        <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 flex flex-col gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+             <div className="md:col-span-1">
+                <label className="text-sm font-semibold text-navy block mb-1">Upload da Foto</label>
+                <div className="flex items-center gap-4">
+                   <div className="relative flex-1">
+                      <Input type="file" accept="image/*" onChange={handleFileChange} className="bg-white pr-10" />
+                      <UploadCloud className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                   </div>
+                   {newImage.imagem_url && <img src={newImage.imagem_url} className="h-10 w-10 object-cover rounded-lg shadow-sm border border-white" />}
+                </div>
+             </div>
+             <div className="md:col-span-1">
+                <label className="text-sm font-semibold text-navy block mb-1">Legenda da Foto</label>
+                <Input value={newImage.legenda} onChange={e => setNewImage({...newImage, legenda: e.target.value})} placeholder="Ex: Inauguração da ala leste" className="bg-white" />
+             </div>
+             <div className="md:col-span-1 flex gap-2">
+                <div className="w-24">
+                   <label className="text-sm font-semibold text-navy block mb-1">Ordem</label>
+                   <Input type="number" value={newImage.ordem} onChange={e => setNewImage({...newImage, ordem: Number(e.target.value)})} className="bg-white" />
+                </div>
+                <Button variant="navy-solid" onClick={handleAddImage} className="flex-1">
+                  <Plus className="w-4 h-4 mr-1" /> Adicionar Foto
+                </Button>
+             </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 pt-4">
+          {gallery.map(img => (
+            <div key={img.id} className="relative group aspect-square rounded-2xl overflow-hidden border-2 border-white shadow-md hover:shadow-xl transition-all">
+              <img src={img.imagem_url} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+              <div className="absolute inset-0 bg-navy/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-4 text-center">
+                 <p className="text-[10px] text-white font-bold leading-tight">{img.legenda || "Sem legenda"}</p>
+                 <Button variant="ghost" size="sm" className="h-8 w-8 text-white hover:text-red-400 hover:bg-white/10 rounded-full" onClick={() => handleDeleteImage(img.id)}>
+                   <Trash2 className="w-4 h-4" />
+                 </Button>
+              </div>
+            </div>
+          ))}
+          {gallery.length === 0 && (
+            <div className="col-span-full py-12 text-center text-slate-400 font-medium">
+              Nenhuma imagem na galeria. Adicione fotos históricas acima.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ConfiguracoesPanel = () => {
   const [configs, setConfigs] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
