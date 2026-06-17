@@ -76,7 +76,8 @@ const SiteFooter = () => {
               <div className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-emerald mt-0.5 shrink-0" />
                 <div>
-                  <div className="text-xl font-extrabold text-navy">(17) 3292-1373</div>
+                  <div className="text-xl font-extrabold text-navy"> (17)3293-1373</div>
+                  <div className="text-xl font-extrabold text-navy"> (17)32921291</div>
                   <div className="text-xs text-muted-foreground">Central Telefônica</div>
                 </div>
               </div>
@@ -90,7 +91,7 @@ const SiteFooter = () => {
               <div className="flex items-start gap-3">
                 <Mail className="w-5 h-5 text-emerald mt-0.5 shrink-0" />
                 <div>
-                  <div className="text-sm font-medium text-navy">contato@santacasapaulodefaria.org.br</div>
+                  <div className="text-sm font-medium text-navy">santacasapf@hotmail.com</div>
                 </div>
               </div>
             </div>
@@ -104,7 +105,7 @@ const SiteFooter = () => {
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Rua Zenha Ribeiro, 958<br />
                 Centro — Paulo de Faria, SP<br />
-                CEP 15490-000
+                CEP 15490-009
               </p>
             </div>
             <div className="w-full h-36 rounded-xl bg-muted overflow-hidden">
