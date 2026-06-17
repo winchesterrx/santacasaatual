@@ -20,7 +20,7 @@ const SiteHeader = () => {
         <div className="container mx-auto flex items-center justify-between px-6 py-1.5">
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1.5">
-              <Phone className="w-3 h-3" /> (17) 3292-1373
+              <Phone className="w-3 h-3" /> (17) 3292-1373 / 192 
             </span>
             <span className="flex items-center gap-1.5">
               <Clock className="w-3 h-3" /> Pronto-Socorro 24h
@@ -72,7 +72,7 @@ const SiteHeader = () => {
         {mobileOpen && (
           <div className="lg:hidden border-t border-border bg-background px-6 pb-6 pt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
             <div className="flex items-center gap-3 text-xs text-muted-foreground pb-3 border-b border-border/60">
-              <Phone className="w-3 h-3" /> (17) 3292-1373
+              <Phone className="w-3 h-3" /> (17) 3292-1373 / 192
               <span className="mx-1">·</span>
               <Clock className="w-3 h-3" /> 24h
             </div>
