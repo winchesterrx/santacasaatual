@@ -181,13 +181,40 @@ const TransparenciaPanel = () => {
   const [docs, setDocs] = useState<DocumentoTransparencia[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingDoc, setEditingDoc] = useState<DocumentoTransparencia | null>(null);
-  const [form, setForm] = useState({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "", is_favorite: false });
+  const [form, setForm] = useState({ nome: "", descricao: "", categoria: "", subcategoria: "", dataPublicacao: "", arquivo: "", is_favorite: false });
   
   const [categoriasLista, setCategoriasLista] = useState<string[]>(() => {
     const saved = localStorage.getItem("sc_transparencia_categorias");
     return saved ? JSON.parse(saved) : ["Estrutura Organizacional", "Financeiro", "Contrato de Gestão", "Convênios", "Documentos Institucionais", "Editais"];
   });
+  // Subcategorias agora são objetos: { nome: string, categorias: string[] }
+  // Isso permite vincular uma subpasta a uma ou mais categorias
+  const [subcategoriasConfig, setSubcategoriasConfig] = useState<{nome: string; categorias: string[]}[]>(() => {
+    const saved = localStorage.getItem("sc_transparencia_subcategorias_v2");
+    if (saved) return JSON.parse(saved);
+    // defaults com associações iniciais
+    return [
+      { nome: "2025", categorias: ["Estrutura Organizacional", "Financeiro", "Contrato de Gestão", "Convênios", "Documentos Institucionais", "Editais"] },
+      { nome: "2024", categorias: ["Estrutura Organizacional", "Financeiro", "Contrato de Gestão", "Convênios", "Documentos Institucionais", "Editais"] },
+      { nome: "2023", categorias: ["Estrutura Organizacional", "Financeiro", "Contrato de Gestão", "Convênios", "Documentos Institucionais", "Editais"] },
+      { nome: "2022", categorias: ["Estrutura Organizacional", "Financeiro", "Contrato de Gestão", "Convênios", "Documentos Institucionais", "Editais"] },
+      { nome: "Geral", categorias: ["Estrutura Organizacional", "Financeiro", "Contrato de Gestão", "Convênios", "Documentos Institucionais", "Editais"] },
+    ];
+  });
+
+  const saveSubcategorias = (nova: {nome: string; categorias: string[]}[]) => {
+    setSubcategoriasConfig(nova);
+    localStorage.setItem("sc_transparencia_subcategorias_v2", JSON.stringify(nova));
+  };
+
+  // Subpastas disponíveis para a categoria selecionada no form
+  const subcategoriasDisponives = form.categoria
+    ? subcategoriasConfig.filter(s => s.categorias.includes(form.categoria))
+    : subcategoriasConfig;
+
   const [novaCat, setNovaCat] = useState("");
+  const [novaSub, setNovaSub] = useState("");
+  const [novaSubCats, setNovaSubCats] = useState<string[]>([]);
 
   const load = async () => setDocs(await listarDocumentos());
   useEffect(() => { load(); }, []);
@@ -213,13 +240,13 @@ const TransparenciaPanel = () => {
     }
     setShowForm(false);
     setEditingDoc(null);
-    setForm({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "", is_favorite: false });
+    setForm({ nome: "", descricao: "", categoria: "", subcategoria: "", dataPublicacao: "", arquivo: "", is_favorite: false });
     load();
   };
 
   const handleEdit = (doc: DocumentoTransparencia) => {
     setEditingDoc(doc);
-    setForm({ nome: doc.nome, descricao: doc.descricao || "", categoria: doc.categoria, dataPublicacao: doc.dataPublicacao, arquivo: doc.arquivo || "", is_favorite: doc.is_favorite || false });
+    setForm({ nome: doc.nome, descricao: doc.descricao || "", categoria: doc.categoria, subcategoria: doc.subcategoria || "", dataPublicacao: doc.dataPublicacao, arquivo: doc.arquivo || "", is_favorite: doc.is_favorite || false });
     setShowForm(true);
   };
 
@@ -232,7 +259,7 @@ const TransparenciaPanel = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-navy">Documentos de Transparência</h2>
-        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingDoc(null); setForm({ nome: "", descricao: "", categoria: "", dataPublicacao: "", arquivo: "", is_favorite: false }); }}>
+        <Button variant="navy-solid" onClick={() => { setShowForm(!showForm); setEditingDoc(null); setForm({ nome: "", descricao: "", categoria: "", subcategoria: "", dataPublicacao: "", arquivo: "", is_favorite: false }); }}>
           {showForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
           <span>{showForm ? "Cancelar" : "Novo Documento"}</span>
         </Button>
@@ -241,13 +268,13 @@ const TransparenciaPanel = () => {
       {showForm ? (
         <div key="transp-form" className="bg-card rounded-2xl p-6 border border-border/60 space-y-4">
           <h3 className="font-bold text-navy">{editingDoc ? "Editar Documento" : "Novo Documento"}</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-semibold text-navy block mb-1">Nome do Documento</label>
               <Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
             </div>
             <div>
-              <label className="text-sm font-semibold text-navy block mb-1">Categoria (Aba)</label>
+              <label className="text-sm font-semibold text-navy block mb-1">Categoria (Pasta)</label>
               <div className="flex gap-2">
                 <Select value={form.categoria} onValueChange={(val) => setForm({ ...form, categoria: val })}>
                   <SelectTrigger className="flex-1">
@@ -267,7 +294,7 @@ const TransparenciaPanel = () => {
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Gerenciar Categorias</DialogTitle>
+                      <DialogTitle>Gerenciar Categorias (Pastas)</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div className="flex gap-2">
@@ -302,12 +329,122 @@ const TransparenciaPanel = () => {
               </div>
             </div>
             <div>
-              <label className="text-sm font-semibold text-navy block mb-1">Data de Publicação</label>
-              <Input type="date" value={form.dataPublicacao} onChange={(e) => setForm({ ...form, dataPublicacao: e.target.value })} />
+              <label className="text-sm font-semibold text-navy block mb-1">Subpasta <span className="text-muted-foreground font-normal text-xs">(Ex: 2025, 2024, Geral)</span></label>
+              <div className="flex gap-2">
+                <Select value={form.subcategoria} onValueChange={(val) => setForm({ ...form, subcategoria: val })} disabled={!form.categoria}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder={form.categoria ? "Selecione a subpasta" : "Selecione a categoria primeiro"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subcategoriasDisponives.length === 0 ? (
+                      <div className="px-3 py-2 text-sm text-muted-foreground">
+                        Nenhuma subpasta vinculada a esta categoria.
+                      </div>
+                    ) : (
+                      subcategoriasDisponives.map(sub => (
+                        <SelectItem key={sub.nome} value={sub.nome}>{sub.nome}</SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="icon" title="Gerenciar Subpastas">
+                      <Settings className="w-4 h-4 text-navy" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle>Gerenciar Subpastas</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                      {/* Criar nova subpasta */}
+                      <div className="border rounded-xl p-4 space-y-3 bg-slate-50">
+                        <p className="text-sm font-bold text-navy">Nova Subpasta</p>
+                        <div className="flex gap-2">
+                          <Input placeholder="Ex: 2026, 1º Semestre, Geral..." value={novaSub} onChange={e => setNovaSub(e.target.value)} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-navy mb-2">Vincular às categorias:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {categoriasLista.map(cat => (
+                              <label key={cat} className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg border cursor-pointer transition-colors ${
+                                novaSubCats.includes(cat) ? "bg-emerald/10 border-emerald/40 text-emerald" : "bg-white border-border text-muted-foreground hover:border-navy/30"
+                              }`}>
+                                <input
+                                  type="checkbox"
+                                  className="sr-only"
+                                  checked={novaSubCats.includes(cat)}
+                                  onChange={e => setNovaSubCats(e.target.checked ? [...novaSubCats, cat] : novaSubCats.filter(c => c !== cat))}
+                                />
+                                {cat}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                        <Button size="sm" onClick={() => {
+                          if (!novaSub) return;
+                          if (subcategoriasConfig.some(s => s.nome === novaSub)) return;
+                          const nova = [...subcategoriasConfig, { nome: novaSub, categorias: novaSubCats }];
+                          saveSubcategorias(nova);
+                          setNovaSub("");
+                          setNovaSubCats([]);
+                        }}>Adicionar</Button>
+                      </div>
+
+                      {/* Lista de subpastas existentes */}
+                      <div className="max-h-64 overflow-y-auto space-y-2">
+                        {subcategoriasConfig.map(sub => (
+                          <div key={sub.nome} className="border rounded-xl p-3 bg-white">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-bold text-navy">{sub.nome}</span>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => {
+                                saveSubcategorias(subcategoriasConfig.filter(s => s.nome !== sub.nome));
+                                if (form.subcategoria === sub.nome) setForm({ ...form, subcategoria: "" });
+                              }}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {categoriasLista.map(cat => {
+                                const linked = sub.categorias.includes(cat);
+                                return (
+                                  <button
+                                    key={cat}
+                                    onClick={() => {
+                                      const updatedCats = linked
+                                        ? sub.categorias.filter(c => c !== cat)
+                                        : [...sub.categorias, cat];
+                                      const updated = subcategoriasConfig.map(s =>
+                                        s.nome === sub.nome ? { ...s, categorias: updatedCats } : s
+                                      );
+                                      saveSubcategorias(updated);
+                                    }}
+                                    className={`text-[11px] font-bold px-2 py-1 rounded border transition-colors ${
+                                      linked ? "bg-emerald/10 border-emerald/40 text-emerald" : "bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-400"
+                                    }`}
+                                  >
+                                    {linked ? "✓ " : "+ "}{cat}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           </div>
           <div>
+            <label className="text-sm font-semibold text-navy block mb-1">Data de Publicação</label>
+            <Input type="date" value={form.dataPublicacao} onChange={(e) => setForm({ ...form, dataPublicacao: e.target.value })} className="max-w-xs" />
+          </div>
+          <div>
             <label className="text-sm font-semibold text-navy block mb-1">Breve Descrição (Opcional)</label>
+
             <Textarea 
               placeholder="Ex: Documento referente ao 3º trimestre..." 
               value={form.descricao} 
@@ -345,6 +482,7 @@ const TransparenciaPanel = () => {
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Categoria</TableHead>
+              <TableHead>Subpasta</TableHead>
               <TableHead>Data</TableHead>
               <TableHead>Destaque</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -354,7 +492,14 @@ const TransparenciaPanel = () => {
             {docs.map((doc) => (
               <TableRow key={doc.id}>
                 <TableCell className="font-medium text-navy">{doc.nome}</TableCell>
-                <TableCell>{doc.categoria}</TableCell>
+                <TableCell className="text-xs">{doc.categoria}</TableCell>
+                <TableCell>
+                  {doc.subcategoria ? (
+                    <span className="text-xs bg-emerald/10 text-emerald font-bold px-2 py-0.5 rounded-full border border-emerald/20">
+                      {doc.subcategoria}
+                    </span>
+                  ) : <span className="text-xs text-muted-foreground">—</span>}
+                </TableCell>
                 <TableCell className="text-xs">{doc.dataPublicacao}</TableCell>
                 <TableCell>
                   {doc.is_favorite ? <Star className="w-4 h-4 text-amber-500 fill-amber-500" /> : null}

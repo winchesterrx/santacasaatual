@@ -15,6 +15,7 @@ import AllDonations from "./pages/AllDonations.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import TermsOfUse from "./pages/TermsOfUse.tsx";
 import Historia from "./pages/History.tsx";
+import NotaFiscalPaulista from "./pages/NotaFiscalPaulista.tsx";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
             <Route path="/termos-de-uso" element={<TermsOfUse />} />
             <Route path="/historia" element={<Historia />} />
+            <Route path="/nota-fiscal-paulista" element={<NotaFiscalPaulista />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

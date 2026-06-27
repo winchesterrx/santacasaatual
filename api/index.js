@@ -64,9 +64,9 @@ app.post('/api/ouvidoria', async (req, res) => {
     const { protocolo, cpf, tipo, assunto, mensagem } = req.body;
     const [result] = await db.query(
       'INSERT INTO ouvidoria_manifestacoes (protocolo, cpf, tipo, assunto, mensagem) VALUES (?, ?, ?, ?, ?)',
-      [protocolo, cpf, tipo, assunto, mensagem]
+      [protocolo, cpf || "", tipo, assunto, mensagem]
     );
-    res.json({ id: result.insertId });
+    res.json({ id: result.insertId, protocolo });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -100,10 +100,10 @@ app.get('/api/documentos', async (req, res) => {
 
 app.post('/api/documentos', async (req, res) => {
   try {
-    const { nome, categoria, data_publicacao, arquivo_url, is_favorite } = req.body;
+    const { nome, categoria, subcategoria, descricao, data_publicacao, arquivo_url, is_favorite } = req.body;
     const [result] = await db.query(
-      'INSERT INTO transparencia_documentos (nome, categoria, data_publicacao, arquivo_url, is_favorite) VALUES (?, ?, ?, ?, ?)',
-      [nome, categoria, data_publicacao, arquivo_url || null, is_favorite ? 1 : 0]
+      'INSERT INTO transparencia_documentos (nome, categoria, subcategoria, descricao, data_publicacao, arquivo_url, is_favorite) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [nome, categoria, subcategoria || null, descricao || null, data_publicacao, arquivo_url || null, is_favorite ? 1 : 0]
     );
     res.json({ id: result.insertId });
   } catch (error) {
@@ -114,16 +114,17 @@ app.post('/api/documentos', async (req, res) => {
 app.put('/api/documentos/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, categoria, data_publicacao, arquivo_url, is_favorite } = req.body;
+    const { nome, categoria, subcategoria, descricao, data_publicacao, arquivo_url, is_favorite } = req.body;
     await db.query(
-      'UPDATE transparencia_documentos SET nome = ?, categoria = ?, data_publicacao = ?, arquivo_url = ?, is_favorite = ? WHERE id = ?',
-      [nome, categoria, data_publicacao, arquivo_url || null, is_favorite ? 1 : 0, id]
+      'UPDATE transparencia_documentos SET nome = ?, categoria = ?, subcategoria = ?, descricao = ?, data_publicacao = ?, arquivo_url = ?, is_favorite = ? WHERE id = ?',
+      [nome, categoria, subcategoria || null, descricao || null, data_publicacao, arquivo_url || null, is_favorite ? 1 : 0, id]
     );
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 app.delete('/api/documentos/:id', async (req, res) => {
   try {

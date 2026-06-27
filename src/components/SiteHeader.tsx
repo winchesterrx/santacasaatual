@@ -6,6 +6,7 @@ const navItems = [
   { label: "História", href: "/historia" },
   { label: "Serviços", href: "/#servicos" },
   { label: "Transparência", href: "/transparencia" },
+  { label: "Nota Fiscal Paulista", href: "/nota-fiscal-paulista" },
   { label: "Ouvidoria e Contato", href: "/#ouvidoria" },
   { label: "Notícias", href: "/#noticias" },
 ];
@@ -20,13 +21,13 @@ const SiteHeader = () => {
         <div className="container mx-auto flex items-center justify-between px-6 py-1.5">
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1.5">
-              <Phone className="w-3 h-3" /> (17) 3292-1373 / 192 
+              <Phone className="w-3 h-3" /> (17) 3292-1373 / 192
             </span>
             <span className="flex items-center gap-1.5">
               <Clock className="w-3 h-3" /> Pronto-Socorro 24h
             </span>
           </div>
-          <span className="opacity-70">CNES: 3536602080869 · Hospital Geral</span>
+          <span className="opacity-70">CNES: 2080869 · Hospital Geral</span>
         </div>
       </div>
 
@@ -56,7 +57,7 @@ const SiteHeader = () => {
 
           {/* CTA */}
           <div className="hidden lg:flex">
-            <Button variant="cta" size="lg" className="rounded-full px-7" onClick={() => document.getElementById('doacoes')?.scrollIntoView({ behavior: 'smooth' })}>
+            <Button variant="cta" size="lg" className="rounded-full px-7" onClick={() => window.location.href = '/#doacoes'}>
               <Heart className="w-4 h-4 mr-1" />
               Doe Agora
             </Button>
@@ -86,7 +87,7 @@ const SiteHeader = () => {
                 {item.label}
               </a>
             ))}
-            <Button variant="cta" className="w-full rounded-full" onClick={() => { setMobileOpen(false); document.getElementById('doacoes')?.scrollIntoView({ behavior: 'smooth' }); }}>
+            <Button variant="cta" className="w-full rounded-full" onClick={() => { setMobileOpen(false); window.location.href = '/#doacoes'; }}>
               <Heart className="w-4 h-4 mr-1" />
               Doe Agora
             </Button>

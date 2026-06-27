@@ -18,6 +18,7 @@ export interface DocumentoTransparencia {
   id: string;
   nome: string;
   categoria: string;
+  subcategoria?: string;
   dataPublicacao: string;
   arquivo?: string;
   descricao?: string;
@@ -169,24 +170,27 @@ export async function listarDocumentos(): Promise<DocumentoTransparencia[]> {
       id: d.id.toString(),
       nome: d.nome,
       categoria: d.categoria,
+      subcategoria: d.subcategoria || undefined,
       dataPublicacao: new Date(d.data_publicacao).toISOString().split('T')[0],
       arquivo: d.arquivo_url,
+      descricao: d.descricao || undefined,
       is_favorite: d.is_favorite === 1 || d.is_favorite === true
     }));
   }, TTL_LONGO);
 }
 
 export async function criarDocumento(data: Omit<DocumentoTransparencia, "id">): Promise<any> {
-  const r = await fetchApi('/api/documentos', { method: 'POST', body: JSON.stringify({ nome: data.nome, categoria: data.categoria, data_publicacao: data.dataPublicacao, arquivo_url: data.arquivo || null, is_favorite: data.is_favorite }) });
+  const r = await fetchApi('/api/documentos', { method: 'POST', body: JSON.stringify({ nome: data.nome, categoria: data.categoria, subcategoria: data.subcategoria || null, descricao: data.descricao || null, data_publicacao: data.dataPublicacao, arquivo_url: data.arquivo || null, is_favorite: data.is_favorite }) });
   cacheInvalidate('documentos');
   return r;
 }
 
 export async function editarDocumento(id: string, data: Partial<DocumentoTransparencia>): Promise<any> {
-  const r = await fetchApi(`/api/documentos/${id}`, { method: 'PUT', body: JSON.stringify({ nome: data.nome, categoria: data.categoria, data_publicacao: data.dataPublicacao, arquivo_url: data.arquivo, is_favorite: data.is_favorite }) });
+  const r = await fetchApi(`/api/documentos/${id}`, { method: 'PUT', body: JSON.stringify({ nome: data.nome, categoria: data.categoria, subcategoria: data.subcategoria || null, descricao: data.descricao || null, data_publicacao: data.dataPublicacao, arquivo_url: data.arquivo, is_favorite: data.is_favorite }) });
   cacheInvalidate('documentos');
   return r;
 }
+
 
 export async function excluirDocumento(id: string): Promise<any> {
   const r = await fetchApi(`/api/documentos/${id}`, { method: 'DELETE' });

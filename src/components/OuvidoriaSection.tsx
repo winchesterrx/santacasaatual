@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MessageCircle, ClipboardList, Search, ChevronDown, ChevronUp, Send } from "lucide-react";
+import { MessageCircle, ClipboardList, Search, ChevronDown, ChevronUp, Send, Copy, Check } from "lucide-react";
 import { criarManifestacao, buscarPorProtocolo, buscarPorCpf, type Manifestacao } from "@/services/mockApi";
 
 const formatCpf = (value: string) => {
@@ -32,6 +32,15 @@ const OuvidoriaSection = () => {
   const [formData, setFormData] = useState({ cpf: "", tipo: "reclamacao" as Manifestacao["tipo"], assunto: "", mensagem: "" });
   const [submitted, setSubmitted] = useState<Manifestacao | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (submitted?.protocolo) {
+      navigator.clipboard.writeText(submitted.protocolo);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   // Search by protocol
   const [protocoloInput, setProtocoloInput] = useState("");
@@ -47,7 +56,7 @@ const OuvidoriaSection = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.cpf || !formData.assunto || !formData.mensagem) return;
+    if (!formData.assunto || !formData.mensagem) return;
     setSubmitting(true);
     const result = await criarManifestacao(formData);
     setSubmitted(result);
@@ -111,10 +120,28 @@ const OuvidoriaSection = () => {
                   <ClipboardList className="w-12 h-12 text-secondary mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-navy mb-2">Manifestação Registrada!</h3>
                   <p className="text-muted-foreground mb-4">Seu protocolo é:</p>
-                  <div className="text-2xl font-extrabold text-navy bg-card rounded-xl py-3 px-6 inline-block border border-border">
-                    {submitted.protocolo}
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="text-3xl font-extrabold text-white bg-emerald rounded-xl py-4 px-8 inline-block shadow-lg border border-emerald/20">
+                      {submitted.protocolo}
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={handleCopy} 
+                      className="h-16 w-16 rounded-xl border-emerald/20 hover:bg-emerald/10 shadow-sm" 
+                      title="Copiar Protocolo"
+                    >
+                      {copied ? <Check className="w-7 h-7 text-emerald" /> : <Copy className="w-7 h-7 text-navy" />}
+                    </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-4">Guarde este número para acompanhar o andamento.</p>
+                  <div className="mt-6 bg-amber-50 border border-amber-200 rounded-lg p-5 max-w-md mx-auto shadow-sm">
+                    <p className="text-sm text-amber-800 font-bold flex items-center justify-center gap-2 mb-2">
+                      <span className="text-xl">⚠️</span> Muito Importante:
+                    </p>
+                    <p className="text-sm text-amber-700 leading-relaxed">
+                      Anote ou tire um print do número do seu protocolo acima. Ele é a <strong>única forma</strong> de você acompanhar a resposta da sua manifestação no futuro.
+                    </p>
+                  </div>
                   <Button variant="outline" className="mt-6" onClick={() => { setSubmitted(null); setFormData({ cpf: "", tipo: "reclamacao", assunto: "", mensagem: "" }); }}>
                     Nova Manifestação
                   </Button>
@@ -123,12 +150,11 @@ const OuvidoriaSection = () => {
                 <form onSubmit={handleSubmit} className="space-y-5 bg-card rounded-2xl p-8 border border-border/60">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-semibold text-navy block mb-1.5">CPF</label>
+                      <label className="text-sm font-semibold text-navy block mb-1.5">CPF <span className="text-muted-foreground font-normal">(Opcional - Anônimo)</span></label>
                       <Input
                         placeholder="000.000.000-00"
                         value={formData.cpf}
                         onChange={(e) => setFormData({ ...formData, cpf: formatCpf(e.target.value) })}
-                        required
                       />
                     </div>
                     <div>

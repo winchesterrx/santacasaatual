@@ -25,13 +25,23 @@ CREATE TABLE IF NOT EXISTS ouvidoria_manifestacoes (
 );
 
 -- Criação da tabela de Transparência (Documentos)
+-- categoria = Pasta-pai (ex: "Editais", "Demonstrativos Financeiros")
+-- subcategoria = Subpasta (ex: "2025", "2024")
 CREATE TABLE IF NOT EXISTS transparencia_documentos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     categoria VARCHAR(100) NOT NULL,
+    subcategoria VARCHAR(100) NULL,
+    descricao TEXT NULL,
     data_publicacao DATE NOT NULL,
-    arquivo_url LONGTEXT NULL
+    arquivo_url LONGTEXT NULL,
+    is_favorite TINYINT(1) DEFAULT 0
 );
+
+-- Migração para bancos existentes (executa apenas se as colunas não existirem)
+-- ALTER TABLE transparencia_documentos ADD COLUMN subcategoria VARCHAR(100) NULL AFTER categoria;
+-- ALTER TABLE transparencia_documentos ADD COLUMN descricao TEXT NULL AFTER subcategoria;
+-- ALTER TABLE transparencia_documentos ADD COLUMN is_favorite TINYINT(1) DEFAULT 0 AFTER arquivo_url;
 
 -- Criação da tabela de Notícias
 CREATE TABLE IF NOT EXISTS noticias (
