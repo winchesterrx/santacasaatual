@@ -19,7 +19,7 @@ const SiteFooter = () => {
               Irmandade da Santa Casa de Misericórdia de Paulo de Faria
             </p>
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-              CNES: 3536602080869 · Hospital Geral<br />
+              CNES:2080869 · Hospital Geral<br />
               Tipo: Filantrópica · Atendimento SUS
             </p>
             <div className="flex gap-3">
