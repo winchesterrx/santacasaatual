@@ -57,8 +57,55 @@ const TypeBadge = ({ url }: { url?: string }) => {
   );
 };
 
+// ─── Safe URL Hook ────────────────────────────────────────────────────────────
+// Previne bloqueio de data: URIs pelo Chrome em iframes e detecta blobs mortos
+const useSafeFileUrl = (url?: string) => {
+  const [safeUrl, setSafeUrl] = useState<string>("");
+  const [isDeadBlob, setIsDeadBlob] = useState(false);
+
+  useEffect(() => {
+    if (!url) {
+      setSafeUrl("");
+      setIsDeadBlob(false);
+      return;
+    }
+    // Detecta blobs antigos do admin salvos incorretamente
+    if (url.startsWith("blob:")) {
+      setIsDeadBlob(true);
+      setSafeUrl(url);
+      return;
+    }
+    setIsDeadBlob(false);
+    
+    // Converte base64 de PDF para Blob URL para contornar restrição do Chrome iframe
+    if (url.startsWith("data:application/pdf")) {
+      try {
+        const arr = url.split(',');
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(blob);
+        setSafeUrl(blobUrl);
+        return () => URL.revokeObjectURL(blobUrl);
+      } catch(e) {
+        setSafeUrl(url);
+      }
+    } else {
+      setSafeUrl(url);
+    }
+  }, [url]);
+
+  return { safeUrl, isDeadBlob };
+};
+
 // ─── Viewer Modal ─────────────────────────────────────────────────────────────
 const VisualizarModal = ({ doc, open, onClose }: { doc: DocumentoTransparencia | null; open: boolean; onClose: () => void }) => {
+  const { safeUrl, isDeadBlob } = useSafeFileUrl(doc?.arquivo);
+
   if (!doc) return null;
   const tipo = detectFileType(doc.arquivo || "");
   return (
@@ -88,12 +135,22 @@ const VisualizarModal = ({ doc, open, onClose }: { doc: DocumentoTransparencia |
           )}
         </DialogHeader>
         <div className="flex-1 w-full overflow-auto bg-slate-50">
-          {tipo === "image" ? (
-            <img src={doc.arquivo} alt={doc.nome} className="w-full h-full object-contain p-6" />
+          {isDeadBlob ? (
+            <div className="flex flex-col items-center justify-center h-full gap-4 text-center p-8 bg-red-50/50">
+               <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
+                 <X className="w-8 h-8" />
+               </div>
+               <h3 className="text-lg font-bold text-red-900">Arquivo Corrompido</h3>
+               <p className="text-sm text-red-700/80 max-w-md">
+                 Este documento foi salvo incorretamente no sistema. Por favor, exclua-o e faça o upload novamente no Painel Administrativo.
+               </p>
+            </div>
+          ) : tipo === "image" ? (
+            <img src={safeUrl} alt={doc.nome} className="w-full h-full object-contain p-6" />
           ) : tipo === "pdf" ? (
             <div className="w-full h-full relative flex flex-col">
               <iframe 
-                src={doc.arquivo?.startsWith('http') ? `https://docs.google.com/viewer?url=${encodeURIComponent(doc.arquivo)}&embedded=true` : `${doc.arquivo}#toolbar=1&navpanes=0`} 
+                src={doc.arquivo?.startsWith('http') ? `https://docs.google.com/viewer?url=${encodeURIComponent(doc.arquivo)}&embedded=true` : `${safeUrl}#toolbar=1&navpanes=0`} 
                 className="w-full h-full border-none flex-1" 
                 title={doc.nome} 
               />
