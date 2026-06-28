@@ -24,7 +24,7 @@ export default function NotaFiscalPaulista() {
     {
       icon: <Search className="w-5 h-5" />,
       title: "Busque a Santa Casa",
-      desc: "Pesquise pelo nosso nome 'Santa Casa de Misericordia de Paulo de Faria' ou pelo CNPJ: 45.109.840/0001-44."
+      desc: "Pesquise pelo nosso nome 'Santa Casa de Misericordia de Paulo de Faria' ou pelo CNPJ: 53.782.355/0001-46."
     },
     {
       icon: <CheckCircle2 className="w-5 h-5" />,
@@ -47,7 +47,7 @@ export default function NotaFiscalPaulista() {
         <section className="pt-24 pb-20 bg-white relative overflow-hidden">
           {/* Subtle background element */}
           <div className="absolute top-0 right-0 -mt-20 -mr-20 w-[40rem] h-[40rem] bg-emerald/5 rounded-full blur-3xl pointer-events-none" />
-          
+
           <div className="container mx-auto px-6 relative z-10">
             <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
               <div className="flex-1 text-center lg:text-left">
@@ -63,8 +63,8 @@ export default function NotaFiscalPaulista() {
                 <p className="text-xl lg:text-2xl font-light mb-10 max-w-lg mx-auto lg:mx-0 text-slate-600 leading-relaxed">
                   Transforme seus cupons fiscais em esperança. <strong className="font-semibold text-navy">Sua doação salva vidas!</strong>
                 </p>
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="rounded-full px-8 bg-emerald hover:bg-emerald-dark text-white h-14 text-lg shadow-lg font-bold transition-all hover:scale-105"
                   onClick={() => document.getElementById('passo-a-passo')?.scrollIntoView({ behavior: 'smooth' })}
                 >
@@ -73,9 +73,9 @@ export default function NotaFiscalPaulista() {
               </div>
 
               <div className="flex-1 w-full max-w-lg mx-auto relative group flex items-center justify-center">
-                <img 
-                  src="/urna-nfp.png" 
-                  alt="Urna da Nota Fiscal Paulista" 
+                <img
+                  src="/urna-nfp.png"
+                  alt="Urna da Nota Fiscal Paulista"
                   className="w-full h-auto object-contain hover:-translate-y-2 transition-transform duration-500"
                 />
               </div>
@@ -88,17 +88,17 @@ export default function NotaFiscalPaulista() {
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-7xl mx-auto items-center">
               <a href="https://www.nfp.fazenda.sp.gov.br/login" target="_blank" rel="noopener noreferrer" className="block group">
-                <img 
-                  src="/banner-doe-nfp.png" 
-                  alt="Doe NFP - Transforme seus cupons fiscais em esperança" 
-                  className="w-full h-auto rounded-[2rem] shadow-lg group-hover:shadow-2xl group-hover:scale-[1.02] transition-all duration-300 object-cover border border-slate-100" 
+                <img
+                  src="/banner-doe-nfp.png"
+                  alt="Doe NFP - Transforme seus cupons fiscais em esperança"
+                  className="w-full h-auto rounded-[2rem] shadow-lg group-hover:shadow-2xl group-hover:scale-[1.02] transition-all duration-300 object-cover border border-slate-100"
                 />
               </a>
               <a href="https://sso.acesso.gov.br/" target="_blank" rel="noopener noreferrer" className="block group">
-                <img 
-                  src="/banner-gov-br.png" 
-                  alt="Acesse o sistema via Gov.br" 
-                  className="w-full h-auto rounded-[2rem] shadow-lg group-hover:shadow-2xl group-hover:scale-[1.02] transition-all duration-300 object-cover border border-slate-100" 
+                <img
+                  src="/banner-gov-br.png"
+                  alt="Acesse o sistema via Gov.br"
+                  className="w-full h-auto rounded-[2rem] shadow-lg group-hover:shadow-2xl group-hover:scale-[1.02] transition-all duration-300 object-cover border border-slate-100"
                 />
               </a>
             </div>
@@ -116,27 +116,27 @@ export default function NotaFiscalPaulista() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-              
+
               {/* VIDEO & INFO (Left Side) */}
               <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-8">
                 <div className="bg-white rounded-[2rem] overflow-hidden shadow-xl aspect-video border-4 border-white relative group">
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src="https://www.youtube.com/embed/ML8q3Xr3jlw" 
-                    title="Como doar Nota Fiscal Paulista" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube.com/embed/ML8q3Xr3jlw"
+                    title="Como doar Nota Fiscal Paulista"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   ></iframe>
                 </div>
 
                 <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
                   <div className="flex items-center gap-4 mb-4">
-                     <div className="w-12 h-12 rounded-full bg-emerald/10 flex items-center justify-center shrink-0">
-                       <HeartHandshake className="w-6 h-6 text-emerald" />
-                     </div>
-                     <h4 className="font-bold text-navy text-xl">Por que sua doação importa?</h4>
+                    <div className="w-12 h-12 rounded-full bg-emerald/10 flex items-center justify-center shrink-0">
+                      <HeartHandshake className="w-6 h-6 text-emerald" />
+                    </div>
+                    <h4 className="font-bold text-navy text-xl">Por que sua doação importa?</h4>
                   </div>
                   <p className="text-slate-600 leading-relaxed">
                     Os recursos arrecadados através da doação automática da Nota Fiscal Paulista são fundamentais para a manutenção dos nossos atendimentos e para a compra de insumos hospitalares. <strong>Não custa nada para você, mas vale muito para quem precisa!</strong>
@@ -148,8 +148,8 @@ export default function NotaFiscalPaulista() {
               <div className="lg:col-span-7">
                 <div className="flex flex-col gap-6">
                   {steps.map((step, idx) => (
-                    <div 
-                      key={idx} 
+                    <div
+                      key={idx}
                       className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-6 md:gap-8 items-start hover:shadow-lg transition-all group"
                     >
                       <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald/10 text-emerald font-black text-xl shrink-0 group-hover:bg-emerald group-hover:text-white transition-colors">
@@ -165,9 +165,9 @@ export default function NotaFiscalPaulista() {
                         </p>
                         {step.action && (
                           <div className="mt-4">
-                            <a 
-                              href={step.action.url} 
-                              target="_blank" 
+                            <a
+                              href={step.action.url}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald/10 text-emerald font-bold rounded-xl hover:bg-emerald hover:text-white transition-colors text-sm"
                             >
@@ -180,7 +180,7 @@ export default function NotaFiscalPaulista() {
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="mt-12 bg-navy rounded-3xl p-8 text-white text-center shadow-xl">
                   <h4 className="text-2xl font-bold mb-4">Ficou com alguma dúvida?</h4>
                   <p className="text-white/80 mb-6 max-w-md mx-auto">
