@@ -453,7 +453,7 @@ const Transparencia = () => {
                                   key={sub}
                                   nome={sub}
                                   documentos={docs}
-                                  defaultOpen={idx === 0}
+                                  defaultOpen={false}
                                   onVisualizar={(d) => { setDocModal(d); setModalOpen(true); }}
                                 />
                               ))
