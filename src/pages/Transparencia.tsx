@@ -77,8 +77,8 @@ const VisualizarModal = ({ doc, open, onClose }: { doc: DocumentoTransparencia |
           {doc.arquivo && (
             <a
               href={doc.arquivo}
-              download={tipo !== "external" ? doc.nome : undefined}
-              target={tipo === "external" ? "_blank" : undefined}
+              download={!doc.arquivo.startsWith("http") ? doc.nome : undefined}
+              target={doc.arquivo.startsWith("http") ? "_blank" : undefined}
               rel="noopener noreferrer"
               className="shrink-0 flex items-center gap-1.5 bg-emerald text-white text-xs font-bold py-1.5 px-3 rounded-lg hover:opacity-90 transition-opacity"
             >
@@ -91,7 +91,20 @@ const VisualizarModal = ({ doc, open, onClose }: { doc: DocumentoTransparencia |
           {tipo === "image" ? (
             <img src={doc.arquivo} alt={doc.nome} className="w-full h-full object-contain p-6" />
           ) : tipo === "pdf" ? (
-            <iframe src={`${doc.arquivo}#toolbar=1&navpanes=0`} className="w-full h-full border-none" title={doc.nome} />
+            <div className="w-full h-full relative flex flex-col">
+              <iframe 
+                src={doc.arquivo?.startsWith('http') ? `https://docs.google.com/viewer?url=${encodeURIComponent(doc.arquivo)}&embedded=true` : `${doc.arquivo}#toolbar=1&navpanes=0`} 
+                className="w-full h-full border-none flex-1" 
+                title={doc.nome} 
+              />
+              {doc.arquivo?.startsWith('http') && (
+                <div className="bg-amber-50 border-t border-amber-200 p-3 text-center shrink-0">
+                  <p className="text-sm text-amber-800">
+                    O documento não carregou? <a href={doc.arquivo} target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-amber-900">Clique aqui para abrir em uma nova aba</a>.
+                  </p>
+                </div>
+              )}
+            </div>
           ) : tipo === "external" ? (
             <div className="flex flex-col items-center justify-center h-full gap-6 p-8">
               <div className="w-24 h-24 rounded-3xl bg-violet-50 border border-violet-100 flex items-center justify-center">
@@ -127,7 +140,7 @@ const DocumentoItem = ({ doc, onVisualizar }: { doc: DocumentoTransparencia; onV
 
   const handleDownload = () => {
     if (!doc.arquivo) return;
-    if (tipo === "external") { window.open(doc.arquivo, "_blank", "noopener,noreferrer"); return; }
+    if (doc.arquivo.startsWith("http")) { window.open(doc.arquivo, "_blank", "noopener,noreferrer"); return; }
     const a = document.createElement("a");
     a.href = doc.arquivo;
     a.download = doc.nome;
