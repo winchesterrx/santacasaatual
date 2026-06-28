@@ -42,7 +42,7 @@ const AdminLogin = () => {
             <label className="text-sm font-semibold text-navy block mb-1.5">Usuário</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input className="pl-10" placeholder="admin" value={usuario} onChange={(e) => setUsuario(e.target.value)} required />
+              <Input className="pl-10" placeholder="Seu usuário" value={usuario} onChange={(e) => setUsuario(e.target.value)} required />
             </div>
           </div>
           <div>

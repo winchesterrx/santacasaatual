@@ -35,15 +35,27 @@ app.get('/api/db-test', async (req, res) => {
 // ==========================================
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { usuario, senha } = req.body;
+    // Validação estrita de tipos para evitar injeção de objetos (ex: MongoDB/NoSQL injection variants) e blindar inputs
+    const usuario = typeof req.body.usuario === 'string' ? req.body.usuario.trim() : '';
+    const senha = typeof req.body.senha === 'string' ? req.body.senha : '';
+
+    if (!usuario || !senha) {
+      return res.status(400).json({ success: false, message: 'Credenciais inválidas' });
+    }
+
+    // A query paramétrica (?) utiliza prepared statements do mysql2,
+    // garantindo proteção total contra ataques clássicos de SQL Injection.
     const [rows] = await db.query('SELECT * FROM usuarios WHERE usuario = ? AND senha_hash = ?', [usuario, senha]);
+    
     if (rows.length > 0) {
       res.json({ success: true, token: 'fake-jwt-token-santa-casa', user: rows[0] });
     } else {
       res.status(401).json({ success: false, message: 'Credenciais inválidas' });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // Esconder mensagens reais do banco de dados (Prevenção de Information Disclosure)
+    console.error('Erro no login:', error.message);
+    res.status(500).json({ success: false, message: 'Erro interno no servidor' });
   }
 });
 
