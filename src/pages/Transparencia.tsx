@@ -201,15 +201,22 @@ const SubpastaAccordion = ({
   nome,
   documentos,
   defaultOpen,
+  isSearching,
   onVisualizar,
 }: {
   nome: string;
   documentos: DocumentoTransparencia[];
   defaultOpen?: boolean;
+  isSearching?: boolean;
   onVisualizar: (d: DocumentoTransparencia) => void;
 }) => {
   const [open, setOpen] = useState(defaultOpen ?? false);
   const count = documentos.length;
+
+  useEffect(() => {
+    // Quando uma busca está ativa, abre as pastas para revelar os resultados encontrados
+    if (isSearching) setOpen(true);
+  }, [isSearching]);
 
   return (
     <div className={`rounded-xl border transition-colors overflow-hidden mb-2 last:mb-0 ${open ? "border-emerald/30 shadow-sm" : "border-slate-200"}`}>
@@ -227,14 +234,11 @@ const SubpastaAccordion = ({
         <span className="text-[11px] font-bold text-muted-foreground bg-slate-100 rounded-full px-2 py-0.5 mr-1">
           {count} {count === 1 ? "arquivo" : "arquivos"}
         </span>
-        {open
-          ? <ChevronDown className="w-4 h-4 text-emerald shrink-0" />
-          : <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
-        }
+        <ChevronDown className={`w-4 h-4 shrink-0 transition-transform duration-300 ${open ? "text-emerald rotate-0" : "text-slate-400 -rotate-90"}`} />
       </button>
 
-      {open && (
-        <div className="bg-white border-t border-emerald/10">
+      <div className={`grid transition-all duration-300 ease-in-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+        <div className="overflow-hidden bg-white border-t border-emerald/10">
           {documentos.length === 0 ? (
             <div className="px-5 py-6 text-center text-sm text-muted-foreground/60">
               Nenhum arquivo nesta subpasta.
@@ -245,7 +249,7 @@ const SubpastaAccordion = ({
             ))
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -454,6 +458,7 @@ const Transparencia = () => {
                                   nome={sub}
                                   documentos={docs}
                                   defaultOpen={false}
+                                  isSearching={!!search}
                                   onVisualizar={(d) => { setDocModal(d); setModalOpen(true); }}
                                 />
                               ))
